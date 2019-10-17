@@ -4,6 +4,7 @@ import { withRouter } from 'react-router-dom'
 import LogoAndText from 'components/common/LogoAndText'
 import EthFinexLogo from 'assets/svgs/ethfinex-logo.svg'
 import GENLogo from 'assets/svgs/GEN-logo.svg'
+import StarIcon from 'assets/svgs/star.svg'
 import styled from 'styled-components'
 
 const HeaderWrapper = styled.div`
@@ -37,15 +38,31 @@ const TotalRepWrapper = styled.div`
 `
 
 const TotalRepText = styled.div`
-  color: var(--white-text);
+  color: var(--enable-purple-text);
   font-family: Montserrat;
   font-style: normal;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 16px;
   line-height: 20px;
   text-align: center;
   margin: 24px 0px;
   letter-spacing: 1px;
+`
+
+const Star = styled.img`
+  height: 12px;
+  width: 12px;
+`
+
+const StarWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 20px;
+  width: 20px;
+  margin: 24px 12px 24px 0px;
+  border-radius: 12px;
+  border: 1px solid var(--enable-purple-text);
 `
 
 const ActiveButton = styled.div`
@@ -116,6 +133,9 @@ const Selector = ({ height }) => {
         </Button>
       </NavWrapper>
       <TotalRepWrapper>
+        <StarWrapper>
+          <Star src={StarIcon} />
+        </StarWrapper>
         <TotalRepText>{`Total Rewardable Reputation (Voting Power) - 1000000 REP`}</TotalRepText>
       </TotalRepWrapper>
     </HeaderWrapper>
