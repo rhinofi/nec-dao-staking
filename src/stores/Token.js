@@ -3,6 +3,23 @@ import { observable, action, computed } from 'mobx'
 import * as deployed from "../deployed";
 import * as helpers from "utils/helpers"
 import * as blockchain from "utils/blockchain"
+import * as log from 'loglevel';
+const objectPath = require("object-path");
+
+const fetch = {
+    balanceOf: '[Fetch] Balance Of',
+    allowance: '[Fetch] Allowance',
+}
+
+const error = {
+    balanceOf: '[Error] Balance Of',
+    allowance: '[Error] Allowance',
+}
+
+const complete = {
+    balanceOf: '[Complete] Balance Of',
+    allowance: '[Complete] Allowance',
+}
 
 export default class TokenStore {
     @observable symbols = {}
@@ -18,62 +35,47 @@ export default class TokenStore {
         return blockchain.loadObject('TestToken', tokenAddress, 'TestToken')
     }
 
-    hasMaxApprovalFlag(allowance) {
+    calcMaxApprovalFlag(allowance) {
         const amount = new helpers.BN(allowance)
         const max = new helpers.BN(helpers.MAX_UINT)
         return amount.gte(max.div(new helpers.BN(2)))
     }
 
     getMaxApprovalFlag(tokenAddress, owner, spender) {
-        return this.hasMaxApproval[tokenAddress][owner][spender].flag
+        return objectPath.get(this.hasMaxApproval, `${tokenAddress}.${owner}.${spender}`)
     }
 
     setMaxApprovalFlag(tokenAddress, owner, spender, flag) {
-        if (!this.hasMaxApproval[tokenAddress]) {
-            this.hasMaxApproval[tokenAddress] = {}
-        }
-
-        if (!this.hasMaxApproval[tokenAddress][owner]) {
-            this.hasMaxApproval[tokenAddress][owner] = {}
-        }
-
-        this.hasMaxApproval[tokenAddress][owner][spender] = flag
+        objectPath.set(this.hasMaxApproval, `${tokenAddress}.${owner}.${spender}`, flag)
     }
 
     setAllowanceProperty(tokenAddress, owner, spender, amount) {
-        if (!this.allowances[tokenAddress]) {
-            this.allowances[tokenAddress] = {}
-        }
-
-        if (!this.allowances[tokenAddress][owner]) {
-            this.allowances[tokenAddress][owner] = {}
-        }
-
-        this.allowances[tokenAddress][owner][spender] = amount
+        console.log(this.allowances)
+        objectPath.set(this.allowances, `${tokenAddress}.${owner}.${spender}`, amount)
     }
 
     setBalanceProperty(tokenAddress, account, balance) {
-        if (!this.balances[tokenAddress]) {
-            this.balances[tokenAddress] = {}
-        }
-
-        this.balances[tokenAddress][account] = balance
+        objectPath.set(this.balances, `${tokenAddress}.${account}`, balance)
     }
 
     hasBalance(tokenAddress, account) {
-        if (!this.balances[tokenAddress]) {
+        if (objectPath.get(this.balances, `${tokenAddress}.${account}`)) {
+            return true
+        } else {
             return false
         }
+    }
 
-        if (!this.balances[tokenAddress][account]) {
+    hasAllowance(tokenAddress, owner, spender) {
+        if (objectPath.get(this.allowances, `${tokenAddress}.${owner}.${spender}`)) {
+            return true
+        } else {
             return false
         }
-
-        return true
     }
 
     getBalance(tokenAddress, account) {
-        return this.balances[tokenAddress][account]
+        return objectPath.get(this.balances, `${tokenAddress}.${account}`)
     }
 
     @action approveMax = async (tokenAddress, spender) => {
@@ -102,25 +104,37 @@ export default class TokenStore {
     }
 
     @action fetchSymbol = async (tokenAddress) => {
+        console.log('[Fetch] Symbol', tokenAddress)
         const token = this.loadContract(tokenAddress)
         const symbol = await token.methods.symbol().call()
         this.symbols[tokenAddress] = symbol
+        console.log('[Complete] Symbol', tokenAddress, symbol)
     }
 
     @action fetchBalanceOf = async (tokenAddress, account) => {
+        console.log('[Fetch] Balance Of', tokenAddress, account)
         const token = this.loadContract(tokenAddress)
         const balance = await token.methods.balanceOf(account).call()
         this.setBalanceProperty(tokenAddress, account, balance)
+        console.log('[Complete] Balance Of', tokenAddress, account, balance)
     }
 
     @action fetchAllowance = async (tokenAddress, account, spender) => {
+        console.log('[Fetch] Allowance', tokenAddress, account, spender)
         const token = this.loadContract(tokenAddress)
-        const allowance = await token.methods.allowance(account, spender).call()
-        const hasMaxApproval = this.hasMaxApprovalFlag(allowance)
 
-        this.setAllowanceProperty(tokenAddress, account, spender, allowance)
-        this.setMaxApprovalFlag(tokenAddress, account, spender, hasMaxApproval)
-        console.log('Allowance Property Set', tokenAddress, account, spender, allowance)
+        try {
+            const allowance = await token.methods.allowance(account, spender).call()
+            const hasMaxApproval = this.calcMaxApprovalFlag(allowance)
+
+            console.log('[Complete] Allowance', tokenAddress, account, spender, allowance, hasMaxApproval)
+
+            this.setAllowanceProperty(tokenAddress, account, spender, allowance)
+            this.setMaxApprovalFlag(tokenAddress, account, spender, hasMaxApproval)
+        } catch (e) {
+            log.error(error.allowance, e)
+        }
+
     }
 
     getAllowance = (tokenAddress, account, spender) => {

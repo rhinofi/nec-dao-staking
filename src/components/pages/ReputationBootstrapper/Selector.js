@@ -28,6 +28,23 @@ const NavWrapper = styled.div`
   flex-direction: row;
 `
 
+const TotalRepWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+`
+
+const TotalRepText = styled.div`
+  color: var(--white-text);
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 20px;
+  text-align: center;
+  margin: 20px 0px;
+  letter-spacing: 1px;
+`
+
 const ActiveButton = styled.div`
   display: flex;
   flex-direction: column;
@@ -95,6 +112,9 @@ const Selector = ({ height }) => {
           Bid GEN
         </Button>
       </NavWrapper>
+      <TotalRepWrapper>
+        <TotalRepText>{`Total Rewardable Reputation (Voting Power) - 1000000 REP`}</TotalRepText>
+      </TotalRepWrapper>
     </HeaderWrapper>
   )
 }

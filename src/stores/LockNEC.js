@@ -6,6 +6,7 @@ import * as blockchain from "utils/blockchain"
 import * as helpers from "utils/helpers"
 import abiDecoder from 'abi-decoder'
 import Big from 'big.js/big.mjs';
+import * as log from 'loglevel';
 
 const LOCK_EVENT = 'LockToken'
 const RELEASE_EVENT = 'Release'
@@ -96,6 +97,15 @@ export default class LockNECStore {
         return this.userLocks[userAddress].initialLoad
     }
 
+    isAuctionDataInitialLoadComplete(userAddress) {
+        return true
+        // if (!this.auctionData[userAddress]) {
+        //     return false
+        // }
+
+        // return this.auctionData[userAddress].initialLoad
+    }
+
     getLockingPeriodByTimestamp(startTime, batchTime, timestamp) {
 
         const startTimeBN = new BN(startTime)
@@ -144,6 +154,10 @@ export default class LockNECStore {
     }
 
     getUserTokenLocks(userAddress) {
+        if (!this.userLocks[userAddress]) {
+            this.userLocks[userAddress] = this.initializeUserLocksObject()
+        }
+
         return this.userLocks[userAddress]
     }
 
@@ -265,10 +279,12 @@ export default class LockNECStore {
         }
     }
 
-    lock = async (provider, amount, duration, batchId) => {
+    lock = async (amount, duration, batchId) => {
         const contract = this.loadContract()
 
-        console.log('lock', amount, duration, batchId, AGREEMENT_HASH)
+        console.log(
+            '[Action] Lock',
+            `amount: ${amount} \n duration: ${duration} \n batchId:${batchId} \n agreementHash: ${AGREEMENT_HASH}`)
         try {
             await contract.methods.lock(amount, duration, batchId, AGREEMENT_HASH).send()
         } catch (e) {
