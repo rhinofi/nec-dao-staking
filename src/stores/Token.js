@@ -24,6 +24,10 @@ export default class TokenStore {
         return amount.gte(max.div(new helpers.BN(2)))
     }
 
+    getMaxApprovalFlag(tokenAddress, owner, spender) {
+        return this.hasMaxApproval[tokenAddress][owner][spender].flag
+    }
+
     setMaxApprovalFlag(tokenAddress, owner, spender, flag) {
         if (!this.hasMaxApproval[tokenAddress]) {
             this.hasMaxApproval[tokenAddress] = {}

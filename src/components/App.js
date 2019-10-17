@@ -4,38 +4,42 @@ import {
   Switch,
   Route
 } from 'react-router-dom'
-import ReactDOM from 'react-dom'
-import { Provider } from 'mobx-react'
+import { inject, observer } from 'mobx-react'
 import 'components/App.scss'
 import ReputationBoostrapper from './pages/ReputationBootstrapper'
-import rootStore from '../stores/Root'
+
+window.ethereum.on('accountsChanged', async (accounts) => {
+  window.location.reload()
+})
+
+@inject('root')
+@observer
 
 class App extends React.Component {
-  componentDidUpdate = prevProps => {
-    if (this.props.location.pathname !== prevProps.location.pathname) {
-      window.scrollTo(0, 0);
+  async componentDidMount() {
+    const { providerStore } = this.props.root
+    if (!providerStore.defaultAccount) {
+      await providerStore.setWeb3WebClient()
     }
   }
 
   render() {
-    const { providerStore } = rootStore
-    const defaultAccount = providerStore.getDefaultAccount()
+    const { providerStore } = this.props.root
 
-    if (!defaultAccount) {
-      providerStore.setWeb3WebClient()
-      return <div></div>
+    if (!providerStore.defaultAccount) {
+      return <div>Loading Provider...</div>
     }
 
     return (
-      <Provider root={rootStore}>
-        <HashRouter>
+      <HashRouter>
+        <div className="app-shell">
           <Switch>
             <Route path="/">
               <ReputationBoostrapper />
             </Route>
           </Switch>
-        </HashRouter>
-      </Provider>
+        </div>
+      </HashRouter>
     )
   }
 

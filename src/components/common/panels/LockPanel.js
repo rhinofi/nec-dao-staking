@@ -117,7 +117,7 @@ class LockPanel extends React.Component {
 
   setLockAmount(e) {
     const { lockFormStore } = this.props.root
-    lockFormStore.amount = helpers.toWei(e.target.value)
+    lockFormStore.amount = e.target.value
   }
 
   changeLockDuration(i) {
@@ -164,13 +164,16 @@ class LockPanel extends React.Component {
     )
   }
 
+  lockHandler() {
+
+  }
+
   render() {
-    const { lockNECStore, lockFormStore, providerStore, tokenStore } = this.props.root
+    const { lockNECStore, lockFormStore } = this.props.root
     const { buttonText } = this.props
     const { releaseableDate, rangeStart } = this.state
 
     const lockAmount = lockFormStore.amount
-    const weiAmount = helpers.toWei(lockAmount)
     const currentLockingPeriod = lockNECStore.getActiveLockingPeriod()
 
     return (
@@ -187,7 +190,7 @@ class LockPanel extends React.Component {
           <div>Releasable</div>
           <ReleaseableDate>{releaseableDate}</ReleaseableDate>
         </ReleaseableDateWrapper>
-        <Button onClick={lockNECStore.lock(weiAmount, rangeStart, currentLockingPeriod)}>
+        <Button onClick={() => { this.lockHandler() }}>
           {buttonText}
         </Button>
         {/* <div>Extend Lock</div>

@@ -79,7 +79,7 @@ class LockNEC extends React.Component {
     const necTokenAddress = deployed.NectarToken
     const schemeAddress = deployed.ContinuousLocking4Reputation
 
-    if (!lockNECStore.isPropertyInitialLoadComplete(propertyNames.STATIC_PARAMS)) {
+    if (!lockNECStore.isStaticParamsInitialLoadComplete()) {
       await lockNECStore.fetchStaticParams()
     }
 
@@ -87,7 +87,7 @@ class LockNEC extends React.Component {
     await tokenStore.fetchAllowance(necTokenAddress, userAddress, schemeAddress)
     await lockNECStore.fetchUserLocks(userAddress)
 
-    console.log(lockNECStore.isPropertyInitialLoadComplete(propertyNames.USER_LOCKS, userAddress))
+    console.log(lockNECStore.isUserLockInitialLoadComplete(userAddress))
   }
 
   setPeriodPercentage(value) {
@@ -99,6 +99,8 @@ class LockNEC extends React.Component {
   }
   generateTableRows(data) {
     const tableData = []
+
+    console.log(data)
 
     Object.keys(data).forEach(function (key, index) {
 
@@ -151,9 +153,9 @@ class LockNEC extends React.Component {
     const { lockNECStore, providerStore, tokenStore } = this.props.root
     const userAddress = providerStore.getDefaultAccount()
 
-    const staticParamsLoaded = lockNECStore.isPropertyInitialLoadComplete(propertyNames.STATIC_PARAMS)
+    const staticParamsLoaded = lockNECStore.isStaticParamsInitialLoadComplete()
 
-    const userLocksLoaded = lockNECStore.isPropertyInitialLoadComplete(propertyNames.USER_LOCKS)
+    const userLocksLoaded = lockNECStore.isUserLockInitialLoadComplete(userAddress)
     console.log(staticParamsLoaded, userLocksLoaded)
     if (!staticParamsLoaded || !userLocksLoaded) {
       return <div>Loading...</div>
@@ -162,7 +164,7 @@ class LockNEC extends React.Component {
     const currentPeriod = lockNECStore.getActiveLockingPeriod()
     const maxPeriods = lockNECStore.staticParams.numLockingPeriods
     const userLocks = lockNECStore.getUserTokenLocks(userAddress)
-    const tableData = this.generateTableRows(userLocks)
+    const tableData = this.generateTableRows(userLocks.data)
     const lockingStart = lockNECStore.staticParams.startTime
     const numPeriods = lockNECStore.staticParams.numLockingPeriods
     const periodLength = lockNECStore.staticParams.lockingPeriodLength

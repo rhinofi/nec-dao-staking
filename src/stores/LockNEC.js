@@ -21,10 +21,7 @@ export const statusCodes = {
     SUCCESS: 3
 }
 
-const defaultLoadingStatus = {
-    status: statusCodes.NOT_LOADED,
-    initialLoad: false
-}
+const defaultLoadingStatus = statusCodes.NOT_LOADED
 
 const defaultAsyncActions = {
     lock: false,
@@ -50,11 +47,9 @@ export default class LockNECStore {
     @observable userLocks = {}
     @observable auctionData = {}
 
-    // Status
-    @observable loadingStatus = {
-        staticParams: defaultLoadingStatus,
-        userLocks: defaultLoadingStatus,
-        auctionData: defaultLoadingStatus
+    @observable initialLoad = {
+        staticParams: false,
+        globalAuctionData: false,
     }
 
     @observable asyncActions = defaultAsyncActions
@@ -72,61 +67,33 @@ export default class LockNECStore {
         return this.asyncActions[propertyName]
     }
 
-    setLoadingStatus(propertyName, status, userAddress = null) {
-        if (propertyName === propertyNames.USER_LOCKS) {
-            if (!this.loadingStatus[propertyName][userAddress]) {
-                this.loadingStatus[propertyName][userAddress] = {}
-            }
-
-            this.loadingStatus[propertyName][userAddress] = {
-                ...this.loadingStatus[propertyName],
-                status
-            }
-        } else {
-            this.loadingStatus[propertyName] = {
-                ...this.loadingStatus[propertyName],
-                status
-            }
+    initializeUserLocksObject() {
+        return {
+            data: {},
+            initialLoad: false
         }
     }
 
-    setInitialLoad(propertyName, initialLoad, userAddress = null) {
-        if (propertyName === propertyNames.USER_LOCKS) {
-            if (!this.loadingStatus[propertyName][userAddress]) {
-                this.loadingStatus[propertyName][userAddress] = {}
-            }
-
-            this.loadingStatus[propertyName][userAddress].initialLoad = initialLoad
-            console.log('[Loading] Initial Load Set', propertyName, userAddress, initialLoad)
-        } else {
-            this.loadingStatus[propertyName].initialLoad = initialLoad
-            console.log('[Loading] Initial Load Set', propertyName, initialLoad)
+    setUserLocksProperty(userAddress, property, value) {
+        if (!this.userLocks[userAddress]) {
+            this.userLocks[userAddress] = this.initializeUserLocksObject()
         }
+
+        this.userLocks[userAddress][property] = value
+
+        console.log('[Set] UserLock', userAddress, property, value)
     }
 
-    isPropertyInitialLoadComplete(propertyName, userAddress = null) {
-        if (propertyName === propertyNames.USER_LOCKS) {
-            if (this.loadingStatus[propertyName][userAddress]) {
-                console.log('[Loading] Initial Load Read', propertyName, userAddress, this.loadingStatus[propertyName][userAddress].initialLoad)
-                return this.loadingStatus[propertyName][userAddress].initialLoad
-            } else {
-                console.log('[Loading] Initial Load Not Set', propertyName, userAddress, false)
-                return false
-            }
-
-        }
-        console.log('[Loading] Initial Load Read', propertyName, this.loadingStatus[propertyName].initialLoad)
-        return this.loadingStatus[propertyName].initialLoad
+    isStaticParamsInitialLoadComplete() {
+        return this.initialLoad.staticParams
     }
 
-    getLoadStatus(propertyName, userAddress = null) {
-        if (propertyName === propertyNames.USER_LOCKS) {
-            if (!this.loadingStatus[propertyName][userAddress]) {
-                return false
-            }
-            return this.loadingStatus[propertyName][userAddress].status
+    isUserLockInitialLoadComplete(userAddress) {
+        if (!this.userLocks[userAddress]) {
+            return false
         }
-        return this.loadingStatus[propertyName].status
+
+        return this.userLocks[userAddress].initialLoad
     }
 
     getLockingPeriodByTimestamp(startTime, batchTime, timestamp) {
@@ -146,10 +113,11 @@ export default class LockNECStore {
     }
 
     getActiveLockingPeriod() {
-        if (!this.isPropertyInitialLoadComplete(propertyNames.STATIC_PARAMS)) {
+        if (!this.initialLoad.staticParams) {
             throw new Error('Static properties must be loaded before fetching user locks')
         }
 
+        console.log('staticParams', this.staticParams)
         const startTime = new BN(this.staticParams.startTime)
         const batchTime = new BN(this.staticParams.lockingPeriodLength)
         const currentTime = new BN(Math.round((new Date()).getTime() / 1000))
@@ -163,7 +131,7 @@ export default class LockNECStore {
     }
 
     getTimeElapsed() {
-        if (!this.isPropertyInitialLoadComplete(propertyNames.STATIC_PARAMS)) {
+        if (!this.initialLoad.staticParams) {
             throw new Error('Static properties must be loaded before fetching user locks')
         }
 
@@ -182,13 +150,11 @@ export default class LockNECStore {
     fetchStaticParams = async () => {
         const contract = this.loadContract()
 
-        this.setLoadingStatus(propertyNames.STATIC_PARAMS, statusCodes.PENDING)
-
         try {
-            const numLockingPeriods = contract.methods.batchesIndexCap().call()
-            const lockingPeriodLength = contract.methods.batchTime().call()
-            const startTime = contract.methods.startTime().call()
-            const agreementHash = contract.methods.getAgreementHash().call()
+            const numLockingPeriods = await contract.methods.batchesIndexCap().call()
+            const lockingPeriodLength = await contract.methods.batchTime().call()
+            const startTime = await contract.methods.startTime().call()
+            const agreementHash = await contract.methods.getAgreementHash().call()
 
             this.staticParams = {
                 numLockingPeriods,
@@ -197,25 +163,20 @@ export default class LockNECStore {
                 agreementHash
             }
 
-            this.setLoadingStatus(propertyNames.STATIC_PARAMS, statusCodes.SUCCESS)
-            this.setInitialLoad(propertyNames.STATIC_PARAMS, true)
-
+            this.initialLoad.staticParams = true
         } catch (e) {
             console.log(e)
-            this.setLoadingStatus(propertyNames.STATIC_PARAMS, statusCodes.ERROR)
         }
     }
 
     @action fetchUserLocks = async (userAddress) => {
-        if (!this.isPropertyInitialLoadComplete(propertyNames.STATIC_PARAMS)) {
+        if (!this.initialLoad.staticParams) {
             throw new Error('Static properties must be loaded before fetching user locks')
         }
 
         const contract = this.loadContract()
 
         console.log('[Fetch] Fetching User Locks', userAddress)
-
-        this.setLoadingStatus(propertyNames.USER_LOCKS, statusCodes.PENDING, userAddress)
 
         try {
             const data = {}
@@ -289,19 +250,17 @@ export default class LockNECStore {
             }
 
             console.log('[Fetch] User Locks', userAddress, data)
-            this.userLocks[userAddress] = data
 
-            this.setInitialLoad(propertyNames.USER_LOCKS, true, userAddress)
-            this.setLoadingStatus(propertyNames.USER_LOCKS, statusCodes.SUCCESS, userAddress)
+            this.setUserLocksProperty(userAddress, 'data', data)
+            this.setUserLocksProperty(userAddress, 'initialLoad', true)
 
         } catch (e) {
             console.log(e)
-            this.setLoadingStatus(propertyNames.USER_LOCKS, statusCodes.ERROR, userAddress)
         }
     }
 
     @action getAuctionData = async (userAddress) => {
-        if (!this.isPropertyInitialLoadComplete(propertyNames.STATIC_PARAMS)) {
+        if (!this.initialLoad.staticParams) {
             throw new Error('Static properties must be loaded before fetching user locks')
         }
     }
