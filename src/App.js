@@ -9,9 +9,9 @@ import {
 
 import ReputationBootstrapper from 'components/pages/ReputationBootstrapper'
 
-// window.ethereum.on('accountsChanged', async (accounts) => {
-//   window.location.reload()
-// })
+window.ethereum.on('accountsChanged', async (accounts) => {
+  window.location.reload()
+})
 
 @inject('root')
 @observer
@@ -25,8 +25,9 @@ class App extends React.Component {
 
   render() {
     const { providerStore } = this.props.root
+
     if (!providerStore.defaultAccount) {
-      return <div></div>
+      return <div>Loading Provider...</div>
     }
 
     return (

@@ -1,5 +1,6 @@
 import { observable, action, computed } from 'mobx'
 import * as blockchain from '../utils/blockchain'
+import TimeStore from './Time';
 
 export default class ProviderStore {
     @observable provider = false;
@@ -26,7 +27,9 @@ export default class ProviderStore {
         this.accounts = accounts
         this.defaultAccount = account
 
-        debugger
+        await this.rootStore.timeStore.fetchCurrentTime()
+        await this.rootStore.timeStore.fetchCurrentBlock()
+
         this.rootStore.setClockUpdateInteral()
         this.rootStore.setBlockUpdateInteral()
     }

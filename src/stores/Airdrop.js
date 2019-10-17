@@ -115,6 +115,10 @@ export default class AirdropStore {
         return blockchain.loadObject('ReputationFromToken', deployed.ReputationFromToken, 'ReputationFromToken')
     }
 
+    getSnapshotBlock() {
+        return this.staticParams.snapshotBlock
+    }
+
     getSnapshotBalance(userAddress) {
         return this.userData[userAddress].snapshotBalance
     }
@@ -133,11 +137,11 @@ export default class AirdropStore {
         this.setLoadingStatus(propertyNames.STATIC_PARAMS, statusCodes.PENDING)
 
         try {
-            const snapshotBlock = contract.methods.blockReference().call()
-            const snapshotTotalSupplyAt = contract.methods.totalTokenSupplyAt().call()
-            const claimStartTime = contract.methods.claimingStartTime().call()
-            const claimEndTime = contract.methods.claimingEndTime().call()
-            const totalRepReward = contract.methods.reputationReward().call()
+            const snapshotBlock = await contract.methods.blockReference().call()
+            const snapshotTotalSupplyAt = await contract.methods.totalTokenSupplyAt().call()
+            const claimStartTime = await contract.methods.claimingStartTime().call()
+            const claimEndTime = await contract.methods.claimingEndTime().call()
+            const totalRepReward = await contract.methods.reputationReward().call()
 
             this.staticParams = {
                 snapshotBlock,
@@ -149,6 +153,7 @@ export default class AirdropStore {
 
             this.setLoadingStatus(propertyNames.STATIC_PARAMS, statusCodes.SUCCESS)
             this.setInitialLoad(propertyNames.STATIC_PARAMS, true)
+
 
         } catch (e) {
             console.log(e)

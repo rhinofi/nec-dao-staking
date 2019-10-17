@@ -68,6 +68,10 @@ export default class LockNECStore {
         this.asyncActions = defaultAsyncActions
     }
 
+    isAsyncActionPending(propertyName) {
+        return this.asyncActions[propertyName]
+    }
+
     setLoadingStatus(propertyName, status, userAddress = null) {
         if (propertyName === propertyNames.USER_LOCKS) {
             if (!this.loadingStatus[propertyName][userAddress]) {
@@ -92,27 +96,26 @@ export default class LockNECStore {
                 this.loadingStatus[propertyName][userAddress] = {}
             }
 
-            this.loadingStatus[propertyName][userAddress] = {
-                ...this.loadingStatus[propertyName],
-                initialLoad
-            }
+            this.loadingStatus[propertyName][userAddress].initialLoad = initialLoad
+            console.log('[Loading] Initial Load Set', propertyName, userAddress, initialLoad)
         } else {
-            this.loadingStatus[propertyName] = {
-                ...this.loadingStatus[propertyName],
-                initialLoad
-            }
+            this.loadingStatus[propertyName].initialLoad = initialLoad
+            console.log('[Loading] Initial Load Set', propertyName, initialLoad)
         }
     }
 
     isPropertyInitialLoadComplete(propertyName, userAddress = null) {
         if (propertyName === propertyNames.USER_LOCKS) {
             if (this.loadingStatus[propertyName][userAddress]) {
+                console.log('[Loading] Initial Load Read', propertyName, userAddress, this.loadingStatus[propertyName][userAddress].initialLoad)
                 return this.loadingStatus[propertyName][userAddress].initialLoad
             } else {
+                console.log('[Loading] Initial Load Not Set', propertyName, userAddress, false)
                 return false
             }
 
         }
+        console.log('[Loading] Initial Load Read', propertyName, this.loadingStatus[propertyName].initialLoad)
         return this.loadingStatus[propertyName].initialLoad
     }
 
@@ -210,6 +213,8 @@ export default class LockNECStore {
 
         const contract = this.loadContract()
 
+        console.log('[Fetch] Fetching User Locks', userAddress)
+
         this.setLoadingStatus(propertyNames.USER_LOCKS, statusCodes.PENDING, userAddress)
 
         try {
@@ -229,7 +234,7 @@ export default class LockNECStore {
             })
 
             const releaseEvents = await contract.getPastEvents(RELEASE_EVENT, {
-                filter: { _lockingId: userLockIds },
+                filter: { _beneficiary: userAddress },
                 fromBlock: 0,
                 toBlock: 'latest'
             })
@@ -283,6 +288,7 @@ export default class LockNECStore {
                 data[_lockingId].released = true
             }
 
+            console.log('[Fetch] User Locks', userAddress, data)
             this.userLocks[userAddress] = data
 
             this.setInitialLoad(propertyNames.USER_LOCKS, true, userAddress)

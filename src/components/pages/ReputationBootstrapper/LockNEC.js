@@ -79,10 +79,15 @@ class LockNEC extends React.Component {
     const necTokenAddress = deployed.NectarToken
     const schemeAddress = deployed.ContinuousLocking4Reputation
 
-    await lockNECStore.fetchStaticParams()
-    await lockNECStore.fetchUserLocks(userAddress)
+    if (!lockNECStore.isPropertyInitialLoadComplete(propertyNames.STATIC_PARAMS)) {
+      await lockNECStore.fetchStaticParams()
+    }
+
     await tokenStore.fetchBalanceOf(necTokenAddress, userAddress)
     await tokenStore.fetchAllowance(necTokenAddress, userAddress, schemeAddress)
+    await lockNECStore.fetchUserLocks(userAddress)
+
+    console.log(lockNECStore.isPropertyInitialLoadComplete(propertyNames.USER_LOCKS, userAddress))
   }
 
   setPeriodPercentage(value) {
@@ -149,9 +154,9 @@ class LockNEC extends React.Component {
     const staticParamsLoaded = lockNECStore.isPropertyInitialLoadComplete(propertyNames.STATIC_PARAMS)
 
     const userLocksLoaded = lockNECStore.isPropertyInitialLoadComplete(propertyNames.USER_LOCKS)
-
+    console.log(staticParamsLoaded, userLocksLoaded)
     if (!staticParamsLoaded || !userLocksLoaded) {
-      return <div></div>
+      return <div>Loading...</div>
     }
 
     const currentPeriod = lockNECStore.getActiveLockingPeriod()

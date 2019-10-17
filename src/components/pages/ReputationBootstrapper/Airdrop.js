@@ -88,15 +88,13 @@ class Airdrop extends React.Component {
   }
 
   calcDropVisuals() {
-    const { airdropStore } = this.props.root
+    const { airdropStore, timeStore } = this.props.root
 
     let dropPercentage = 0
     let dropTimer = '...'
 
     const dropBlock = airdropStore.staticParams.snapshotBlock
-    const latestBlock = helpers.getCurrentBlock()
-
-    debugger
+    const latestBlock = timeStore.currentBlock
 
     // Calculate the number of days and hours the dropBlock is from the current block
     const blockDiff = dropBlock - latestBlock
@@ -143,7 +141,9 @@ class Airdrop extends React.Component {
     const necBalance = airdropStore.getSnapshotBalance(userAddress)
     const necBalanceDisplay = helpers.fromWei(necBalance)
     const repBalance = airdropStore.getSnapshotRep(userAddress)
-    const dropBlock = airdropStore.snapshotBlock
+    const dropBlock = airdropStore.getSnapshotBlock()
+
+    console.log(dropBlock)
     const currentBlock = timeStore.currentBlock
     const dropVisuals = this.calcDropVisuals()
     const { dropPercentage, dropTimer } = dropVisuals
