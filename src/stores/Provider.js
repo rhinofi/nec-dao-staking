@@ -1,6 +1,21 @@
 import { observable, action, computed } from 'mobx'
 import * as blockchain from '../utils/blockchain'
-import TimeStore from './Time';
+import * as log from 'loglevel';
+
+const errors = {
+    setAccount: 'Set Account Failed',
+    setWeb3WebClient: 'Set Web3Client Failed'
+}
+
+const fetchStart = {
+    setAccount: '[Fetch] Set Account',
+    setWeb3WebClient: '[Fetch] Web3Client'
+}
+
+const fetchEnd = {
+    setAccount: '[Complete] Set Account',
+    setWeb3WebClient: '[Complete] Web3Client'
+}
 
 export default class ProviderStore {
     @observable provider = false;
@@ -13,9 +28,11 @@ export default class ProviderStore {
 
     setNetwork = async () => {
         try {
+            log.info(fetchStart.setAccount)
             await this.setAccount();
+            log.info(fetchEnd.setAccount)
         } catch (e) {
-            console.log(e);
+            log.error(errors.setAccount, e);
         }
     }
 
@@ -41,10 +58,13 @@ export default class ProviderStore {
     // Web3 web client
     @action setWeb3WebClient = async () => {
         try {
+
+            log.info(fetchEnd.setWeb3WebClient)
             await blockchain.setWebClientProvider();
             await this.setNetwork();
+            log.info(fetchEnd.setWeb3WebClient)
         } catch (e) {
-            console.log(e);
+            log.error(errors.setWeb3WebClient, e);
         }
     }
 }
