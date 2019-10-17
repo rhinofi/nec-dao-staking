@@ -22,7 +22,7 @@ const Title = styled.div`
   font-size: 16px;
   line-height: 20px;
   text-align: center;
-  margin: 20px 0px;
+  margin: 32px 0px;
   letter-spacing: 1px;
 `
 
@@ -44,7 +44,7 @@ const TotalRepText = styled.div`
   font-size: 16px;
   line-height: 20px;
   text-align: center;
-  margin: 20px 0px;
+  margin: 24px 0px;
   letter-spacing: 1px;
 `
 
@@ -59,7 +59,7 @@ const ActiveButton = styled.div`
   font-weight: 500;
   font-size: 15px;
   line-height: 18px;
-  padding: 18px 0px;
+  padding: 9px 0px;
   width: 156px;
 `
 
