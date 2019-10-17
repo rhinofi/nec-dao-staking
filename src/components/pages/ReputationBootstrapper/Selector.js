@@ -1,6 +1,9 @@
 import React from 'react'
 import { observer, inject } from 'mobx-react'
 import { withRouter } from 'react-router-dom'
+import LogoAndText from 'components/common/LogoAndText'
+import EthFinexLogo from 'assets/svgs/ethfinex-logo.svg'
+import GENLogo from 'assets/svgs/GEN-logo.svg'
 import styled from 'styled-components'
 
 const HeaderWrapper = styled.div`
@@ -103,13 +106,13 @@ const Selector = ({ height }) => {
       <Title>How do you want to earn Reputation for the NectarDAO?</Title>
       <NavWrapper>
         <Button option={1} route="/lock-nec">
-          Lock NEC
+          <LogoAndText icon={EthFinexLogo} text="Lock NEC" />
         </Button>
         <Button option={2} route="/airdrop">
-          Airdrop
+          <LogoAndText icon={EthFinexLogo} text="Airdrop" />
         </Button>
         <Button option={3} route="/bid-gen">
-          Bid GEN
+          <LogoAndText icon={GENLogo} text="Bid GEN" />
         </Button>
       </NavWrapper>
       <TotalRepWrapper>

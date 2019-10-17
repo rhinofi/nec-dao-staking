@@ -22,6 +22,7 @@ const LogoContainer = styled.div`
 
 const Logo = styled.img`
   width: 15px;
+  height: 15px;
 `
 
 const LogoAndText = ({ icon, text }) => {
