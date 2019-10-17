@@ -7,6 +7,7 @@ import LockFormStore from "./LockForm"
 import BidFormStore from "./BidForm"
 import TokenStore from "./Token"
 import TimeStore from "./Time"
+import * as deployed from 'deployed'
 
 class RootStore {
     constructor() {
@@ -30,12 +31,31 @@ class RootStore {
     setClockUpdateInteral = () => {
         this.clockUpdateInterval = setInterval(() => {
             this.timeStore.fetchCurrentTime();
-        }, 500);
+        }, 100);
     }
 
-    setBlockUpdateInteral = () => {
-        this.blockUpdateInterval = setInterval(() => {
+    setDataUpdateInterval = async (userAddress) => {
+        this.blockUpdateInterval = setInterval(async () => {
             this.timeStore.fetchCurrentBlock();
+            console.log(`data update for user ${userAddress}`)
+
+            const genTokenAddress = deployed.GenToken
+            const auctionSchemeAddress = deployed.Auction4Reputation
+            const necTokenAddress = deployed.NectarToken
+            const lockSchemeAddress = deployed.ContinuousLocking4Reputation
+
+            if (!this.bidGENStore.isPropertyInitialLoadComplete('staticParams')) {
+                await this.bidGENStore.fetchStaticParams()
+            }
+
+            await this.tokenStore.fetchBalanceOf(genTokenAddress, userAddress)
+            await this.tokenStore.fetchAllowance(genTokenAddress, userAddress, auctionSchemeAddress)
+            await this.bidGENStore.fetchAuctionData()
+
+            await this.tokenStore.fetchBalanceOf(necTokenAddress, userAddress)
+            await this.tokenStore.fetchAllowance(necTokenAddress, userAddress, lockSchemeAddress)
+            await this.lockNECStore.fetchUserLocks(userAddress)
+
         }, 3000);
     }
 

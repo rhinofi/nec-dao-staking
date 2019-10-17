@@ -48,7 +48,7 @@ export default class ProviderStore {
         await this.rootStore.timeStore.fetchCurrentBlock()
 
         this.rootStore.setClockUpdateInteral()
-        this.rootStore.setBlockUpdateInteral()
+        this.rootStore.setDataUpdateInterval(account)
     }
 
     getDefaultAccount = () => {
