@@ -49,7 +49,7 @@ class ReputationBoostrapper extends React.Component {
 
     return (
       <RootWrapper>
-        <Selector height="159px" />
+        <Selector height="196px" />
         <SectionWrapper>
           <Switch>
             <Route exact path="/lock-nec">
