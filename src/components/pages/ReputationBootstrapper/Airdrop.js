@@ -12,6 +12,13 @@ const propertyNames = {
   USER_DATA: 'userData'
 }
 
+const snapshotStatus = {
+  NOT_STARTED: 0,
+  SNAPSHOT_CONCLUDED: 1,
+  CLAIM_STARTED: 2,
+  CLAIM_ENDED: 3
+}
+
 const AirdropWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -87,17 +94,8 @@ class Airdrop extends React.Component {
     await airdropStore.fetchUserData(userAddress)
   }
 
-  calcDropVisuals() {
-    const { airdropStore, timeStore } = this.props.root
-
-    let dropPercentage = 0
-    let dropTimer = '...'
-
-    const dropBlock = airdropStore.staticParams.snapshotBlock
-    const latestBlock = timeStore.currentBlock
-
-    // Calculate the number of days and hours the dropBlock is from the current block
-    const blockDiff = dropBlock - latestBlock
+  calcSnapshotConcluded(snapshotBlock, latestBlock) {
+    const blockDiff = snapshotBlock - latestBlock
 
     let seconds = blockDiff * 13
     if (seconds < 13) {
@@ -105,23 +103,114 @@ class Airdrop extends React.Component {
     }
 
     if (seconds === 0) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  calcClaimTimeStarted(currentTime, claimStartTime) {
+    if (currentTime > claimStartTime) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  calcClaimTimeEnded(currentTime, claimEndTime) {
+    if (currentTime > claimEndTime) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  calcTimeTillSnapshot(secondsUntilSnapshot) {
+    const seconds = secondsUntilSnapshot
+    let hours = (seconds / 60) / 60
+    const days = Math.fround(hours / 24)
+    hours -= days * 24
+    hours = Math.fround(hours)
+
+    return {
+      seconds,
+      hours,
+      days,
+    }
+  }
+
+  /*
+    Before the snapshot block:
+      - Display time till snapshot
+      - 'Buy NEC' Button
+
+      After the snapshot block, and within claim time:
+      - Display 'Claim Period Active'
+      - 'Claim REP' button IF the users balance > 0
+
+      After the snapshot block, and after claim time:
+      - Display 'Claim Period Concluded'
+      - No button
+  */
+  calcDropVisuals() {
+    const { airdropStore, timeStore } = this.props.root
+
+    let dropPercentage = 0
+    let dropTimer = '...'
+    let dropStatus = snapshotStatus.NOT_STARTED
+
+    const { claimStartTime, claimEndTime, snapshotBlock } = airdropStore.staticParams
+    const now = timeStore.currentTime
+    console.log(now, claimStartTime, claimEndTime, snapshotBlock)
+    const latestBlock = timeStore.currentBlock
+
+    const snapshotConcluded = this.calcSnapshotConcluded(snapshotBlock, latestBlock)
+    const claimTimeStarted = this.calcClaimTimeStarted(now, claimStartTime)
+    const claimTimeConcluded = this.calcClaimTimeEnded(now, claimEndTime)
+
+    if (snapshotConcluded && !claimTimeStarted && !claimTimeConcluded) {
       dropPercentage = 100
       dropTimer = 'Has Concluded'
-    } else {
-      let hours = (seconds / 60) / 60
-      const days = Math.fround(hours / 24)
-      hours -= days * 24
-      hours = Math.fround(hours)
-      dropTimer = `In ${days} days, ${hours} hours`
+      dropStatus = snapshotStatus.SNAPSHOT_CONCLUDED
+    }
+
+    if (snapshotConcluded && claimTimeStarted && !claimTimeConcluded) {
+      dropPercentage = 100
+      dropTimer = 'Claim Period Active'
+      dropStatus = snapshotStatus.CLAIM_STARTED
+    }
+
+    if (snapshotConcluded && claimTimeStarted && claimTimeConcluded) {
+      dropPercentage = 100
+      dropTimer = 'Claim Period Concluded'
+      dropStatus = snapshotStatus.CLAIM_ENDED
+    }
+
+
+    if (!snapshotConcluded) {
+      const timeTillSnapshot = this.calcTimeTillSnapshot(snapshotBlock, latestBlock)
+      const { seconds, hours, days } = timeTillSnapshot
 
       // Using 30 days a duration length
       const maxDays = 30
+      dropTimer = `In ${days} days, ${hours} hours`
       dropPercentage = 100 * (1 - (seconds / (maxDays * 24 * 60 * 60)))
     }
 
     return {
       dropPercentage,
-      dropTimer
+      dropTimer,
+      dropStatus
+    }
+  }
+
+  renderActionButton(status, userBalance) {
+    if (status === snapshotStatus.NOT_STARTED) {
+      return (<Button>Buy NEC</Button>)
+    } else if (status === snapshotStatus.CLAIM_STARTED && userBalance !== "0") {
+      return (<Button>Claim REP</Button>)
+    } else {
+      return (<div></div>)
     }
   }
 
@@ -139,14 +228,14 @@ class Airdrop extends React.Component {
     }
 
     const necBalance = airdropStore.getSnapshotBalance(userAddress)
-    const necBalanceDisplay = helpers.fromWei(necBalance)
+    const necBalanceDisplay = helpers.roundValue(helpers.fromWei(necBalance))
     const repBalance = airdropStore.getSnapshotRep(userAddress)
-    const dropBlock = airdropStore.getSnapshotBlock()
+    const snapshotBlock = airdropStore.getSnapshotBlock()
 
-    console.log(dropBlock)
+    console.log(snapshotBlock)
     const currentBlock = timeStore.currentBlock
     const dropVisuals = this.calcDropVisuals()
-    const { dropPercentage, dropTimer } = dropVisuals
+    const { dropPercentage, dropTimer, dropStatus } = dropVisuals
 
     return (
       <AirdropWrapper>
@@ -162,10 +251,10 @@ class Airdrop extends React.Component {
         <InfoLine title="Nectar Balance" info={necBalanceDisplay} />
         <InfoLine title="Receive Voting Power" info={repBalance} />
         <Divider width="80%" margin="20px 0px 20px 0px" />
-        <InfoLine title="Airdrop Blocknumber" info={dropBlock} />
+        <InfoLine title="Airdrop Blocknumber" info={snapshotBlock} />
         <InfoLine title="Current Blocknumber" info={currentBlock} />
         <Divider width="80%" margin="20px 0px 20px 0px" />
-        <Button>Buy NEC</Button>
+        {this.renderActionButton(dropStatus, necBalance)}
       </AirdropWrapper>
     )
   }
