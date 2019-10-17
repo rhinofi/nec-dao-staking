@@ -1,6 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
 import { observer, inject } from 'mobx-react'
+import ProgressCircle from 'components/common/ProgressCircle'
+import { CircleAndTextContainer, Instruction, SubInstruction, DisableButton } from './common'
 import * as helpers from 'utils/helpers'
 
 const PanelWrapper = styled.div`
@@ -164,6 +166,43 @@ class LockPanel extends React.Component {
     )
   }
 
+  Pending() {
+    return (
+      <React.Fragment>
+        <CircleAndTextContainer>
+          <ProgressCircle
+            value={66} width={"45px"} height={"45px"}
+            rotate
+          />
+          <Instruction>{'Instruction'}</Instruction>
+          <SubInstruction>{'Sub Instruction'}</SubInstruction>
+        </CircleAndTextContainer>
+        <DisableButton>{'Button'}</DisableButton>
+      </React.Fragment >
+    )
+  }
+
+  LockForm(values) {
+    const { amount, releaseableDate, buttonText } = values
+    return (<div>
+      {this.LockingPeriod()}
+      <LockAmountWrapper>
+        <div>Lock Amount</div>
+        <LockAmountForm>
+          <input type="text" name="name" value={amount} onChange={e => this.setLockAmount(e)} />
+          <div>NEC</div>
+        </LockAmountForm>
+      </LockAmountWrapper>
+      <ReleaseableDateWrapper>
+        <div>Releasable</div>
+        <ReleaseableDate>{releaseableDate}</ReleaseableDate>
+      </ReleaseableDateWrapper>
+      <Button onClick={() => { this.lockHandler() }}>
+        {buttonText}
+      </Button>
+    </div>)
+  }
+
   lockHandler() {
     const { lockNECStore, lockFormStore } = this.props.root
     const { buttonText } = this.props
@@ -178,34 +217,18 @@ class LockPanel extends React.Component {
 
   render() {
     const { lockNECStore, lockFormStore } = this.props.root
-    const { buttonText } = this.props
+    const { buttonText, pending } = this.props
     const { releaseableDate, rangeStart } = this.state
 
+    console.log('lock Pending?', pending)
     const amount = lockFormStore.amount
 
     return (
       <PanelWrapper>
-        {this.LockingPeriod()}
-        <LockAmountWrapper>
-          <div>Lock Amount</div>
-          <LockAmountForm>
-            <input type="text" name="name" value={amount} onChange={e => this.setLockAmount(e)} />
-            <div>NEC</div>
-          </LockAmountForm>
-        </LockAmountWrapper>
-        <ReleaseableDateWrapper>
-          <div>Releasable</div>
-          <ReleaseableDate>{releaseableDate}</ReleaseableDate>
-        </ReleaseableDateWrapper>
-        <Button onClick={() => { this.lockHandler() }}>
-          {buttonText}
-        </Button>
-        {/* <div>Extend Lock</div>
-        <input type="text" name="name" value={lockAmount} onChange={changeLockAmount} />
-        <Button>Extend Lock</Button>
-        <div>Release Lock</div>
-        <input type="text" name="name" value={lockAmount} onChange={changeLockAmount} />
-        <Button>Release Lock</Button> */}
+        {pending ?
+          this.Pending() :
+          this.LockForm({ amount, releaseableDate, buttonText })
+        }
       </PanelWrapper >
     )
   }

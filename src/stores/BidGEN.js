@@ -1,12 +1,13 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 import { observable, action, computed } from 'mobx'
-import * as deployed from "../deployed";
+import * as deployed from "../deployed"
 import * as blockchain from "utils/blockchain"
 import * as helpers from "utils/helpers"
-import Big from 'big.js/big.mjs';
+import Big from 'big.js/big.mjs'
+import * as log from 'loglevel'
 
-const objectPath = require("object-path");
+const objectPath = require("object-path")
 
 const BID_EVENT = 'Bid'
 const AGREEMENT_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000'
@@ -151,7 +152,7 @@ export default class BidGENStore {
             this.setInitialLoad(propertyNames.STATIC_PARAMS, true)
 
         } catch (e) {
-            console.log(e)
+            log.error(e)
             this.setLoadingStatus(propertyNames.STATIC_PARAMS, statusCodes.ERROR)
         }
     }
@@ -175,7 +176,6 @@ export default class BidGENStore {
                 toBlock: 'latest'
             })
 
-            console.log(bidEvents)
             const data = []
 
             for (let auctionId = 0; auctionId < maxAuctions; auctionId += 1) {
@@ -219,20 +219,17 @@ export default class BidGENStore {
             this.setInitialLoad(propertyNames.AUCTION_DATA, true)
 
         } catch (e) {
-            console.log(e)
+            log.error(e)
             this.setLoadingStatus(propertyNames.AUCTION_DATA, statusCodes.ERROR)
         }
     }
 
     bid = async (amount, auctionId) => {
         const contract = this.loadContract()
-
-        console.log('bid', amount, auctionId)
-
         try {
             await contract.methods.bid(amount, auctionId, AGREEMENT_HASH).send()
         } catch (e) {
-            console.log(e)
+            log.error(e)
         }
 
     }
@@ -240,12 +237,12 @@ export default class BidGENStore {
     redeem = async (beneficiary, auctionId) => {
         const contract = this.loadContract()
 
-        console.log('redeem', beneficiary, auctionId)
+        log.info('redeem', beneficiary, auctionId)
 
         try {
             await contract.methods.redeem(beneficiary, auctionId).send()
         } catch (e) {
-            console.log(e)
+            log.error(e)
         }
 
     }

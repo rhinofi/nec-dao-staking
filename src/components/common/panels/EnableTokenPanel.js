@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import ProgressCircle from 'components/common/ProgressCircle'
 import checkboxIcon from 'assets/svgs/checkbox.svg'
+import { observer, inject } from 'mobx-react'
 
 const PanelWrapper = styled.div`
   display: flex;
@@ -62,14 +63,12 @@ const DisableButton = styled(Button)`
   background: none;
 `
 
+@inject('root')
+@observer
 class EnableTokenPanel extends React.Component {
-  constructor(props) {
-    super(props)
-  }
-
   Enable = () => {
     const { tokenStore } = this.props.root
-    const { instruction, subinstruction, buttonText, spender, token } = this.props
+    const { instruction, subinstruction, buttonText, spenderAddress, tokenAddress } = this.props
 
     return (
       <React.Fragment>
@@ -81,7 +80,7 @@ class EnableTokenPanel extends React.Component {
           <Instruction>{instruction}</Instruction>
           <SubInstruction>{subinstruction}</SubInstruction>
         </CircleAndTextContainer>
-        <Button onClick={tokenStore.approveMax(token, spender)}>
+        <Button onClick={() => { tokenStore.approveMax(tokenAddress, spenderAddress) }}>
           {buttonText}
         </Button>
       </React.Fragment >
@@ -107,11 +106,9 @@ class EnableTokenPanel extends React.Component {
   }
 
   render() {
-    const { tokenStore, providerStore } = this.props.root
-    const userAddress = providerStore.getDefaultAccount()
+    const { enabled, pending } = this.props
 
-    const enabled = tokenStore.hasMaxApproval[userAddress]
-    const pending = false
+    console.log('pending?', pending)
 
     return (
       <PanelWrapper>

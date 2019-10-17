@@ -23,9 +23,7 @@ class RootStore {
     }
 
     asyncSetup = async () => {
-        console.log('start')
         await this.providerStore.setWeb3WebClient()
-        console.log('end')
     }
 
     setClockUpdateInteral = () => {
@@ -46,6 +44,10 @@ class RootStore {
 
             if (!this.bidGENStore.isPropertyInitialLoadComplete('staticParams')) {
                 await this.bidGENStore.fetchStaticParams()
+            }
+
+            if (!this.lockNECStore.isStaticParamsInitialLoadComplete()) {
+                await this.lockNECStore.fetchStaticParams()
             }
 
             await this.tokenStore.fetchBalanceOf(genTokenAddress, userAddress)

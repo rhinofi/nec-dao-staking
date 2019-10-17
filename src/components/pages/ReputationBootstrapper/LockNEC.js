@@ -118,14 +118,10 @@ class LockNEC extends React.Component {
     await tokenStore.fetchBalanceOf(necTokenAddress, userAddress)
     await tokenStore.fetchAllowance(necTokenAddress, userAddress, schemeAddress)
     await lockNECStore.fetchUserLocks(userAddress)
-
-    console.log(lockNECStore.isUserLockInitialLoadComplete(userAddress))
   }
 
   generateTableRows(data) {
     const tableData = []
-
-    console.log(data)
 
     Object.keys(data).forEach(function (key, index) {
 
@@ -156,12 +152,14 @@ class LockNEC extends React.Component {
 
 
   SidePanel = () => {
-    const { tokenStore, providerStore } = this.props.root
+    const { lockNECStore, tokenStore, providerStore } = this.props.root
     const userAddress = providerStore.getDefaultAccount()
     const necTokenAddress = deployed.NectarToken
     const spenderAddress = deployed.ContinuousLocking4Reputation
 
     const tokenApproved = tokenStore.getMaxApprovalFlag(necTokenAddress, userAddress, spenderAddress)
+    const approvePending = tokenStore.isApprovePending(necTokenAddress, userAddress, spenderAddress)
+    const lockPending = lockNECStore.isLockActionPending()
 
     return (
       < React.Fragment >
@@ -172,12 +170,16 @@ class LockNEC extends React.Component {
             buttonText="Enable NEC"
             userAddress={userAddress}
             tokenAddress={necTokenAddress}
-            spenderAddress={spenderAddress} />
+            spenderAddress={spenderAddress}
+            enabled={tokenApproved}
+            pending={approvePending}
+          />
           :
           <div>
             <LockPanel
               rangeStart={1}
               buttonText="Lock NEC"
+              pending={lockPending}
             />
           </div>
         }
@@ -278,15 +280,7 @@ class LockNEC extends React.Component {
       const currentBatchEndTime = batchTime.mul(currentBatch.add(new BN(1))).add(startTime)
       const nowTime = new BN(now)
 
-
-      console.log('batchTime', batchTime.toString())
-      console.log('startTime', startTime.toString())
-      console.log('nowTime', nowTime.toString())
-      console.log('currentBatch', currentBatch.toString())
-      console.log('currentBatchEndTime', currentBatchEndTime.toString())
       const timeUntilNextBatch = currentBatchEndTime.sub(nowTime)
-
-      console.log('timeUntilNextBatch', timeUntilNextBatch.toString())
 
       // setAuctionPercentage((timeUntilNextBatch.toNumber() / auctionLength) * 100)
       periodTimer = `${prefix}, ${timeUntilNextBatch} time units`

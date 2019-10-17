@@ -202,7 +202,6 @@ export default class AirdropStore {
         const contract = this.loadNecRepAllocationContract()
 
         console.log('redeem', beneficiary)
-
         try {
             await contract.methods.redeem(beneficiary).send()
         } catch (e) {

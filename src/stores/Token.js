@@ -21,14 +21,37 @@ const complete = {
     allowance: '[Complete] Allowance',
 }
 
+const defaultAsyncActions = {
+    approve: {}
+}
+
 export default class TokenStore {
     @observable symbols = {}
     @observable balances = {}
     @observable allowances = {}
     @observable hasMaxApproval = {}
 
+    @observable asyncActions = {
+        approve: {}
+    }
+
     constructor(rootStore) {
         this.rootStore = rootStore
+    }
+
+    resetAsyncActions() {
+        this.asyncActions = defaultAsyncActions
+    }
+
+    setApprovePending(token, owner, spender, flag) {
+        objectPath.set(this.asyncActions, `approve.${token}.${owner}.${spender}`, flag)
+        this.asyncActions.approve[token][owner][spender] = flag
+        console.log('set', this.asyncActions.approve[token][owner][spender])
+    }
+
+    isApprovePending(token, owner, spender) {
+        console.log('is', objectPath.get(this.asyncActions, `approve.${token}.${owner}.${spender}`) || false)
+        return objectPath.get(this.asyncActions, `approve.${token}.${owner}.${spender}`) || false
     }
 
     loadContract(tokenAddress) {
@@ -50,7 +73,6 @@ export default class TokenStore {
     }
 
     setAllowanceProperty(tokenAddress, owner, spender, amount) {
-        console.log(this.allowances)
         objectPath.set(this.allowances, `${tokenAddress}.${owner}.${spender}`, amount)
     }
 
@@ -81,53 +103,61 @@ export default class TokenStore {
     @action approveMax = async (tokenAddress, spender) => {
         const token = this.loadContract(tokenAddress)
         const account = await blockchain.getDefaultAccount()
+        this.setApprovePending(tokenAddress, account, spender, true)
 
         try {
+
             await token.methods.approve(spender, helpers.MAX_UINT).send()
             await this.fetchAllowance(tokenAddress, account, spender)
+            this.setApprovePending(tokenAddress, account, spender, false)
 
         } catch (e) {
-            console.log(e)
+            log.error(e)
+            this.setApprovePending(tokenAddress, account, spender, false)
         }
     }
 
     @action revokeApproval = async (tokenAddress, spender) => {
         const token = this.loadContract(tokenAddress)
         const account = await blockchain.getDefaultAccount()
+        this.setApprovePending(tokenAddress, account, spender, true)
 
         try {
+
             await token.methods.approve(spender, 0).send()
             await this.fetchAllowance(tokenAddress, account, spender)
+            this.setApprovePending(tokenAddress, account, spender, false)
         } catch (e) {
-            console.log(e)
+            log.error(e)
+            this.setApprovePending(tokenAddress, account, spender, false)
         }
     }
 
     @action fetchSymbol = async (tokenAddress) => {
-        console.log('[Fetch] Symbol', tokenAddress)
+        log.info('[Fetch] Symbol', tokenAddress)
         const token = this.loadContract(tokenAddress)
         const symbol = await token.methods.symbol().call()
         this.symbols[tokenAddress] = symbol
-        console.log('[Complete] Symbol', tokenAddress, symbol)
+        log.info('[Complete] Symbol', tokenAddress, symbol)
     }
 
     @action fetchBalanceOf = async (tokenAddress, account) => {
-        console.log('[Fetch] Balance Of', tokenAddress, account)
+        log.info('[Fetch] Balance Of', tokenAddress, account)
         const token = this.loadContract(tokenAddress)
         const balance = await token.methods.balanceOf(account).call()
         this.setBalanceProperty(tokenAddress, account, balance)
-        console.log('[Complete] Balance Of', tokenAddress, account, balance)
+        log.info('[Complete] Balance Of', tokenAddress, account, balance)
     }
 
     @action fetchAllowance = async (tokenAddress, account, spender) => {
-        console.log('[Fetch] Allowance', tokenAddress, account, spender)
+        log.info('[Fetch] Allowance', tokenAddress, account, spender)
         const token = this.loadContract(tokenAddress)
 
         try {
             const allowance = await token.methods.allowance(account, spender).call()
             const hasMaxApproval = this.calcMaxApprovalFlag(allowance)
 
-            console.log('[Complete] Allowance', tokenAddress, account, spender, allowance, hasMaxApproval)
+            log.info('[Complete] Allowance', tokenAddress, account, spender, allowance, hasMaxApproval)
 
             this.setAllowanceProperty(tokenAddress, account, spender, allowance)
             this.setMaxApprovalFlag(tokenAddress, account, spender, hasMaxApproval)
