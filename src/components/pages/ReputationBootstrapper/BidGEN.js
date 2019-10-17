@@ -75,11 +75,16 @@ class BidGEN extends React.Component {
   }
 
   SidePanel = () => {
-    const { tokenStore, providerStore } = this.props.root
+    const { bidGENStore, tokenStore, providerStore } = this.props.root
     const userAddress = providerStore.getDefaultAccount()
-    const tokenApproved = tokenStore.hasMaxApproval[userAddress]
     const genTokenAddress = deployed.GenToken
     const spenderAddress = deployed.Auction4Reputation
+
+    const tokenApproved = tokenStore.getMaxApprovalFlag(genTokenAddress, userAddress, spenderAddress)
+    console.log('tokenApproved', tokenApproved)
+
+    const approvePending = tokenStore.isApprovePending(genTokenAddress, userAddress, spenderAddress)
+    const bidPending = bidGENStore.isBidActionPending()
 
     return (
       <React.Fragment>
@@ -88,18 +93,18 @@ class BidGEN extends React.Component {
             instruction="Enable GEN to bid on Auctions"
             subinstructions="-"
             buttonText="Enable GEN"
-            user={userAddress}
-            token={genTokenAddress}
-            spender={spenderAddress}
+            tokenAddress={genTokenAddress}
+            spenderAddress={spenderAddress}
+            pending={approvePending}
           /> :
           <div>
             <BidPanel
               instruction="Enable NEC for locking"
               subinstruction="-"
               buttonText="Bid GEN"
-              user={userAddress}
-              token={genTokenAddress}
-              spender={spenderAddress}
+              tokenAddress={genTokenAddress}
+              spenderAddress={spenderAddress}
+              pending={bidPending}
             />
           </div>
         }

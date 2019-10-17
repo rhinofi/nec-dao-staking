@@ -2,6 +2,8 @@ import React from 'react'
 import styled from 'styled-components'
 import { inject, observer } from "mobx-react";
 import * as helpers from 'utils/helpers'
+import ProgressCircle from 'components/common/ProgressCircle'
+import { CircleAndTextContainer, Instruction, SubInstruction } from './common'
 
 const PanelWrapper = styled.div`
 `
@@ -128,16 +130,29 @@ class BidPanel extends React.Component {
     await bidGENStore.bid(weiValue, currentAuction)
   }
 
-  render() {
-    const { buttonText } = this.props
-    const { bidFormStore } = this.props.root
-
+  Pending() {
     return (
-      <PanelWrapper>
+      <React.Fragment>
+        <CircleAndTextContainer>
+          <ProgressCircle
+            value={66} width={"45px"} height={"45px"}
+            rotate
+          />
+          <Instruction>{'Instruction'}</Instruction>
+          <SubInstruction>{'Sub Instruction'}</SubInstruction>
+        </CircleAndTextContainer>
+        <DisableButton>{'Button'}</DisableButton>
+      </React.Fragment >
+    )
+  }
+
+  BidForm(bidAmount, buttonText) {
+    return (
+      <React.Fragment>
         <LockAmountWrapper>
           <div>Bid Amount</div>
           <LockAmountForm>
-            <input type="text" name="name" value={bidFormStore.bidAmount} onChange={e => this.setBidAmount(e)} />
+            <input type="text" name="name" value={bidAmount} onChange={e => this.setBidAmount(e)} />
             <div>GEN</div>
           </LockAmountForm>
         </LockAmountWrapper>
@@ -145,6 +160,20 @@ class BidPanel extends React.Component {
           onClick={() => { this.bid() }}>
           {buttonText}
         </Button>
+      </React.Fragment>
+    )
+  }
+
+  render() {
+    const { buttonText, pending } = this.props
+    const { bidFormStore } = this.props.root
+    return (
+      <PanelWrapper>
+        {
+          pending ?
+            this.Pending() :
+            this.BidForm(bidFormStore.bidAmount, buttonText)
+        }
       </PanelWrapper>
     )
   }

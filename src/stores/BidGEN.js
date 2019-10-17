@@ -31,6 +31,11 @@ const propertyNames = {
     REP_REWARD_LEFT: 'repRewardLeft',
     AUCTION_DATA: 'auctionData'
 }
+
+const defaultAsyncActions = {
+    bid: {},
+    redeem: {}
+}
 export default class BidGENStore {
     // Static Parameters
     @observable staticParams = {
@@ -53,8 +58,32 @@ export default class BidGENStore {
         auctionData: defaultLoadingStatus
     }
 
+    @observable asyncActions = defaultAsyncActions
+
     constructor(rootStore) {
         this.rootStore = rootStore;
+    }
+
+    resetAsyncActions() {
+        this.asyncActions = defaultAsyncActions
+    }
+
+    setBidActionPending(flag) {
+        objectPath.set(this.asyncActions, `bid`, flag)
+    }
+
+    setRedeemActionPending(userAddress, beneficiary, auctionId, flag) {
+        objectPath.set(this.asyncActions, `redeem.${userAddress}.${auctionId}`, flag)
+    }
+
+    isBidActionPending() {
+        const flag = objectPath.get(this.asyncActions, `lock`) || false
+        return flag
+    }
+
+    isRedeemActionPending(beneficiary, auctionId) {
+        const flag = objectPath.get(this.asyncActions, `redeem.${beneficiary}.${auctionId}`) || false
+        return flag
     }
 
     setLoadingStatus(propertyName, status) {
@@ -226,10 +255,14 @@ export default class BidGENStore {
 
     bid = async (amount, auctionId) => {
         const contract = this.loadContract()
+
+        this.setBidActionPending(true)
         try {
             await contract.methods.bid(amount, auctionId, AGREEMENT_HASH).send()
+            this.setBidActionPending(false)
         } catch (e) {
             log.error(e)
+            this.setBidActionPending(false)
         }
 
     }
@@ -238,11 +271,14 @@ export default class BidGENStore {
         const contract = this.loadContract()
 
         log.info('redeem', beneficiary, auctionId)
+        this.setRedeemActionPending(beneficiary, auctionId, true)
 
         try {
             await contract.methods.redeem(beneficiary, auctionId).send()
+            this.setRedeemActionPending(beneficiary, auctionId, false)
         } catch (e) {
             log.error(e)
+            this.setRedeemActionPending(beneficiary, auctionId, false)
         }
 
     }
