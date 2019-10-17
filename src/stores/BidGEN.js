@@ -4,8 +4,9 @@ import { observable, action, computed } from 'mobx'
 import * as deployed from "../deployed";
 import * as blockchain from "utils/blockchain"
 import * as helpers from "utils/helpers"
-import abiDecoder from 'abi-decoder'
 import Big from 'big.js/big.mjs';
+
+const objectPath = require("object-path");
 
 const BID_EVENT = 'Bid'
 const AGREEMENT_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000'
@@ -26,10 +27,10 @@ const defaultLoadingStatus = {
 
 const propertyNames = {
     STATIC_PARAMS: 'staticParams',
-    USER_LOCKS: 'userLocks',
+    REP_REWARD_LEFT: 'repRewardLeft',
     AUCTION_DATA: 'auctionData'
 }
-export default class LockNECStore {
+export default class BidGENStore {
     // Static Parameters
     @observable staticParams = {
         auctionsStartTime: '',
@@ -55,61 +56,24 @@ export default class LockNECStore {
         this.rootStore = rootStore;
     }
 
-    setLoadingStatus(propertyName, status, userAddress = null) {
-        if (propertyName === propertyNames.USER_LOCKS) {
-            if (!this.loadingStatus[propertyName][userAddress]) {
-                this.loadingStatus[propertyName][userAddress] = {}
-            }
-
-            this.loadingStatus[propertyName][userAddress] = {
-                ...this.loadingStatus[propertyName],
-                status
-            }
-        } else {
-            this.loadingStatus[propertyName] = {
-                ...this.loadingStatus[propertyName],
-                status
-            }
-        }
+    setLoadingStatus(propertyName, status) {
+        objectPath.set(this.loadingStatus, `${propertyName}.status`, status)
     }
 
-    setInitialLoad(propertyName, initialLoad, userAddress = null) {
-        if (propertyName === propertyNames.USER_LOCKS) {
-            if (!this.loadingStatus[propertyName][userAddress]) {
-                this.loadingStatus[propertyName][userAddress] = {}
-            }
-
-            this.loadingStatus[propertyName][userAddress] = {
-                ...this.loadingStatus[propertyName],
-                initialLoad
-            }
-
-        } else {
-            this.loadingStatus[propertyName] = {
-                ...this.loadingStatus[propertyName],
-                initialLoad
-            }
-        }
+    setInitialLoad(propertyName, initialLoad) {
+        objectPath.set(this.loadingStatus, `${propertyName}.initialLoad`, initialLoad)
     }
 
     isPropertyInitialLoadComplete(propertyName, userAddress = null) {
-        if (propertyName === propertyNames.USER_LOCKS) {
-            if (!this.loadingStatus[propertyName][userAddress]) {
-                return false
-            }
-            return this.loadingStatus[propertyName][userAddress].initialLoad
+        if (objectPath.get(this.loadingStatus, `${propertyName}.initialLoad`)) {
+            return true
         }
-        return this.loadingStatus[propertyName].initialLoad
+
+        return false
     }
 
     getLoadStatus(propertyName, userAddress = null) {
-        if (propertyName === propertyNames.USER_LOCKS) {
-            if (!this.loadingStatus[propertyName][userAddress]) {
-                return false
-            }
-            return this.loadingStatus[propertyName][userAddress].status
-        }
-        return this.loadingStatus[propertyName].status
+        return objectPath.get(this.loadingStatus, `${propertyName}.${userAddress}.initialLoad`) || statusCodes.NOT_LOADED
     }
 
     loadContract() {
@@ -151,16 +115,13 @@ export default class LockNECStore {
         return nextAuctionStartTime.toString()
     }
 
-    getTimeUntilNextAuction() {
+    getTimeUntilNextAuction(currentTime) {
         if (!this.isPropertyInitialLoadComplete(propertyNames.STATIC_PARAMS)) {
             throw new Error('Static properties must be loaded before fetching user locks')
         }
-
-        const currentTime = new BN(Math.round((new Date()).getTime() / 1000))
+        const currentTimeBN = new BN(currentTime)
         const nextAuctionStartTime = new BN(this.getNextAuctionStartTime())
-
-        const timeUntilNextAuction = nextAuctionStartTime.sub(currentTime)
-
+        const timeUntilNextAuction = nextAuctionStartTime.sub(currentTimeBN)
         return timeUntilNextAuction.toString()
     }
 
@@ -170,12 +131,12 @@ export default class LockNECStore {
         this.setLoadingStatus(propertyNames.STATIC_PARAMS, statusCodes.PENDING)
 
         try {
-            const auctionsStartTime = contract.methods.auctionsStartTime().call()
-            const auctionsEndTime = contract.methods.auctionsEndTime().call()
-            const auctionLength = contract.methods.auctionPeriod().call()
-            const numAuctions = contract.methods.numberOfAuctions().call()
-            const redeemEnableTime = contract.methods.redeemEnableTime().call()
-            const auctionRepReward = contract.methods.auctionReputationReward().call()
+            const auctionsStartTime = await contract.methods.auctionsStartTime().call()
+            const auctionsEndTime = await contract.methods.auctionsEndTime().call()
+            const auctionLength = await contract.methods.auctionPeriod().call()
+            const numAuctions = await contract.methods.numberOfAuctions().call()
+            const redeemEnableTime = await contract.methods.redeemEnableTime().call()
+            const auctionRepReward = await contract.methods.auctionReputationReward().call()
 
             this.staticParams = {
                 auctionsStartTime,

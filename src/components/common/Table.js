@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import './Table.scss'
 
-const TableWrapper = styled.div`
+export const TableWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -10,15 +10,15 @@ const TableWrapper = styled.div`
   overflow: auto;
 `
 
-const RowWrapper = styled.div`
+export const RowWrapper = styled.div`
   border-bottom: 1px solid var(--border);
 `
 
-const InactiveRowWrapper = styled.div`
+export const InactiveRowWrapper = styled.div`
   border-bottom: 1px solid var(--faded-border);
 `
 
-const Row = styled.div`
+export const Row = styled.div`
   width: 100% - 10px;
   margin-left: 10px;
   display: flex;
@@ -26,7 +26,7 @@ const Row = styled.div`
   height: 39px;
 `
 
-const CellWrapper = styled.div`
+export const CellWrapper = styled.div`
   width: ${props => props.width};
   text-align: ${props => props.align};
   color: var(--white-text);
@@ -37,7 +37,7 @@ const CellWrapper = styled.div`
   line-height: 39px;
 `
 
-const GreyCell = styled(CellWrapper)`
+export const GreyCell = styled(CellWrapper)`
   color: var(--inactive-text)
 `
 

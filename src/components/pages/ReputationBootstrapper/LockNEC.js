@@ -237,7 +237,6 @@ class LockNEC extends React.Component {
     const userLocksLoaded = lockNECStore.isUserLockInitialLoadComplete(userAddress)
     const auctionDataLoaded = lockNECStore.isAuctionDataInitialLoadComplete(userAddress)
 
-    console.log(staticParamsLoaded, hasBalance, hasAllowance, userLocksLoaded, auctionDataLoaded)
     if (!staticParamsLoaded || !hasBalance || !hasAllowance) {
       return <div>Loading...</div>
     }

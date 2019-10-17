@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { observer, inject } from 'mobx-react'
-import Table from 'components/common/Table'
+import GenAuctionTable from 'components/tables/GenAuctionTable'
 import TimelineProgress from 'components/common/TimelineProgress'
 import EnableTokenPanel from 'components/common/panels/EnableTokenPanel'
 import BidPanel from 'components/common/panels/BidPanel'
@@ -50,16 +50,28 @@ const ActionsHeader = styled.div`
   border-bottom: 1px solid var(--border);
 `
 
+const propertyNames = {
+  STATIC_PARAMS: 'staticParams',
+  USER_LOCKS: 'userLocks',
+  AUCTION_DATA: 'auctionData'
+}
+
 @inject('root')
 @observer
 class BidGEN extends React.Component {
-  constructor(props) {
-    super(props)
+  async componentDidMount() {
+    const { bidGENStore, tokenStore, providerStore } = this.props.root
+    const userAddress = providerStore.getDefaultAccount()
+    const genTokenAddress = deployed.GenToken
+    const schemeAddress = deployed.Auction4Reputation
 
-    this.state = {
-      auctionPercentage: 0,
-      auctionTimer: '...'
+    if (!bidGENStore.isPropertyInitialLoadComplete(propertyNames.STATIC_PARAMS)) {
+      await bidGENStore.fetchStaticParams()
     }
+
+    await tokenStore.fetchBalanceOf(genTokenAddress, userAddress)
+    await tokenStore.fetchAllowance(genTokenAddress, userAddress, schemeAddress)
+    await bidGENStore.fetchAuctionData()
   }
 
   SidePanel = () => {
@@ -95,18 +107,87 @@ class BidGEN extends React.Component {
     )
   }
 
+  /*
+    If we're before the last auction:
+    'Next auction starts in + time'
+
+    If we're in the last auction:
+    'Last auction ends in + time'
+
+    If we're after the last auction conclusion:
+    'Auctions have ended'
+  */
+  getAuctionPercentageAndTimer(currentAuction, maxAuction, now, nextStartTime, timeTillNextAuction, auctionLength) {
+    let auctionPercentage = 0
+    let auctionTimer = '...'
+
+    let prefix = 'Next auction starts in'
+    let ended = false
+
+    if (currentAuction === maxAuction) {
+      if (now > nextStartTime) {
+        auctionPercentage = 100
+        auctionTimer = 'Auctions have ended'
+        ended = true
+      } else {
+        prefix = 'Last auction ends in'
+      }
+    }
+
+    if (!ended) {
+      auctionPercentage = (timeTillNextAuction / auctionLength) * 100
+
+      const seconds = timeTillNextAuction / 1000
+      let hours = (seconds / 60) / 60
+      const days = Math.fround(hours / 24)
+      hours -= days * 24
+      hours = Math.fround(hours)
+      auctionTimer = `${prefix}, ${seconds} seconds`
+    }
+
+    return {
+      auctionPercentage,
+      auctionTimer
+    }
+  }
+
   render() {
-    const { bidGENStore, tokenStore, providerStore } = this.props.root
-    const { auctionPercentage, auctionTimer } = this.state
+    const { bidGENStore, tokenStore, providerStore, timeStore } = this.props.root
 
     const userAddress = providerStore.getDefaultAccount()
     const genTokenAddress = deployed.GenToken
+    const schemeAddress = deployed.Auction4Reputation
+
+    // Loading Status
+    const staticParamsLoaded = bidGENStore.isPropertyInitialLoadComplete(propertyNames.STATIC_PARAMS)
+    const auctionDataLoaded = bidGENStore.isPropertyInitialLoadComplete(propertyNames.AUCTION_DATA)
+    const hasBalance = tokenStore.hasBalance(genTokenAddress, userAddress)
+    const hasAllowance = tokenStore.hasAllowance(genTokenAddress, userAddress, schemeAddress)
+
+    if (!staticParamsLoaded || !hasBalance || !hasAllowance) {
+      return (<div>Loading.....</div>)
+    }
 
     const auctionData = bidGENStore.auctionData
     const genBalance = tokenStore.getBalance(genTokenAddress, userAddress)
-    const genBalanceDisplay = helpers.fromWei(genBalance)
+    const genBalanceDisplay = helpers.roundValue(helpers.fromWei(genBalance))
     const currentAuction = bidGENStore.getActiveAuction()
-    const maxAuction = bidGENStore.numAuctions
+    const maxAuction = bidGENStore.staticParams.numAuctions
+    const now = timeStore.currentTime
+    const nextAuctionStartTime = bidGENStore.getNextAuctionStartTime()
+    const timeUntilNextAuction = bidGENStore.getTimeUntilNextAuction(now)
+    const auctionLength = bidGENStore.staticParams.auctionLength
+
+    const auctionDisplayInfo = this.getAuctionPercentageAndTimer(
+      currentAuction,
+      maxAuction,
+      now,
+      nextAuctionStartTime,
+      timeUntilNextAuction,
+      auctionLength
+    )
+
+    const { auctionPercentage, auctionTimer } = auctionDisplayInfo
 
     return (
       <BidGENWrapper>
@@ -120,15 +201,10 @@ class BidGEN extends React.Component {
               height="28px"
             />
           </TableHeaderWrapper>
-          <Table
+          <GenAuctionTable
             highlightTopRow
-            columns={[
-              { name: 'Auction #', key: 'id', width: '15%', align: 'left' },
-              { name: 'You Have Bid', key: 'userBid', width: '25%', align: 'right' },
-              { name: 'Total Bid', key: 'totalBid', width: '30%', align: 'right' },
-              { name: 'Status', key: 'status', width: '25%', align: 'right' }
-            ]}
             data={auctionData}
+            dataLoaded={auctionDataLoaded}
           />
         </DetailsWrapper>
         <ActionsWrapper>

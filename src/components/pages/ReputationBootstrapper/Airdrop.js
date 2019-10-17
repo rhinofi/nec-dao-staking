@@ -161,7 +161,6 @@ class Airdrop extends React.Component {
 
     const { claimStartTime, claimEndTime, snapshotBlock } = airdropStore.staticParams
     const now = timeStore.currentTime
-    console.log(now, claimStartTime, claimEndTime, snapshotBlock)
     const latestBlock = timeStore.currentBlock
 
     const snapshotConcluded = this.calcSnapshotConcluded(snapshotBlock, latestBlock)
@@ -232,7 +231,6 @@ class Airdrop extends React.Component {
     const repBalance = airdropStore.getSnapshotRep(userAddress)
     const snapshotBlock = airdropStore.getSnapshotBlock()
 
-    console.log(snapshotBlock)
     const currentBlock = timeStore.currentBlock
     const dropVisuals = this.calcDropVisuals()
     const { dropPercentage, dropTimer, dropStatus } = dropVisuals

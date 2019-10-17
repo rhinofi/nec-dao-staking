@@ -114,21 +114,23 @@ class BidPanel extends React.Component {
 
   setBidAmount(e) {
     const { bidFormStore } = this.props.root
-    bidFormStore.setBidAmount(helpers.toWei(e.target.value))
+    bidFormStore.setBidAmount(e.target.value)
   }
 
   async bid() {
-    const { bidFormStore, bigGENStore } = this.props.root
-
+    const { bidFormStore, bidGENStore } = this.props.root
+    if (!bidFormStore.bidAmount) {
+      return
+    }
     const weiValue = helpers.toWei(bidFormStore.bidAmount)
-    const currentAuction = bigGENStore.getActiveAuction()
+    const currentAuction = bidGENStore.getActiveAuction()
 
-    await bigGENStore.bid(weiValue, currentAuction)
+    await bidGENStore.bid(weiValue, currentAuction)
   }
 
   render() {
     const { buttonText } = this.props
-    const { bidFormStore, tokenStore, bigGENStore, providerStore } = this.props.root
+    const { bidFormStore } = this.props.root
 
     return (
       <PanelWrapper>
@@ -140,8 +142,7 @@ class BidPanel extends React.Component {
           </LockAmountForm>
         </LockAmountWrapper>
         <Button
-          onClick={this.bid()}
-        >
+          onClick={() => { this.bid() }}>
           {buttonText}
         </Button>
       </PanelWrapper>
