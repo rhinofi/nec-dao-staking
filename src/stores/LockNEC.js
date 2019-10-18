@@ -43,7 +43,8 @@ export default class LockNECStore {
         numLockingPeriods: '',
         lockingPeriodLength: '',
         startTime: '',
-        agreementHash: ''
+        agreementHash: '',
+        maxLockingBatches: ''
     }
 
     // Dynamic Data
@@ -98,6 +99,24 @@ export default class LockNECStore {
 
     isReleaseActionPending(userAddress, lockId) {
         return objectPath.get(this.asyncActions, `release.${userAddress}.${lockId}`) || false
+    }
+
+    calcReleaseableTimestamp(lockingTime, duration) {
+        const lockTime = Number(lockingTime)
+        const batchLength = Number(this.staticParams.lockingPeriodLength)
+        const numBatches = Number(duration)
+
+        console.log('batch Length', batchLength)
+
+        const lockLength = batchLength * numBatches
+
+        const startDate = new Date(lockTime)
+        const endDate = new Date(lockTime + lockLength)
+
+        console.log('start', startDate.toString())
+        console.log('end', endDate.toString())
+
+        return endDate.valueOf()
     }
 
     initializeUserLocksObject() {
@@ -196,13 +215,15 @@ export default class LockNECStore {
             const numLockingPeriods = await contract.methods.batchesIndexCap().call()
             const lockingPeriodLength = await contract.methods.batchTime().call()
             const startTime = await contract.methods.startTime().call()
+            const maxLockingBatches = await contract.methods.maxLockingBatches().call()
             const agreementHash = await contract.methods.getAgreementHash().call()
 
             this.staticParams = {
                 numLockingPeriods,
                 lockingPeriodLength,
                 startTime,
-                agreementHash
+                agreementHash,
+                maxLockingBatches
             }
 
             this.initialLoad.staticParams = true
@@ -325,31 +346,31 @@ export default class LockNECStore {
     extendLock = async (lockId, periodsToExtend, batchId) => {
         const contract = this.loadContract()
         const userAddress = this.providerStore.getDefaultAccount()
-        this.setExtendLockActionPending(userAddress.lockId, true)
+        this.setExtendLockActionPending(userAddress, lockId, true)
         log.info('extendLock', lockId, periodsToExtend, batchId)
 
         try {
             await contract.methods.extendLocking(periodsToExtend, batchId, lockId, AGREEMENT_HASH).send()
-            this.setExtendLockActionPending(userAddress.lockId, false)
+            this.setExtendLockActionPending(userAddress, lockId, false)
         } catch (e) {
             log.error(e)
-            this.setExtendLockActionPending(userAddress.lockId, false)
+            this.setExtendLockActionPending(userAddress, lockId, false)
         }
 
     }
 
     release = async (beneficiary, lockId) => {
         const contract = this.loadContract()
-        const userAddress = this.providerStore.getDefaultAccount()
-        this.setReleaseActionPending(userAddress.lockId, true)
+        const userAddress = this.rootStore.providerStore.getDefaultAccount()
+        this.setReleaseActionPending(userAddress, lockId, true)
         log.info('release', beneficiary, lockId)
 
         try {
             await contract.methods.release(beneficiary, lockId).send()
-            this.setReleaseActionPending(userAddress.lockId, false)
+            this.setReleaseActionPending(userAddress, lockId, false)
         } catch (e) {
             log.error(e)
-            this.setReleaseActionPending(userAddress.lockId, false)
+            this.setReleaseActionPending(userAddress, lockId, false)
         }
 
     }

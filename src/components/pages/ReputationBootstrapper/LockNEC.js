@@ -11,6 +11,7 @@ import * as deployed from 'deployed'
 import * as helpers from 'utils/helpers'
 import LockDataTable from 'components/tables/LockDataTable'
 import UserLocksTable from 'components/tables/UserLocksTable'
+import LoadingCircle from '../../common/LoadingCircle'
 
 
 const { BN } = helpers
@@ -189,7 +190,7 @@ class LockNEC extends React.Component {
     const auctionDataLoaded = lockNECStore.isAuctionDataInitialLoadComplete(userAddress)
 
     if (!staticParamsLoaded || !hasBalance || !hasAllowance) {
-      return <div>Loading...</div>
+      return (<LoadingCircle instruction={''} subinstruction={''} />)
     }
 
     const currentPeriod = lockNECStore.getActiveLockingPeriod()

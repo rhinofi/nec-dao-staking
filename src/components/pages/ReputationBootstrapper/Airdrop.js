@@ -6,6 +6,9 @@ import TimelineProgress from 'components/common/TimelineProgress'
 import logo from 'assets/svgs/ethfinex-logo.svg'
 import * as helpers from 'utils/helpers'
 import * as deployed from 'deployed.json'
+import ActiveButton from 'components/common/buttons/ActiveButton'
+import InactiveButton from 'components/common/buttons/InactiveButton'
+import LoadingCircle from '../../common/LoadingCircle'
 
 const propertyNames = {
   STATIC_PARAMS: 'staticParams',
@@ -205,11 +208,17 @@ class Airdrop extends React.Component {
 
   renderActionButton(status, userBalance) {
     if (status === snapshotStatus.NOT_STARTED) {
-      return (<Button>Buy NEC</Button>)
-    } else if (status === snapshotStatus.CLAIM_STARTED && userBalance !== "0") {
-      return (<Button>Claim REP</Button>)
-    } else {
-      return (<div></div>)
+      return (<ActiveButton>Buy NEC</ActiveButton>)
+    }
+
+    // If the user has a balance and the claim period is active, show claim button
+    else if (status === snapshotStatus.CLAIM_STARTED && userBalance !== "0") {
+      return (<ActiveButton>Claim REP</ActiveButton>)
+    }
+
+    // If the user has no balance, or the claim period has ended, show disabled claim button
+    else if ((status === snapshotStatus.CLAIM_STARTED && userBalance === "0") || (status === snapshotStatus.CLAIM_ENDED)) {
+      return (<InactiveButton>Claim REP</InactiveButton>)
     }
   }
 
@@ -223,7 +232,7 @@ class Airdrop extends React.Component {
     const userDataLoaded = airdropStore.isPropertyInitialLoadComplete(propertyNames.USER_DATA, userAddress)
 
     if (!staticParamsLoaded || !userDataLoaded) {
-      return <div></div>
+      return (<LoadingCircle instruction={''} subinstruction={''} />)
     }
 
     const necBalance = airdropStore.getSnapshotBalance(userAddress)

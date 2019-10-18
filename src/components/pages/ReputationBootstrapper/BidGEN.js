@@ -10,6 +10,7 @@ import LogoAndText from 'components/common/LogoAndText'
 import icon from 'assets/svgs/ethfinex-logo.svg'
 import * as helpers from 'utils/helpers'
 import * as deployed from 'deployed.json'
+import LoadingCircle from '../../common/LoadingCircle'
 
 const BidGENWrapper = styled.div`
   display: flex;
@@ -170,7 +171,7 @@ class BidGEN extends React.Component {
     const hasAllowance = tokenStore.hasAllowance(genTokenAddress, userAddress, schemeAddress)
 
     if (!staticParamsLoaded || !hasBalance || !hasAllowance) {
-      return (<div>Loading.....</div>)
+      return (<LoadingCircle instruction={'Loading...'} subinstruction={''} />)
     }
 
     const auctionData = bidGENStore.auctionData

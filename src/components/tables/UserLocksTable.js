@@ -41,6 +41,11 @@ class UserLocksTable extends React.Component {
         return tableData
     }
 
+    release(beneficiary, lockId) {
+        const { lockNECStore } = this.props.root
+        lockNECStore.release(beneficiary, lockId)
+    }
+
     renderNoDataTable() {
         return (
             <TableWrapper>
@@ -55,7 +60,8 @@ class UserLocksTable extends React.Component {
 
     generateCell(key, value) {
         if (key === 'releaseActionData') {
-            return <div>Release</div>
+            const { beneficiary, lockId } = value
+            return <div onClick={() => { this.release(beneficiary, lockId) }}>Release</div>
         }
 
         return value
