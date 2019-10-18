@@ -147,7 +147,7 @@ class LockPanel extends React.Component {
 
     return (
       <LockingPeriodSelectorWrapper>
-        <div>Lock Duration</div>
+        <div>Lock Duration (Months)</div>
         <LockingPeriodSelector>
           <LockingPeriodStartCell onClick={() => {
             this.setRangeStart(rangeStart > 0 ? rangeStart - 1 : 0)

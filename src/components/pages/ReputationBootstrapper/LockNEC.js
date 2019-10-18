@@ -1,7 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
 import { observer, inject } from 'mobx-react'
-import Table from 'components/common/Table'
 import LockPanel from 'components/common/panels/LockPanel'
 import EnableTokenPanel from 'components/common/panels/EnableTokenPanel'
 import TimelineProgress from 'components/common/TimelineProgress'
@@ -10,6 +9,8 @@ import TokenValue from 'components/common/TokenValue'
 import icon from 'assets/svgs/ethfinex-logo.svg'
 import * as deployed from 'deployed'
 import * as helpers from 'utils/helpers'
+import LockDataTable from 'components/tables/LockDataTable'
+import UserLocksTable from 'components/tables/UserLocksTable'
 
 
 const { BN } = helpers
@@ -120,37 +121,6 @@ class LockNEC extends React.Component {
     await lockNECStore.fetchUserLocks(userAddress)
   }
 
-  generateTableRows(data) {
-    const tableData = []
-
-    Object.keys(data).forEach(function (key, index) {
-
-      const releasable = data[key].releasable
-
-      /* Data
-      userAddress
-      lockId
-      actionAvailable 
-      (whatever else is needed will be set in popup)
-      */
-
-      const row = {
-        extendActionData: data[key].lockId,
-        releaseActionData: data[key].lockId,
-        releasable,
-        startPeriod: data[key].lockingPeriod,
-        duration: `${data[key].duration} Months`,
-        amount: `${helpers.fromWei(data[key].amount)} NEC`
-      }
-
-      tableData.push(row)
-    })
-
-    tableData.reverse()
-    return tableData
-  }
-
-
   SidePanel = () => {
     const { lockNECStore, tokenStore, providerStore } = this.props.root
     const userAddress = providerStore.getDefaultAccount()
@@ -187,36 +157,15 @@ class LockNEC extends React.Component {
     )
   }
 
-  renderTable(userLocksLoaded, auctionDataLoaded, tableData, currentTab) {
+  renderTable(userLocksLoaded, auctionDataLoaded, currentTab) {
     if (currentTab === tabs.YOUR_LOCKS && userLocksLoaded) {
       return (
-        < Table
-          columns={[
-            { name: 'Period #', key: 'startPeriod', width: '20%', align: 'left' },
-            { name: 'Amount', key: 'amount', width: '20%', align: 'left' },
-            { name: 'Duration', key: 'duration', width: '20%', align: 'left' },
-            { name: 'Releasable', key: 'releasable', width: '20%', align: 'left' },
-            // { name: 'Extend', key: 'extendActionData', width: '15%', align: 'left' },
-            { name: 'Action', key: 'releaseActionData', width: '20%', align: 'left' }
-          ]}
-          data={tableData}
-          noDataMessage={'User has no token locks'}
-        />
+        <UserLocksTable />
       )
     } else if (currentTab === tabs.AUCTION_DATA && auctionDataLoaded) {
       return (
-        < Table
-          columns={[
-            { name: 'Period #', key: 'startPeriod', width: '20%', align: 'left' },
-            { name: 'You Locked', key: 'amount', width: '20%', align: 'left' },
-            { name: 'Total Locked', key: 'duration', width: '20%', align: 'left' },
-            { name: 'You Recieved', key: 'releasable', width: '20%', align: 'left' },
-            // { name: 'Extend', key: 'extendActionData', width: '15%', align: 'left' },
-            { name: 'Action', key: 'releaseActionData', width: '20%', align: 'left' }
-          ]}
-          data={tableData}
-          noDataMessage={'All period data not available!'}
-        />)
+        < LockDataTable />
+      )
     } else if (currentTab === tabs.YOUR_LOCKS) {
       return <div>Loading user locks...</div>
     } else if (currentTab === tabs.AUCTION_DATA) {
@@ -245,12 +194,9 @@ class LockNEC extends React.Component {
 
     const currentPeriod = lockNECStore.getActiveLockingPeriod()
     const maxPeriods = lockNECStore.staticParams.numLockingPeriods
-    const userLocks = lockNECStore.getUserTokenLocks(userAddress)
-    const tableData = this.generateTableRows(userLocks.data)
     const lockingStart = lockNECStore.staticParams.startTime
     const numPeriods = lockNECStore.staticParams.numLockingPeriods
     const periodLength = lockNECStore.staticParams.lockingPeriodLength
-
 
     const necBalance = tokenStore.getBalance(necTokenAddress, userAddress)
     const now = Math.round((new Date()).getTime() / 1000)
@@ -305,7 +251,7 @@ class LockNEC extends React.Component {
               <TableTabButton onClick={() => this.setCurrentTab(tabs.ALL_PERIODS)}>All Periods</TableTabButton>
             </TableTabsWrapper>
           </TableHeaderWrapper>
-          {this.renderTable(userLocksLoaded, auctionDataLoaded, tableData, currentTab)}
+          {this.renderTable(userLocksLoaded, auctionDataLoaded, currentTab)}
         </DetailsWrapper>
         <ActionsWrapper>
           <ActionsHeader>

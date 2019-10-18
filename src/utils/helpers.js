@@ -35,6 +35,22 @@ export async function getCurrentBlock() {
   return await web3.eth.getBlockNumber()
 }
 
+export function getMonthsSuffix(value) {
+  if (value == 1) {
+    return 'Month'
+  }
+  return 'Months'
+}
+
+export function timestampToDate(timestamp) {
+  const dateObj = new Date(timestamp * 1000);
+  const day = dateObj.getUTCDate()
+  const month = dateObj.getUTCMonth()
+  const year = dateObj.getUTCFullYear()
+
+  return `${day}.${month}.${year}`
+}
+
 export const toBytes32 = (x, prefix = true) => {
   let y = web3.toHex(x);
   y = y.replace("0x", "");
