@@ -158,25 +158,71 @@ class LockNEC extends React.Component {
     )
   }
 
+  getTimerVisuals() {
+    const { lockNECStore, timeStore } = this.props.root
+
+    let prefix = 'Next starts in'
+    let ended = false
+
+    let periodPercentage = 0
+    let periodTimer = '...'
+
+    const now = timeStore.currentTime
+    const currentPeriod = lockNECStore.getActiveLockingPeriod()
+    const numLockingPeriods = lockNECStore.staticParams.numLockingPeriods
+    const lockingStart = lockNECStore.staticParams.startTime
+    const numPeriods = lockNECStore.staticParams.numLockingPeriods
+    const periodLength = lockNECStore.staticParams.lockingPeriodLength
+
+    // Locking Ended
+    if (currentPeriod >= numPeriods) {
+      if (now > lockingStart) {
+        periodPercentage = 100
+        periodTimer = 'Locking has ended'
+        ended = true
+      } else {
+        prefix = 'Last auction ends in'
+      }
+    }
+
+    // Locking In Progress
+    if (!ended) {
+      const batchTime = new BN(periodLength)
+      const currentBatch = new BN(currentPeriod)
+      const startTime = new BN(lockingStart)
+      const currentBatchEndTime = batchTime.mul(currentBatch.add(new BN(1))).add(startTime)
+      const nowTime = new BN(now)
+      const timeUntilNextBatch = currentBatchEndTime.sub(nowTime)
+
+      periodPercentage = (timeUntilNextBatch.toNumber() / periodLength) * 100
+      periodTimer = `${prefix}, ${timeUntilNextBatch} seconds`
+    }
+
+    return {
+      periodPercentage,
+      periodTimer
+    }
+  }
+
   renderTable(userLocksLoaded, auctionDataLoaded, currentTab) {
-    if (currentTab === tabs.YOUR_LOCKS && userLocksLoaded) {
+    if (currentTab === tabs.YOUR_LOCKS) {
       return (
         <UserLocksTable />
       )
-    } else if (currentTab === tabs.AUCTION_DATA && auctionDataLoaded) {
+    } else if (currentTab === tabs.AUCTION_DATA) {
       return (
         < LockDataTable />
       )
     } else if (currentTab === tabs.YOUR_LOCKS) {
-      return <div>Loading user locks...</div>
+      return (<LoadingCircle></LoadingCircle>)
     } else if (currentTab === tabs.AUCTION_DATA) {
-      return <div>Loading auction data</div>
+      return (<LoadingCircle></LoadingCircle>)
     }
 
   }
 
   render() {
-    const { lockNECStore, providerStore, tokenStore } = this.props.root
+    const { lockNECStore, providerStore, tokenStore, timeStore } = this.props.root
     const { currentTab } = this.state
     const userAddress = providerStore.getDefaultAccount()
     const necTokenAddress = deployed.NectarToken
@@ -195,43 +241,13 @@ class LockNEC extends React.Component {
 
     const currentPeriod = lockNECStore.getActiveLockingPeriod()
     const maxPeriods = lockNECStore.staticParams.numLockingPeriods
-    const lockingStart = lockNECStore.staticParams.startTime
-    const numPeriods = lockNECStore.staticParams.numLockingPeriods
-    const periodLength = lockNECStore.staticParams.lockingPeriodLength
 
     const necBalance = tokenStore.getBalance(necTokenAddress, userAddress)
-    const now = Math.round((new Date()).getTime() / 1000)
+    const now = timeStore.currentTime
 
-    let prefix = 'Next starts in'
-    let ended = false
+    const timerVisuals = this.getTimerVisuals()
 
-    let periodPercentage = 0
-    let periodTimer = '...'
-
-    // Locking Ended
-    if (currentPeriod >= numPeriods) {
-      if (Date.now() > lockingStart) {
-        periodPercentage = 100
-        periodTimer = 'Locking has ended'
-        ended = true
-      } else {
-        prefix = 'Last auction ends in'
-      }
-    }
-
-    // Locking In Progress
-    if (!ended) {
-      const batchTime = new BN(periodLength)
-      const currentBatch = new BN(currentPeriod)
-      const startTime = new BN(lockingStart)
-      const currentBatchEndTime = batchTime.mul(currentBatch.add(new BN(1))).add(startTime)
-      const nowTime = new BN(now)
-
-      const timeUntilNextBatch = currentBatchEndTime.sub(nowTime)
-
-      // setAuctionPercentage((timeUntilNextBatch.toNumber() / auctionLength) * 100)
-      periodTimer = `${prefix}, ${timeUntilNextBatch} time units`
-    }
+    const { periodPercentage, periodTimer } = timerVisuals
 
     // User Lock Data
     const data = lockNECStore.getUserTokenLocks(userAddress)

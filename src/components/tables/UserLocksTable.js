@@ -3,6 +3,7 @@ import { inject, observer } from "mobx-react";
 import { TableWrapper, RowWrapper, InactiveRowWrapper, Row, CellWrapper, GreyCell } from 'components/common/Table'
 import 'components/common/Table.scss'
 import * as helpers from 'utils/helpers'
+import LoadingCircle from '../common/LoadingCircle';
 
 const NO_DATA_MESSAGE = 'User has no token locks'
 
@@ -51,7 +52,7 @@ class UserLocksTable extends React.Component {
             <TableWrapper>
                 <InactiveRowWrapper>
                     <Row>
-                        Loading auction data...
+                        <LoadingCircle />
                     </Row>
                 </InactiveRowWrapper>
             </TableWrapper>
@@ -74,7 +75,12 @@ class UserLocksTable extends React.Component {
         const userAddress = providerStore.getDefaultAccount()
         const userLocksLoaded = lockNECStore.isUserLockInitialLoadComplete(userAddress)
         const userLocks = lockNECStore.getUserTokenLocks(userAddress)
-        const rows = this.generateTableRows(userLocks.data, userAddress)
+
+        let rows
+
+        if (userLocksLoaded) {
+            rows = this.generateTableRows(userLocks.data, userAddress)
+        }
 
         const columns = [
             { name: 'Period #', key: 'startPeriod', width: '20%', align: 'left' },

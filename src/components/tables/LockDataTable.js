@@ -3,6 +3,7 @@ import { inject, observer } from "mobx-react";
 import { TableWrapper, RowWrapper, InactiveRowWrapper, Row, CellWrapper, GreyCell } from 'components/common/Table'
 import 'components/common/Table.scss'
 import * as helpers from 'utils/helpers'
+import LoadingCircle from '../common/LoadingCircle';
 
 const NO_DATA_MESSAGE = 'All lock data not available'
 
@@ -44,7 +45,7 @@ class LockDataTable extends React.Component {
             <TableWrapper>
                 <InactiveRowWrapper>
                     <Row>
-                        Loading auction data...
+                        <LoadingCircle />
                     </Row>
                 </InactiveRowWrapper>
             </TableWrapper>
@@ -56,10 +57,14 @@ class LockDataTable extends React.Component {
         const { lockNECStore, providerStore } = this.props.root
 
         const userAddress = providerStore.getDefaultAccount()
-        const userLocksLoaded = lockNECStore.isUserLockInitialLoadComplete(userAddress)
-        const userLocks = lockNECStore.getUserTokenLocks(userAddress)
-        const tableData = this.generateTableRows(userLocks.data)
-        const data = this.generateTableData(tableData, userAddress)
+        const lockDataLoaded = lockNECStore.isAuctionDataInitialLoadComplete(userAddress)
+
+        let data
+        if (lockDataLoaded) {
+            const userLocks = lockNECStore.getUserTokenLocks(userAddress)
+            const tableData = this.generateTableRows(userLocks.data)
+            data = this.generateTableData(tableData, userAddress)
+        }
 
         const columns = [
             { name: 'Period #', key: 'startPeriod', width: '20%', align: 'left' },
@@ -81,7 +86,7 @@ class LockDataTable extends React.Component {
                         ))}
                     </Row>
                 </RowWrapper>
-                {userLocksLoaded ?
+                {lockDataLoaded ?
                     <TableWrapper>
                         {data.map((row, index) => {
                             const highlight = !highlightTopRow || index === 0

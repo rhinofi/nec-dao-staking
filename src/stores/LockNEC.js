@@ -106,15 +106,8 @@ export default class LockNECStore {
         const batchLength = Number(this.staticParams.lockingPeriodLength)
         const numBatches = Number(duration)
 
-        console.log('batch Length', batchLength)
-
         const lockLength = batchLength * numBatches
-
-        const startDate = new Date(lockTime)
         const endDate = new Date(lockTime + lockLength)
-
-        console.log('start', startDate.toString())
-        console.log('end', endDate.toString())
 
         return endDate.valueOf()
     }
