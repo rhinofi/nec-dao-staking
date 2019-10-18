@@ -11,7 +11,6 @@ import icon from 'assets/svgs/ethfinex-logo.svg'
 import * as deployed from 'deployed'
 import * as helpers from 'utils/helpers'
 
-
 const { BN } = helpers
 
 const propertyNames = {
@@ -19,7 +18,6 @@ const propertyNames = {
   USER_LOCKS: 'userLocks',
   AUCTION_DATA: 'auctionData'
 }
-
 
 const LockNECWrapper = styled.div`
   display: flex;
@@ -44,9 +42,32 @@ const TableHeaderWrapper = styled.div`
 `
 
 const TableTabsWrapper = styled.div`
-  height: 103px
   display: flex;
   flex-direction: row;
+  align-items: center;
+  height: 103px
+`
+
+const TableTabButton = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 7.5px 14px;
+  margin-left: 12px;
+  background: var(--background);
+  border: 1px solid var(--active-border);
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 18px;
+  color: var(--white-text);
+`
+
+const InactiveTableTabButton = styled(TableTabButton)`
+  color: var(--inactive-header-text);
+  border: 1px solid var(--inactive-border);
 `
 
 const ActionsWrapper = styled.div`
@@ -67,22 +88,6 @@ const ActionsHeader = styled.div`
   margin: 0px 24px;
   color: var(--white-text);
   border-bottom: 1px solid var(--border);
-`
-
-const TableTabButton = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 34px;
-  margin: 0px 24px;
-  background: var(--action-button);
-  font-family: Montserrat;
-  font-style: normal;
-  font-weight: 600;
-  font-size: 15px;
-  line-height: 18px;
-  color: var(--white-text);
 `
 
 const tabs = {
@@ -222,7 +227,22 @@ class LockNEC extends React.Component {
     } else if (currentTab === tabs.AUCTION_DATA) {
       return <div>Loading auction data</div>
     }
+  }
 
+  TabButton = (currentTab, tabType, tabText) => {
+    if(currentTab === tabType) {
+      return (
+        <TableTabButton onClick={() => this.setCurrentTab(tabType)}>
+          {tabText}
+        </TableTabButton>
+      )
+    } else {
+      return (
+        <InactiveTableTabButton onClick={() => this.setCurrentTab(tabType)}>
+          {tabText}
+        </InactiveTableTabButton>
+      )
+    }
   }
 
   render() {
@@ -301,8 +321,8 @@ class LockNEC extends React.Component {
               height="28px"
             />
             <TableTabsWrapper>
-              <TableTabButton onClick={() => this.setCurrentTab(tabs.YOUR_LOCKS)}>Your Locks</TableTabButton>
-              <TableTabButton onClick={() => this.setCurrentTab(tabs.ALL_PERIODS)}>All Periods</TableTabButton>
+              {this.TabButton(currentTab, tabs.YOUR_LOCKS, "Your Locks")}
+              {this.TabButton(currentTab, tabs.ALL_PERIODS, "All Periods")}
             </TableTabsWrapper>
           </TableHeaderWrapper>
           {this.renderTable(userLocksLoaded, auctionDataLoaded, tableData, currentTab)}
