@@ -1,7 +1,6 @@
-import React from 'react'
 import styled from 'styled-components'
 
-const Button = styled.div`
+const InactiveButton = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -17,11 +16,5 @@ const Button = styled.div`
   color: var(--inactive-header-text);
   background: none;
 `
-
-const InactiveButton = ({ buttonText }) => {
-  return (
-    <Button>{buttonText}</Button>
-  )
-}
 
 export default InactiveButton

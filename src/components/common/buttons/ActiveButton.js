@@ -1,7 +1,6 @@
-import React from 'react'
 import styled from 'styled-components'
 
-const Button = styled.div`
+export const ActiveButton = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -16,11 +15,5 @@ const Button = styled.div`
   line-height: 18px;
   color: var(--white-text);
 `
-
-const ActiveButton = ({ buttonText }) => {
-  return (
-    <Button>{buttonText}</Button>
-  )
-}
 
 export default ActiveButton
