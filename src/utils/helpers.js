@@ -8,6 +8,15 @@ import web3 from "./web3";
 // Settings
 import settings from "../settings.json";
 
+export const timeConstants = {
+  inSeconds: {
+    DAY: 86400,
+    HOUR: 3600,
+    MINUTE: 60,
+    SECOND: 1
+  }
+}
+
 export const { toBN, toWei, fromWei, isAddress, BN } = web3.utils;
 
 export const MAX_GAS = 0xffffffff;
@@ -35,8 +44,74 @@ export async function getCurrentBlock() {
   return await web3.eth.getBlockNumber()
 }
 
+function dayText(value) {
+  return (value === 1 ? 'Day' : 'Days')
+}
+
+function hourText(value) {
+  return (value === 1 ? 'Hour' : 'Hours')
+}
+
+function minuteText(value) {
+  return (value === 1 ? 'Minute' : 'Minutes')
+}
+
+function secondText(value) {
+  return (value === 1 ? 'Second' : 'Seconds')
+}
+
+// These all truncate
+function numDays(value) {
+  // fullDays = value / days 
+  // fullDays / DAY
+}
+
+function numHours(value) {
+  // fullDays = value / days 
+  // remainingTime = value % days
+  // remainingHours = remainder / HOUR
+}
+
+function numMinutes(value) {
+  // fullDays = value / days 
+  // remainingTime = value % days
+  // remainingTime = value % hours
+  // remainingHours = remainder / MINUTE 
+}
+
+function numSecounds(value) {
+  // fullDays = value / days 
+  // remainingTime = value % days
+  // remainingTime = value % hours
+  // remainingTime = value % seconds
+  // remainingHours = remainder / MINUTE
+}
+
+export function getRemainingTimeText(value) {
+  const inSeconds = Number(value)
+  const time = timeConstants.inSeconds
+
+  if (inSeconds > time.DAY) {
+    const days = 1
+    const hours = 1
+    return `${days} ${dayText(days)}, ${hours} ${hourText(hours)}`
+  } else if (inSeconds <= time.DAY && inSeconds > time.HOUR) {
+    const hours = 1
+    const minutes = 1
+    return `${hours} ${hourText(hours)}, ${minutes} ${minuteText(minutes)}`
+  } else if (inSeconds <= time.HOUR && inSeconds > time.MINUTE) {
+    const minutes = 1
+    const seconds = 1
+    return `${minutes} ${minuteText(minutes)}, ${seconds} ${secondText(seconds)}`
+  } else if (inSeconds <= time.MINUTE) {
+    const seconds = 1
+    return `${seconds} ${secondText(seconds)}`
+  }
+}
+
 export function getMonthsSuffix(value) {
-  if (value == 1) {
+  const months = Number(value)
+  if (months === 1) {
     return 'Month'
   }
   return 'Months'

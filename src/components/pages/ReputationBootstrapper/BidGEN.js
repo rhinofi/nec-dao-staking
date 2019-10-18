@@ -143,7 +143,7 @@ class BidGEN extends React.Component {
     if (!ended) {
       auctionPercentage = (timeTillNextAuction / auctionLength) * 100
 
-      const seconds = timeTillNextAuction / 1000
+      const seconds = timeTillNextAuction
       let hours = (seconds / 60) / 60
       const days = Math.fround(hours / 24)
       hours -= days * 24
@@ -208,7 +208,7 @@ class BidGEN extends React.Component {
             />
           </TableHeaderWrapper>
           <GenAuctionTable
-            highlightTopRow
+            highlightRow={currentAuction}
             data={auctionData}
             dataLoaded={auctionDataLoaded}
           />

@@ -158,21 +158,31 @@ class LockNEC extends React.Component {
     )
   }
 
+  /*
+  Remaining Time
+  IF > 1 day
+    x days, y hours
+  IF < 1 day && > 1 hour
+    y hours, z minutes
+  IF < 1 hour && > 1 min
+    y minutes, z minutes
+  IF < 1 min && > 0 seconds
+  */
   getTimerVisuals() {
     const { lockNECStore, timeStore } = this.props.root
 
-    let prefix = 'Next starts in'
+    let prefix = 'Next locking period starts in'
     let ended = false
 
     let periodPercentage = 0
     let periodTimer = '...'
 
     const now = timeStore.currentTime
-    const currentPeriod = lockNECStore.getActiveLockingPeriod()
-    const numLockingPeriods = lockNECStore.staticParams.numLockingPeriods
-    const lockingStart = lockNECStore.staticParams.startTime
-    const numPeriods = lockNECStore.staticParams.numLockingPeriods
-    const periodLength = lockNECStore.staticParams.lockingPeriodLength
+    const currentPeriod = Number(lockNECStore.getActiveLockingPeriod())
+    const numLockingPeriods = Number(lockNECStore.staticParams.numLockingPeriods)
+    const lockingStart = Number(lockNECStore.staticParams.startTime)
+    const numPeriods = Number(lockNECStore.staticParams.numLockingPeriods)
+    const periodLength = Number(lockNECStore.staticParams.lockingPeriodLength)
 
     // Locking Ended
     if (currentPeriod >= numPeriods) {
@@ -181,7 +191,7 @@ class LockNEC extends React.Component {
         periodTimer = 'Locking has ended'
         ended = true
       } else {
-        prefix = 'Last auction ends in'
+        prefix = 'Last locking period ends in'
       }
     }
 
