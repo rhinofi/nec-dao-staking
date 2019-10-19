@@ -5,6 +5,7 @@ import * as deployed from "../deployed";
 import * as blockchain from "utils/blockchain"
 import * as helpers from "utils/helpers"
 import Big from 'big.js/big.mjs';
+import * as log from 'loglevel'
 
 const objectPath = require("object-path")
 
@@ -17,9 +18,8 @@ export const statusCodes = {
     SUCCESS: 3
 }
 
-const defaultLoadingStatus = {
-    status: statusCodes.NOT_LOADED,
-    initialLoad: false
+const text = {
+    staticParamsNotLoaded: 'Static params must be loaded before calling this function'
 }
 
 const propertyNames = {
@@ -47,52 +47,57 @@ export default class AirdropStore {
         this.rootStore = rootStore;
     }
 
-    setLoadingStatus(propertyName, status, userAddress = null) {
-        if (propertyName === propertyNames.USER_DATA) {
-            if (!this.loadingStatus[propertyName][userAddress]) {
-                this.loadingStatus[propertyName][userAddress] = {}
-            }
-            this.loadingStatus[propertyName][userAddress] = {
-                ...this.loadingStatus[propertyName],
-                status
-            }
-        } else {
-            this.loadingStatus[propertyName] = {
-                ...this.loadingStatus[propertyName],
-                status
-            }
-        }
+    isAfterSnapshot() {
+        const snapshotBlock = Number(this.staticParams.snapshotBlock)
+        const currentBlock = Number(this.rootStore.timeStore.currentBlock)
+
+        return (currentBlock >= snapshotBlock ? true : false)
     }
 
-    setUserDataInitialLoad(userAddress, flag) {
-        objectPath.set(this.initialLoad, `userData.${userAddress}`, flag)
+    getBlocksPastSnapshot() {
+        const snapshotBlock = Number(this.staticParams.snapshotBlock)
+        const currentBlock = Number(this.rootStore.timeStore.currentBlock)
+
+        return currentBlock - snapshotBlock
+    }
+
+    getBlocksUntilSnapshot() {
+        const snapshotBlock = Number(this.staticParams.snapshotBlock)
+        const currentBlock = Number(this.rootStore.timeStore.currentBlock)
+
+        return snapshotBlock - currentBlock
+    }
+
+    isClaimPeriodStarted() {
+        const now = this.rootStore.timeStore.currentTime
+        const startTime = this.staticParams.claimStartTime
+
+        return (now > startTime ? true : false)
+    }
+
+    isClaimPeriodEnded() {
+        const now = this.rootStore.timeStore.currentTime
+        const endTime = this.staticParams.claimEndTime
+
+        return (now > endTime ? true : false)
     }
 
     setInitialLoad(propertyName, flag) {
         objectPath.set(this.initialLoad, `${propertyName}`, flag)
     }
 
-
-    isPropertyInitialLoadComplete(propertyName, userAddress = null) {
-        if (propertyName === propertyNames.USER_DATA) {
-            if (!this.loadingStatus[propertyName][userAddress]) {
-                return false
-            }
-
-            return this.loadingStatus[propertyName][userAddress].initialLoad || false
-        }
-        return this.loadingStatus[propertyName].initialLoad
+    isUserDataLoaded(userAddress) {
+        const loaded = objectPath.get(this.userData, `${userAddress}.initialLoad`) || false
+        return loaded
     }
 
-    getLoadStatus(propertyName, userAddress = null) {
-        if (propertyName === propertyNames.USER_DATA) {
-            if (!this.loadingStatus[propertyName][userAddress]) {
-                return false
-            }
+    areStaticParamsLoaded() {
+        const loaded = objectPath.get(this.initialLoad, `staticParams`) || false
+        return loaded
+    }
 
-            return this.loadingStatus[propertyName][userAddress].status
-        }
-        return this.loadingStatus[propertyName].status
+    setUserData(userAddress, data) {
+        objectPath.set(this.userData, `${userAddress}`, data)
     }
 
     loadNecRepAllocationContract() {
@@ -119,14 +124,12 @@ export default class AirdropStore {
         return this.userData[userAddress].snapshotRep
     }
 
-    getHasReemed(userAddress) {
+    getHasRedeemed(userAddress) {
         return this.userData[userAddress].hasReemeed
     }
 
     fetchStaticParams = async () => {
         const contract = this.loadNecRepAllocationContract()
-
-        this.setLoadingStatus(propertyNames.STATIC_PARAMS, statusCodes.PENDING)
 
         try {
             const snapshotBlock = await contract.methods.blockReference().call()
@@ -143,26 +146,20 @@ export default class AirdropStore {
                 totalRepReward
             }
 
-            this.setLoadingStatus(propertyNames.STATIC_PARAMS, statusCodes.SUCCESS)
             this.setInitialLoad(propertyNames.STATIC_PARAMS, true)
-
-
         } catch (e) {
             console.log(e)
-            this.setLoadingStatus(propertyNames.STATIC_PARAMS, statusCodes.ERROR)
         }
     }
 
     @action fetchUserData = async (userAddress) => {
-        if (!this.isPropertyInitialLoadComplete(propertyNames.STATIC_PARAMS)) {
-            throw new Error('Static properties must be loaded before fetching user locks')
+        if (!this.areStaticParamsLoaded()) {
+            throw new Error(text.staticParamsNotLoaded)
         }
 
         const contract = this.loadRepFromTokenContract()
         const necRepAllocationContract = this.loadNecRepAllocationContract()
-
-        this.setLoadingStatus(propertyNames.USER_DATA, statusCodes.PENDING, userAddress)
-
+        log.info('[Fetch] User Airdrop Data', userAddress)
         try {
             const redeemEvents = await contract.getPastEvents(REDEEM_EVENT, {
                 fromBlock: 0,
@@ -175,18 +172,15 @@ export default class AirdropStore {
 
             //TODO: filter events for user redemption
             //TODO: calculate REP from (user balance / total supply) * totalREP
-
-            this.userData[userAddress] = {
+            this.setUserData(userAddress, {
                 snapshotBalance: userBalance,
                 snapshotRep: userRep,
-                hasReemeed
-            }
-            this.setLoadingStatus(propertyNames.USER_DATA, statusCodes.SUCCESS, userAddress)
-            this.setInitialLoad(propertyNames.USER_DATA, true, userAddress)
+                hasReemeed,
+                initialLoad: true
+            })
 
         } catch (e) {
-            console.log(e)
-            this.setLoadingStatus(propertyNames.USER_DATA, statusCodes.ERROR, userAddress)
+            log.error(e)
         }
     }
 
@@ -197,7 +191,7 @@ export default class AirdropStore {
         try {
             await contract.methods.redeem(beneficiary).send()
         } catch (e) {
-            console.log(e)
+            log.error(e)
         }
 
     }

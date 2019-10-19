@@ -86,27 +86,32 @@ class LockDataTable extends React.Component {
                         ))}
                     </Row>
                 </RowWrapper>
-                {lockDataLoaded ?
-                    <TableWrapper>
-                        {data.map((row, index) => {
-                            const highlight = !highlightTopRow || index === 0
-                            const Cell = highlight ? CellWrapper : GreyCell
-                            const Wrapper = highlight ? RowWrapper : InactiveRowWrapper
-                            return (
-                                <Wrapper>
-                                    <Row>
-                                        {columns.map(column => (
-                                            <Cell width={column.width} align={column.align}>
-                                                {row[column.key]}
-                                            </Cell>
-                                        ))}
-                                    </Row>
-                                </Wrapper>
-                            )
-                        })}
-                    </TableWrapper>
-                    :
-                    this.renderNoDataTable()
+
+                <TableWrapper>
+                    {lockDataLoaded ?
+                        <div>
+                            {data.map((row, index) => {
+                                const highlight = !highlightTopRow || index === 0
+                                const Cell = highlight ? CellWrapper : GreyCell
+                                const Wrapper = highlight ? RowWrapper : InactiveRowWrapper
+                                return (
+                                    <Wrapper>
+                                        <Row>
+                                            {columns.map(column => (
+                                                <Cell width={column.width} align={column.align}>
+                                                    {row[column.key]}
+                                                </Cell>
+                                            ))}
+                                        </Row>
+                                    </Wrapper>
+                                )
+                            })}
+                        </div>
+                        :
+                        this.renderNoDataTable()
+                    }
+                </TableWrapper>
+
                 }
             </React.Fragment>
         )

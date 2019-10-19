@@ -112,22 +112,6 @@ class Airdrop extends React.Component {
     }
   }
 
-  calcClaimTimeStarted(currentTime, claimStartTime) {
-    if (currentTime > claimStartTime) {
-      return true
-    } else {
-      return false
-    }
-  }
-
-  calcClaimTimeEnded(currentTime, claimEndTime) {
-    if (currentTime > claimEndTime) {
-      return true
-    } else {
-      return false
-    }
-  }
-
   calcTimeTillSnapshot(secondsUntilSnapshot) {
     const seconds = secondsUntilSnapshot
     let hours = (seconds / 60) / 60
@@ -162,34 +146,35 @@ class Airdrop extends React.Component {
     let dropTimer = '...'
     let dropStatus = snapshotStatus.NOT_STARTED
 
-    const { claimStartTime, claimEndTime, snapshotBlock } = airdropStore.staticParams
+    const { snapshotBlock } = airdropStore.staticParams
     const now = timeStore.currentTime
     const latestBlock = timeStore.currentBlock
 
-    const snapshotConcluded = this.calcSnapshotConcluded(snapshotBlock, latestBlock)
-    const claimTimeStarted = this.calcClaimTimeStarted(now, claimStartTime)
-    const claimTimeConcluded = this.calcClaimTimeEnded(now, claimEndTime)
+    const isSnapshotPassed = airdropStore.isAfterSnapshot()
+    const isClaimPeriodStarted = airdropStore.isClaimPeriodStarted()
+    const isClaimPeriodEnded = airdropStore.isClaimPeriodEnded()
+    const isClaimPeriodActive = isClaimPeriodStarted && !isClaimPeriodEnded
 
-    if (snapshotConcluded && !claimTimeStarted && !claimTimeConcluded) {
+    if (isSnapshotPassed && !isClaimPeriodStarted) {
       dropPercentage = 100
       dropTimer = 'Has Concluded'
       dropStatus = snapshotStatus.SNAPSHOT_CONCLUDED
     }
 
-    if (snapshotConcluded && claimTimeStarted && !claimTimeConcluded) {
+    if (isSnapshotPassed && isClaimPeriodActive) {
       dropPercentage = 100
       dropTimer = 'Claim Period Active'
       dropStatus = snapshotStatus.CLAIM_STARTED
     }
 
-    if (snapshotConcluded && claimTimeStarted && claimTimeConcluded) {
+    if (isSnapshotPassed && !isClaimPeriodActive) {
       dropPercentage = 100
       dropTimer = 'Claim Period Concluded'
       dropStatus = snapshotStatus.CLAIM_ENDED
     }
 
 
-    if (!snapshotConcluded) {
+    if (!isSnapshotPassed) {
       const timeTillSnapshot = this.calcTimeTillSnapshot(snapshotBlock, latestBlock)
       const { seconds, hours, days } = timeTillSnapshot
 
@@ -206,30 +191,32 @@ class Airdrop extends React.Component {
     }
   }
 
+
   renderActionButton(status, userBalance) {
     if (status === snapshotStatus.NOT_STARTED) {
       return (<ActiveButton>Buy NEC</ActiveButton>)
     }
 
-    // If the user has a balance and the claim period is active, show claim button
+    else if (userBalance === "0") {
+      return (<div>This address has no REP to claim from the Airdrop</div>)
+    }
+
     else if (status === snapshotStatus.CLAIM_STARTED && userBalance !== "0") {
       return (<ActiveButton>Claim REP</ActiveButton>)
     }
 
-    // If the user has no balance, or the claim period has ended, show disabled claim button
-    else if ((status === snapshotStatus.CLAIM_STARTED && userBalance === "0") || (status === snapshotStatus.CLAIM_ENDED)) {
+    else if (status === snapshotStatus.CLAIM_ENDED && userBalance !== "0") {
       return (<InactiveButton>Claim REP</InactiveButton>)
     }
   }
 
   render() {
     const { airdropStore, providerStore, timeStore } = this.props.root
-
     const userAddress = providerStore.getDefaultAccount()
+    const staticParamsLoaded = airdropStore.areStaticParamsLoaded()
+    const userDataLoaded = airdropStore.isUserDataLoaded(userAddress)
 
-    const staticParamsLoaded = airdropStore.isPropertyInitialLoadComplete(propertyNames.STATIC_PARAMS)
-
-    const userDataLoaded = airdropStore.isPropertyInitialLoadComplete(propertyNames.USER_DATA, userAddress)
+    const data = airdropStore.userData[userAddress]
 
     if (!staticParamsLoaded || !userDataLoaded) {
       return (<LoadingCircle instruction={''} subinstruction={''} />)
@@ -239,7 +226,6 @@ class Airdrop extends React.Component {
     const necBalanceDisplay = helpers.roundValue(helpers.fromWei(necBalance))
     const repBalance = airdropStore.getSnapshotRep(userAddress)
     const snapshotBlock = airdropStore.getSnapshotBlock()
-
     const currentBlock = timeStore.currentBlock
     const dropVisuals = this.calcDropVisuals()
     const { dropPercentage, dropTimer, dropStatus } = dropVisuals

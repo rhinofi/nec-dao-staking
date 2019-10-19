@@ -304,7 +304,6 @@ export default class LockNECStore {
             }
 
             log.info('[Fetch] User Locks', userAddress, data)
-
             this.setUserLocksProperty(userAddress, 'data', data)
             this.setUserLocksProperty(userAddress, 'initialLoad', true)
 

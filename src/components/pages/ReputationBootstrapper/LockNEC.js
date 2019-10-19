@@ -214,7 +214,7 @@ class LockNEC extends React.Component {
     }
   }
 
-  renderTable(userLocksLoaded, auctionDataLoaded, currentTab) {
+  renderTable(currentTab) {
     if (currentTab === tabs.YOUR_LOCKS) {
       return (
         <UserLocksTable />
@@ -223,12 +223,7 @@ class LockNEC extends React.Component {
       return (
         < LockDataTable />
       )
-    } else if (currentTab === tabs.YOUR_LOCKS) {
-      return (<LoadingCircle></LoadingCircle>)
-    } else if (currentTab === tabs.AUCTION_DATA) {
-      return (<LoadingCircle></LoadingCircle>)
     }
-
   }
 
   render() {
@@ -237,6 +232,8 @@ class LockNEC extends React.Component {
     const userAddress = providerStore.getDefaultAccount()
     const necTokenAddress = deployed.NectarToken
     const schemeAddress = deployed.ContinuousLocking4Reputation
+
+    console.log(currentTab)
 
     // Check Loading Conditions
     const staticParamsLoaded = lockNECStore.isStaticParamsInitialLoadComplete()
@@ -259,9 +256,6 @@ class LockNEC extends React.Component {
 
     const { periodPercentage, periodTimer } = timerVisuals
 
-    // User Lock Data
-    const data = lockNECStore.getUserTokenLocks(userAddress)
-
     return (
       <LockNECWrapper>
         <DetailsWrapper>
@@ -278,7 +272,7 @@ class LockNEC extends React.Component {
               <TableTabButton onClick={() => this.setCurrentTab(tabs.ALL_PERIODS)}>All Periods</TableTabButton>
             </TableTabsWrapper>
           </TableHeaderWrapper>
-          {this.renderTable(userLocksLoaded, auctionDataLoaded, currentTab)}
+          {this.renderTable(currentTab)}
         </DetailsWrapper>
         <ActionsWrapper>
           <ActionsHeader>
