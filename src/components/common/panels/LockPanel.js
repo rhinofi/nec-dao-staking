@@ -62,6 +62,13 @@ const LockAmountForm = styled.div`
   margin-top: 30px;
   padding: 0px 20px 6px 20px;
   border-bottom: 1px solid var(--inactive-border);
+  input {
+    font-size: 15px;
+    line-height: 18px;
+    color: var(--white-text);
+    background: var(--background);
+    border: none;
+  }
 `
 
 const ReleaseableDateWrapper = styled.div`
@@ -193,7 +200,7 @@ class LockPanel extends React.Component {
       <LockAmountWrapper>
         <div>Lock Amount</div>
         <LockAmountForm>
-          <input type="text" name="name" value={amount} onChange={e => this.setLockAmount(e)} />
+          <input type="text" name="name" placeholder="0" value={amount} onChange={e => this.setLockAmount(e)} />
           <div>NEC</div>
         </LockAmountForm>
       </LockAmountWrapper>
