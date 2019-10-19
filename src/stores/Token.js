@@ -46,11 +46,11 @@ export default class TokenStore {
     setApprovePending(token, owner, spender, flag) {
         objectPath.set(this.asyncActions, `approve.${token}.${owner}.${spender}`, flag)
         this.asyncActions.approve[token][owner][spender] = flag
-        console.log('set', this.asyncActions.approve[token][owner][spender])
+        log.info('set', this.asyncActions.approve[token][owner][spender])
     }
 
     isApprovePending(token, owner, spender) {
-        console.log('is', objectPath.get(this.asyncActions, `approve.${token}.${owner}.${spender}`) || false)
+        log.info('is', objectPath.get(this.asyncActions, `approve.${token}.${owner}.${spender}`) || false)
         return objectPath.get(this.asyncActions, `approve.${token}.${owner}.${spender}`) || false
     }
 

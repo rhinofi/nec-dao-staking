@@ -1,5 +1,6 @@
 import { observable, action, computed } from 'mobx'
-import * as blockchain from '../utils/blockchain'
+import * as blockchain from 'utils/blockchain'
+import * as web3 from 'utils/web3'
 import * as log from 'loglevel';
 
 const errors = {
@@ -49,6 +50,9 @@ export default class ProviderStore {
 
         this.rootStore.setClockUpdateInteral()
         this.rootStore.setDataUpdateInterval(account)
+
+        // web3.currentProvider.publicConfigStore.on('update', this.setWeb3WebClient());
+
     }
 
     getDefaultAccount = () => {

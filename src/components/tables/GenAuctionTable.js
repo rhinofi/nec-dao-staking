@@ -24,7 +24,6 @@ class GenAuctionTable extends React.Component {
             }
         }).reverse()
 
-        console.log(data)
         return data
     }
 
@@ -61,11 +60,13 @@ class GenAuctionTable extends React.Component {
             <React.Fragment>
                 <RowWrapper>
                     <Row>
-                        {columns.map(column => (
-                            <GreyCell width={column.width} align={column.align}>
-                                {column.name}
-                            </GreyCell>
-                        ))}
+                        {columns.map((column, index) => {
+                            return (
+                                <GreyCell key={`column-${index}`} width={column.width} align={column.align}>
+                                    {column.name}
+                                </GreyCell>
+                            )
+                        })}
                     </Row>
                 </RowWrapper>
                 {auctionDataLoaded ?
@@ -75,13 +76,15 @@ class GenAuctionTable extends React.Component {
                             const Cell = highlight ? CellWrapper : GreyCell
                             const Wrapper = highlight ? RowWrapper : InactiveRowWrapper
                             return (
-                                <Wrapper>
-                                    <Row>
-                                        {columns.map(column => (
-                                            <Cell width={column.width} align={column.align}>
-                                                {row[column.key]}
-                                            </Cell>
-                                        ))}
+                                <Wrapper key={`wrapper-${index}`}>
+                                    <Row key={`row-${index}`}>
+                                        {columns.map((column, index) => {
+                                            return (
+                                                <Cell key={`cell-${index}`} width={column.width} align={column.align}>
+                                                    {row[column.key]}
+                                                </Cell>
+                                            )
+                                        })}
                                     </Row>
                                 </Wrapper>
                             )

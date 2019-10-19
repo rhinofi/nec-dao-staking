@@ -171,7 +171,7 @@ class LockNEC extends React.Component {
   getTimerVisuals() {
     const { lockNECStore, timeStore } = this.props.root
 
-    let prefix = 'Next locking period starts in'
+    let prefix = 'Next starts in'
     let ended = false
 
     let periodPercentage = 0
@@ -191,7 +191,7 @@ class LockNEC extends React.Component {
         periodTimer = 'Locking has ended'
         ended = true
       } else {
-        prefix = 'Last locking period ends in'
+        prefix = 'Last period ends in'
       }
     }
 

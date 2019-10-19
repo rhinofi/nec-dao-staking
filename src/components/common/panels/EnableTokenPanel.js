@@ -108,8 +108,6 @@ class EnableTokenPanel extends React.Component {
   render() {
     const { enabled, pending } = this.props
 
-    console.log('pending?', pending)
-
     return (
       <PanelWrapper>
         {pending ?
