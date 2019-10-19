@@ -187,6 +187,7 @@ class LockNEC extends React.Component {
 
     if (!isLockingStarted) {
       prefix = 'First period starts in'
+      periodTitle = "Locking has not started"
     }
 
 

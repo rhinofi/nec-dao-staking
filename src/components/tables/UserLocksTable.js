@@ -92,7 +92,7 @@ class UserLocksTable extends React.Component {
             const { lockId } = value
             const canExtend = true
             if (canExtend) {
-                return <TableButton onClick={() => { console.log('make the modal appear and pass in this lockId') }}>Release</TableButton>
+                return <TableButton onClick={() => { console.log('make the modal appear and pass in this lockId') }}>Extend</TableButton>
             } else {
                 return <DisabledText>Extend</DisabledText>
             }
@@ -119,9 +119,8 @@ class UserLocksTable extends React.Component {
             { name: 'Period #', key: 'startPeriod', width: '20%', align: 'left' },
             { name: 'Amount', key: 'amount', width: '20%', align: 'left' },
             { name: 'Duration', key: 'duration', width: '20%', align: 'left' },
-            { name: 'Extend', key: 'extendActionData', width: '15%', align: 'left' },
+            { name: 'Extend', key: 'extendData', width: '20%', align: 'left' },
             { name: 'Release', key: 'releaseData', width: '20%', align: 'left' },
-            // { name: 'Action', key: 'releaseData', width: '20%', align: 'left' }
         ]
 
         return (

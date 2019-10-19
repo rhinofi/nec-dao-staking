@@ -43,8 +43,18 @@ export default class AirdropStore {
         staticParams: false
     }
 
+    @observable redeemAction = false
+
     constructor(rootStore) {
         this.rootStore = rootStore;
+    }
+
+    setRedeemPending(flag) {
+        this.redeemAction = flag
+    }
+
+    isRedeemPending() {
+        return this.redeemAction
     }
 
     isAfterSnapshot() {
@@ -188,10 +198,13 @@ export default class AirdropStore {
         const contract = this.loadNecRepAllocationContract()
 
         console.log('redeem', beneficiary)
+        this.setRedeemPending(true)
         try {
             await contract.methods.redeem(beneficiary).send()
+            this.setRedeemPending(false)
         } catch (e) {
             log.error(e)
+            this.setRedeemPending(false)
         }
 
     }

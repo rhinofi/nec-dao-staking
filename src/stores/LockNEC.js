@@ -135,7 +135,7 @@ export default class LockNECStore {
     isLockingStarted() {
         const now = this.rootStore.timeStore.currentTime
         const startTime = this.staticParams.startTime
-        return (now > startTime)
+        return (now >= startTime)
     }
 
     isLockingEnded() {
@@ -145,7 +145,7 @@ export default class LockNECStore {
         const numAuctions = this.staticParams.numLockingPeriods
 
         const endTime = startTime + (batchTime * numAuctions)
-        return endTime
+        return (now >= endTime)
     }
 
     calcReleaseableTimestamp(lockingTime, duration) {

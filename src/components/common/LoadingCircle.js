@@ -27,20 +27,22 @@ const SubInstruction = styled.div`
 `
 
 class LoadingCircle extends React.Component {
-    render() {
-        const { instruction, subinstruction } = this.props
+  render() {
+    const { instruction, subinstruction } = this.props
 
-        return (
-            <CircleAndTextContainer>
-                <ProgressCircle
-                    value={66} width={"45px"} height={"45px"}
-                    rotate
-                />
-                <Instruction>{instruction}</Instruction>
-                <SubInstruction>{subinstruction}</SubInstruction>
-            </CircleAndTextContainer>
-        )
-    }
+    return (
+      <React.Fragment>
+        <CircleAndTextContainer>
+          <ProgressCircle
+            value={66} width={"45px"} height={"45px"}
+            rotate
+          />
+          <Instruction>{instruction}</Instruction>
+          <SubInstruction>{subinstruction}</SubInstruction>
+        </CircleAndTextContainer>
+      </React.Fragment>
+    )
+  }
 }
 
 export default LoadingCircle

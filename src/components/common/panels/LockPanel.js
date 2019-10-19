@@ -211,14 +211,15 @@ class LockPanel extends React.Component {
     </React.Fragment>)
   }
 
-  lockHandler() {
+  async lockHandler() {
     const { lockNECStore, lockFormStore } = this.props.root
 
     const amount = helpers.toWei(lockFormStore.amount)
     const duration = lockFormStore.duration
     const batchId = lockNECStore.getActiveLockingPeriod()
 
-    lockNECStore.lock(amount, duration, batchId)
+    await lockNECStore.lock(amount, duration, batchId)
+    lockFormStore.resetForm()
   }
 
   render() {

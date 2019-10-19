@@ -54,6 +54,7 @@ export default class BidGENStore {
     // Dynamic Data
     @observable repRewardLeft = ''
     @observable auctionData = {}
+    @observable auctionCount = 0
 
     // Status
     @observable loadingStatus = {
@@ -66,6 +67,27 @@ export default class BidGENStore {
 
     constructor(rootStore) {
         this.rootStore = rootStore;
+    }
+
+    getTrackedAuctionCount() {
+        return this.auctionCount
+    }
+
+    getUserBid(userAddress, auctionId) {
+        const userBid = this.auctionData[auctionId].bids[userAddress]
+        if (userBid) {
+            return userBid
+        } else {
+            return 0
+        }
+    }
+
+    getTotalBid(auctionId) {
+        return this.auctionData[auctionId].totalBids
+    }
+
+    getAuctionStatus(auctionId) {
+        return this.auctionData[auctionId].status
     }
 
     resetAsyncActions() {
@@ -162,10 +184,10 @@ export default class BidGENStore {
         const timeElapsed = currentTime - startTime
         const currentAuction = timeElapsed / auctionLength
 
-        // const maxAuctions = this.staticParams.numAuctions
-        // if (currentAuction.toNumber() > maxAuctions) {
-        //     return maxAuctions.toString()
-        // }
+        //Edge case for the wierd -0 issue
+        if (currentAuction < 0 && currentAuction > -1) {
+            return -1
+        }
         return Math.trunc(currentAuction)
     }
 
@@ -251,11 +273,16 @@ export default class BidGENStore {
 
             const data = []
 
+            if (currentAuction < 0) {
+                this.setInitialLoad(propertyNames.AUCTION_DATA, false)
+                this.auctionData = {}
+            }
+
             for (let auctionId = 0; auctionId <= currentAuction; auctionId += 1) {
                 if (!data[auctionId]) {
                     data[auctionId] = {
                         totalBids: '0',
-                        bids: []
+                        bids: {},
                     }
                 }
 
@@ -290,6 +317,8 @@ export default class BidGENStore {
             }
 
             this.auctionData = data
+            this.auctionCount = Number(currentAuction) + 1
+            console.log(data)
 
             this.setLoadingStatus(propertyNames.AUCTION_DATA, statusCodes.SUCCESS)
             this.setInitialLoad(propertyNames.AUCTION_DATA, true)

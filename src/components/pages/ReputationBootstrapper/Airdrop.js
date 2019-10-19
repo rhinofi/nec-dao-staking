@@ -171,7 +171,7 @@ class Airdrop extends React.Component {
 
     if (isSnapshotPassed && !isClaimPeriodActive) {
       dropPercentage = 100
-      dropTimer = 'Claim Period Concluded'
+      dropTimer = 'Claim Period has Ended'
       dropStatus = snapshotStatus.CLAIM_ENDED
     }
 
@@ -192,22 +192,38 @@ class Airdrop extends React.Component {
     }
   }
 
+  redeem() {
+    const { airdropStore, providerStore } = this.props.root
+    const userAddress = providerStore.getDefaultAccount()
+    airdropStore.redeem(userAddress)
+  }
 
-  renderActionButton(status, userBalance) {
+  renderActionButton(status, userBalance, pending) {
     if (status === snapshotStatus.NOT_STARTED) {
       return (<ActiveButton>Buy NEC</ActiveButton>)
     }
 
     else if (userBalance === "0") {
-      return (<div>This address has no REP to claim from the Airdrop</div>)
+      // return (<div>This address has no REP to claim from the Airdrop</div>)
+      return (<React.Fragment></React.Fragment>)
     }
 
     else if (status === snapshotStatus.CLAIM_STARTED && userBalance !== "0") {
-      return (<ActiveButton>Claim REP</ActiveButton>)
+      if (!pending) {
+        return (<ActiveButton onClick={() => { this.redeem() }}>Claim REP</ActiveButton>)
+      } else {
+        return (<ActiveButton><LoadingCircle></LoadingCircle></ActiveButton>)
+      }
+
     }
 
     else if (status === snapshotStatus.CLAIM_ENDED && userBalance !== "0") {
-      return (<InactiveButton>Claim REP</InactiveButton>)
+      if (!pending) {
+        return (<InactiveButton>Claim REP</InactiveButton>)
+      } else {
+        return (<InactiveButton><LoadingCircle></LoadingCircle></InactiveButton>)
+      }
+
     }
   }
 
@@ -219,6 +235,8 @@ class Airdrop extends React.Component {
     const userDataLoaded = airdropStore.isUserDataLoaded(userAddress)
 
     const data = airdropStore.userData[userAddress]
+
+    const redeemPending = airdropStore.isRedeemPending()
 
     if (!staticParamsLoaded || !userDataLoaded) {
       return (<LoadingCircle instruction={''} subinstruction={''} />)
@@ -260,7 +278,7 @@ class Airdrop extends React.Component {
         <InfoLine title="Airdrop Blocknumber" info={snapshotBlock} />
         <InfoLine title="Current Blocknumber" info={currentBlock} />
         <Divider width="80%" margin="20px 0px 20px 0px" />
-        {this.renderActionButton(dropStatus, necBalance)}
+        {this.renderActionButton(dropStatus, necBalance, redeemPending)}
       </AirdropWrapper>
     )
   }

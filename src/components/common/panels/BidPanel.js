@@ -44,6 +44,7 @@ class BidPanel extends React.Component {
     const currentAuction = bidGENStore.getActiveAuction()
 
     await bidGENStore.bid(weiValue, currentAuction)
+    bidFormStore.resetForm()
   }
 
   Pending() {
@@ -89,9 +90,10 @@ class BidPanel extends React.Component {
 
   render() {
     const { bidGENStore, bidFormStore } = this.props.root
-    const { buttonText, pending } = this.props
+    const { buttonText } = this.props
     const auctionsEnded = bidGENStore.areAuctionsOver()
     const auctionsStarted = bidGENStore.haveAuctionsStarted()
+    const pending = bidGENStore.isBidActionPending()
     return (
       <PanelWrapper>
         {
