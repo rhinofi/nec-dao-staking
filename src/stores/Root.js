@@ -29,11 +29,18 @@ class RootStore {
     setClockUpdateInteral = () => {
         this.clockUpdateInterval = setInterval(() => {
             this.timeStore.fetchCurrentTime();
+
         }, 100);
     }
 
+    setBlockUpdateInteral = () => {
+        this.blockUpdateInterval = setInterval(() => {
+            this.timeStore.fetchCurrentBlock();
+        }, 1000);
+    }
+
     setDataUpdateInterval = async (userAddress) => {
-        this.blockUpdateInterval = setInterval(async () => {
+        this.dataUpdateInterval = setInterval(async () => {
             this.timeStore.fetchCurrentBlock();
             console.log(`data update for user ${userAddress}`)
 

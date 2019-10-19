@@ -7,25 +7,28 @@ import * as helpers from 'utils/helpers'
 @inject('root')
 @observer
 class GenAuctionTable extends React.Component {
-    generateTableData(auctionData, userAddress) {
-        if (!auctionData) {
-            return {}
+    generateTableRows(userAddress) {
+        const { bidGENStore } = this.props.root
+
+        let rows = []
+
+        const auctionCount = bidGENStore.getTrackedAuctionCount()
+        for (let i = 0; i < auctionCount; i++) {
+            const userBid = bidGENStore.getUserBid(userAddress, i)
+            const totalBid = bidGENStore.getTotalBid(i)
+            const status = bidGENStore.getAuctionStatus(i)
+
+            const userBidDisplay = `${helpers.roundValue(helpers.fromWei(userBid.toString()))} GEN`
+            const totalBidDisplay = `${helpers.roundValue(helpers.fromWei(totalBid.toString()))} GEN`
+
+            rows.push({
+                id: i,
+                userBid: userBidDisplay,
+                totalBid: totalBidDisplay,
+                status: status
+            })
         }
-
-        const data = auctionData.map((auction, index) => {
-            const userBid = auction.bids[userAddress] ? auction.bids[userAddress] : '0'
-            const totalBid = auction.totalBids ? auction.totalBids : '0'
-
-            return {
-                id: Number(index),
-                userBid: `${helpers.roundValue(helpers.fromWei(userBid))} GEN`,
-                totalBid: `${helpers.roundValue(helpers.fromWei(totalBid))} GEN`,
-                status: auction.status
-            }
-        }).reverse()
-
-        console.log(data)
-        return data
+        return rows.reverse()
     }
 
     renderNoDataTable() {
@@ -46,6 +49,7 @@ class GenAuctionTable extends React.Component {
 
         const userAddress = providerStore.getDefaultAccount()
         const auctionDataLoaded = bidGENStore.isPropertyInitialLoadComplete('auctionData')
+        const auctionsStarted = bidGENStore.haveAuctionsStarted()
 
         const columns = [
             { name: 'Auction #', key: 'id', width: '15%', align: 'left' },
@@ -54,34 +58,42 @@ class GenAuctionTable extends React.Component {
             { name: 'Status', key: 'status', width: '25%', align: 'right' }
         ]
 
-        const auctionData = bidGENStore.auctionData
-        const data = this.generateTableData(auctionData, userAddress)
+        let data
+        if (auctionDataLoaded && auctionsStarted) {
+            data = this.generateTableRows(userAddress)
+        }
+
+        console.log(data)
 
         return (
             <React.Fragment>
                 <RowWrapper>
                     <Row>
-                        {columns.map(column => (
-                            <GreyCell width={column.width} align={column.align}>
-                                {column.name}
-                            </GreyCell>
-                        ))}
+                        {columns.map((column, index) => {
+                            return (
+                                <GreyCell key={`column-${index}`} width={column.width} align={column.align}>
+                                    {column.name}
+                                </GreyCell>
+                            )
+                        })}
                     </Row>
                 </RowWrapper>
-                {auctionDataLoaded ?
+                {auctionDataLoaded && auctionsStarted ?
                     <TableWrapper>
                         {data.map((row, index) => {
                             const highlight = !highlightTopRow || index === 0
                             const Cell = highlight ? CellWrapper : GreyCell
                             const Wrapper = highlight ? RowWrapper : InactiveRowWrapper
                             return (
-                                <Wrapper>
-                                    <Row>
-                                        {columns.map(column => (
-                                            <Cell width={column.width} align={column.align}>
-                                                {row[column.key]}
-                                            </Cell>
-                                        ))}
+                                <Wrapper key={`wrapper-${index}`}>
+                                    <Row key={`row-${index}`}>
+                                        {columns.map((column, index) => {
+                                            return (
+                                                <Cell key={`cell-${index}`} width={column.width} align={column.align}>
+                                                    {row[column.key]}
+                                                </Cell>
+                                            )
+                                        })}
                                     </Row>
                                 </Wrapper>
                             )
