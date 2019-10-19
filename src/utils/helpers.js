@@ -87,7 +87,7 @@ function numSecounds(value) {
   // remainingHours = remainder / MINUTE
 }
 
-export function getRemainingTimeText(value) {
+export function getDurationTimeText(value) {
   const inSeconds = Number(value)
   const time = timeConstants.inSeconds
 
@@ -123,7 +123,7 @@ export function timestampToDate(timestamp) {
   const month = dateObj.getUTCMonth()
   const year = dateObj.getUTCFullYear()
 
-  return `${day}.${month}.${year}`
+  return `${day}.${month + 1}.${year}`
 }
 
 export const toBytes32 = (x, prefix = true) => {

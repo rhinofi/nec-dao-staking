@@ -180,10 +180,8 @@ class LockPanel extends React.Component {
             value={66} width={"45px"} height={"45px"}
             rotate
           />
-          <Instruction>{'Instruction'}</Instruction>
-          <SubInstruction>{'Sub Instruction'}</SubInstruction>
+          <Instruction>{'Lock NEC'}</Instruction>
         </CircleAndTextContainer>
-        <DisableButton>{'Button'}</DisableButton>
       </React.Fragment >
     )
   }
