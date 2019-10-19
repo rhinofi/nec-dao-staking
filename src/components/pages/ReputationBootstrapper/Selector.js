@@ -1,6 +1,10 @@
 import React from 'react'
 import { observer, inject } from 'mobx-react'
 import { withRouter } from 'react-router-dom'
+import LogoAndText from 'components/common/LogoAndText'
+import EthFinexLogo from 'assets/svgs/ethfinex-logo.svg'
+import GENLogo from 'assets/svgs/GEN-logo.svg'
+import StarIcon from 'assets/svgs/star.svg'
 import styled from 'styled-components'
 
 const HeaderWrapper = styled.div`
@@ -19,7 +23,7 @@ const Title = styled.div`
   font-size: 16px;
   line-height: 20px;
   text-align: center;
-  margin: 20px 0px;
+  margin: 32px 0px;
   letter-spacing: 1px;
 `
 
@@ -34,15 +38,31 @@ const TotalRepWrapper = styled.div`
 `
 
 const TotalRepText = styled.div`
-  color: var(--white-text);
+  color: var(--enable-purple-text);
   font-family: Montserrat;
   font-style: normal;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 16px;
   line-height: 20px;
   text-align: center;
-  margin: 20px 0px;
+  margin: 24px 0px;
   letter-spacing: 1px;
+`
+
+const Star = styled.img`
+  height: 12px;
+  width: 12px;
+`
+
+const StarWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 20px;
+  width: 20px;
+  margin: 24px 12px 24px 0px;
+  border-radius: 12px;
+  border: 1px solid var(--enable-purple-text);
 `
 
 const ActiveButton = styled.div`
@@ -56,7 +76,7 @@ const ActiveButton = styled.div`
   font-weight: 500;
   font-size: 15px;
   line-height: 18px;
-  padding: 18px 0px;
+  padding: 9px 0px;
   width: 156px;
 `
 
@@ -103,16 +123,19 @@ const Selector = ({ height }) => {
       <Title>How do you want to earn Reputation for the NectarDAO?</Title>
       <NavWrapper>
         <Button option={1} route="/lock-nec">
-          Lock NEC
+          <LogoAndText icon={EthFinexLogo} text="Lock NEC" />
         </Button>
         <Button option={2} route="/airdrop">
-          Airdrop
+          <LogoAndText icon={EthFinexLogo} text="Airdrop" />
         </Button>
         <Button option={3} route="/bid-gen">
-          Bid GEN
+          <LogoAndText icon={GENLogo} text="Bid GEN" />
         </Button>
       </NavWrapper>
       <TotalRepWrapper>
+        <StarWrapper>
+          <Star src={StarIcon} />
+        </StarWrapper>
         <TotalRepText>{`Total Rewardable Reputation (Voting Power) - 1000000 REP`}</TotalRepText>
       </TotalRepWrapper>
     </HeaderWrapper>
