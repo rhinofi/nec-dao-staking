@@ -6,6 +6,8 @@ import * as blockchain from "utils/blockchain"
 import * as helpers from "utils/helpers"
 import Big from 'big.js/big.mjs';
 
+const objectPath = require("object-path")
+
 const REDEEM_EVENT = 'Redeem'
 
 export const statusCodes = {
@@ -37,10 +39,8 @@ export default class AirdropStore {
     // Dynamic Data
     @observable userData = {}
 
-    // Status
-    @observable loadingStatus = {
-        staticParams: defaultLoadingStatus,
-        userData: {}
+    @observable initialLoad = {
+        staticParams: false
     }
 
     constructor(rootStore) {
@@ -64,22 +64,14 @@ export default class AirdropStore {
         }
     }
 
-    setInitialLoad(propertyName, initialLoad, userAddress = null) {
-        if (propertyName === propertyNames.USER_DATA) {
-            if (!this.loadingStatus[propertyName][userAddress]) {
-                this.loadingStatus[propertyName][userAddress] = {}
-            }
-            this.loadingStatus[propertyName][userAddress] = {
-                ...this.loadingStatus[propertyName],
-                initialLoad
-            }
-        } else {
-            this.loadingStatus[propertyName] = {
-                ...this.loadingStatus[propertyName],
-                initialLoad
-            }
-        }
+    setUserDataInitialLoad(userAddress, flag) {
+        objectPath.set(this.initialLoad, `userData.${userAddress}`, flag)
     }
+
+    setInitialLoad(propertyName, flag) {
+        objectPath.set(this.initialLoad, `${propertyName}`, flag)
+    }
+
 
     isPropertyInitialLoadComplete(propertyName, userAddress = null) {
         if (propertyName === propertyNames.USER_DATA) {

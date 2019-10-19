@@ -235,9 +235,13 @@ export default class BidGENStore {
         this.setLoadingStatus(propertyNames.AUCTION_DATA, statusCodes.PENDING)
 
         try {
-            const maxAuctions = Number(this.staticParams.numAuctions)
-            const currentAuction = Number(this.getActiveAuction())
-            const nextAuctionStartTime = this.getNextAuctionStartTime()
+            const finalAuction = Number(this.getFinalAuctionIndex())
+            let currentAuction = Number(this.getActiveAuction())
+            const auctionsEnded = this.areAuctionsOver()
+
+            if (currentAuction > finalAuction) {
+                currentAuction = finalAuction
+            }
 
             const bidEvents = await contract.getPastEvents(BID_EVENT, {
                 fromBlock: 0,
@@ -256,7 +260,10 @@ export default class BidGENStore {
 
                 if (auctionId < currentAuction) {
                     data[auctionId].status = 'Complete'
-                } else if (auctionId === currentAuction) {
+                } else if (auctionId === finalAuction && auctionsEnded) {
+                    data[auctionId].status = 'Complete'
+                }
+                else if (auctionId === currentAuction) {
                     data[auctionId].status = 'In Progress'
                 } else {
                     data[auctionId].status = 'Not Started'
