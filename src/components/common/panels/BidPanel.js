@@ -62,38 +62,27 @@ class BidPanel extends React.Component {
   }
 
   BidForm(bidAmount, buttonText, auctionsEnded, auctionsStarted) {
+    const actionEnabled = auctionsStarted && !auctionsEnded
     return (
       <React.Fragment>
-        {!auctionsEnded ?
-          (
-            <React.Fragment>
-              <LockAmountWrapper>
-                <div>Bid Amount</div>
-                <LockAmountForm>
-                  <input type="text" name="name" value={bidAmount} onChange={e => this.setBidAmount(e)} />
-                  <div>GEN</div>
-                </LockAmountForm>
-              </LockAmountWrapper>
-              {auctionsStarted ?
-                (<ActiveButton
-                  onClick={() => { this.bid() }}>
-                  {buttonText}
-                </ActiveButton>)
-                :
-                (<InactiveButton>
-                  {buttonText}
-                </InactiveButton>)
-              }
-
-            </React.Fragment>
-          )
+        <LockAmountWrapper>
+          <div>Bid Amount</div>
+          <LockAmountForm>
+            <input type="text" name="name" value={bidAmount} onChange={e => this.setBidAmount(e)} />
+            <div>GEN</div>
+          </LockAmountForm>
+        </LockAmountWrapper>
+        {actionEnabled ?
+          (<ActiveButton
+            onClick={() => { this.bid() }}>
+            {buttonText}
+          </ActiveButton>)
           :
-          (
-            <React.Fragment>
-              <div>GEN Auctions Have Ended</div>
-            </React.Fragment>
-          )
+          (<InactiveButton>
+            {buttonText}
+          </InactiveButton>)
         }
+
       </React.Fragment>
     )
   }

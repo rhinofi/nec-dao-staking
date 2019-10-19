@@ -160,7 +160,7 @@ export default class BidGENStore {
         const auctionLength = this.staticParams.auctionLength
 
         const timeElapsed = currentTime - startTime
-        const currentAuction = (timeElapsed / auctionLength) - 1
+        const currentAuction = timeElapsed / auctionLength
 
         // const maxAuctions = this.staticParams.numAuctions
         // if (currentAuction.toNumber() > maxAuctions) {
@@ -178,7 +178,7 @@ export default class BidGENStore {
         const auctionLength = this.staticParams.auctionLength
 
         const activeAuctionIndex = this.getActiveAuction()
-        const nextAuctionIndex = activeAuctionIndex + 1 + 1
+        const nextAuctionIndex = activeAuctionIndex + 1
         const duration = (auctionLength * nextAuctionIndex)
         const nextAuctionStartTime = startTime + duration
         return nextAuctionStartTime

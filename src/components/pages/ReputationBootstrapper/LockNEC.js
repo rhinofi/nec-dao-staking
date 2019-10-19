@@ -114,6 +114,7 @@ class LockNEC extends React.Component {
     await tokenStore.fetchBalanceOf(necTokenAddress, userAddress)
     await tokenStore.fetchAllowance(necTokenAddress, userAddress, schemeAddress)
     await lockNECStore.fetchUserLocks(userAddress)
+    await lockNECStore.fetchOverview(userAddress)
   }
 
   SidePanel = () => {
@@ -125,6 +126,9 @@ class LockNEC extends React.Component {
     const tokenApproved = tokenStore.getMaxApprovalFlag(necTokenAddress, userAddress, spenderAddress)
     const approvePending = tokenStore.isApprovePending(necTokenAddress, userAddress, spenderAddress)
     const lockPending = lockNECStore.isLockActionPending()
+
+    const isLockingStarted = lockNECStore.isLockingStarted()
+    const isLockingEnded = lockNECStore.isLockingEnded()
 
     return (
       < React.Fragment >
@@ -144,6 +148,7 @@ class LockNEC extends React.Component {
             <LockPanel
               rangeStart={1}
               buttonText="Lock NEC"
+              enabled={isLockingStarted && !isLockingEnded}
               pending={lockPending}
             />
           </div>
@@ -165,28 +170,25 @@ class LockNEC extends React.Component {
   getTimerVisuals() {
     const { lockNECStore, timeStore } = this.props.root
 
-    let periodPercentage = 0
-    let periodTimer = '...'
-    let periodStatus = 0
-
-    let prefix = 'Next starts in'
-
     const currentPeriod = Number(lockNECStore.getActiveLockingPeriod())
     const finalPeriod = lockNECStore.getFinalPeriodIndex()
     const periodLength = Number(lockNECStore.staticParams.lockingPeriodLength)
-
     const isLockingStarted = lockNECStore.isLockingStarted()
     const isLockingEnded = lockNECStore.isLockingEnded()
+    const numPeriods = lockNECStore.staticParams.numLockingPeriods
+    const finalPeriodIndex = lockNECStore.getFinalPeriodIndex()
+
+    let periodPercentage = 0
+    let periodTimer = '...'
+    let periodStatus = 0
+    let periodTitle = `Current Period: ${currentPeriod} of ${finalPeriodIndex}`
+
+    let prefix = 'Next starts in'
 
     if (!isLockingStarted) {
       prefix = 'First period starts in'
     }
 
-    // Locking Ended
-    if (isLockingEnded) {
-      periodPercentage = 100
-      periodTimer = 'Locking has ended'
-    }
 
     if (currentPeriod === finalPeriod && !isLockingEnded) {
       prefix = 'Last period ends in'
@@ -199,10 +201,18 @@ class LockNEC extends React.Component {
       periodTimer = `${prefix}, ${timeUntilNextBatch} seconds`
     }
 
+    // Locking Ended
+    if (isLockingEnded) {
+      periodPercentage = 100
+      periodTimer = ''
+      periodTitle = 'Locking has ended'
+    }
+
     return {
       periodPercentage,
       periodTimer,
-      periodStatus
+      periodStatus,
+      periodTitle
     }
   }
 
@@ -236,15 +246,12 @@ class LockNEC extends React.Component {
       return (<LoadingCircle instruction={''} subinstruction={''} />)
     }
 
-    const currentPeriod = lockNECStore.getActiveLockingPeriod()
-    const maxPeriods = lockNECStore.staticParams.numLockingPeriods
-
     const necBalance = tokenStore.getBalance(necTokenAddress, userAddress)
     const now = timeStore.currentTime
 
     const timerVisuals = this.getTimerVisuals()
 
-    const { periodPercentage, periodTimer } = timerVisuals
+    const { periodPercentage, periodTimer, periodTitle } = timerVisuals
 
     return (
       <LockNECWrapper>
@@ -252,14 +259,14 @@ class LockNEC extends React.Component {
           <TableHeaderWrapper>
             <TimelineProgress
               value={periodPercentage}
-              title={`Current Period: ${currentPeriod} of ${maxPeriods}`}
+              title={periodTitle}
               subtitle={periodTimer}
               width="28px"
               height="28px"
             />
             <TableTabsWrapper>
-              <TableTabButton onClick={() => this.setCurrentTab(tabs.YOUR_LOCKS)}>Your Locks</TableTabButton>
-              <TableTabButton onClick={() => this.setCurrentTab(tabs.ALL_PERIODS)}>All Periods</TableTabButton>
+              {/* <TableTabButton onClick={() => this.setCurrentTab(tabs.YOUR_LOCKS)}>Your Locks</TableTabButton> */}
+              {/* <TableTabButton onClick={() => this.setCurrentTab(tabs.ALL_PERIODS)}>All Periods</TableTabButton> */}
             </TableTabsWrapper>
           </TableHeaderWrapper>
           {this.renderTable(currentTab)}

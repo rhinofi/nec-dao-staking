@@ -90,10 +90,12 @@ const InfoLine = ({ title, info }) => (
 class Airdrop extends React.Component {
 
   async componentDidMount() {
-    const { airdropStore, providerStore } = this.props.root
+    const { airdropStore, tokenStore, providerStore } = this.props.root
     const userAddress = providerStore.getDefaultAccount()
+    const necTokenAddress = deployed.NectarToken
 
     await airdropStore.fetchStaticParams()
+    await tokenStore.fetchBalanceOf(necTokenAddress, userAddress)
     await airdropStore.fetchUserData(userAddress)
   }
 
@@ -148,7 +150,7 @@ class Airdrop extends React.Component {
 
     const { snapshotBlock } = airdropStore.staticParams
     const now = timeStore.currentTime
-    const latestBlock = timeStore.currentBlock
+    const currentBlock = timeStore.currentBlock
 
     const isSnapshotPassed = airdropStore.isAfterSnapshot()
     const isClaimPeriodStarted = airdropStore.isClaimPeriodStarted()
@@ -175,13 +177,12 @@ class Airdrop extends React.Component {
 
 
     if (!isSnapshotPassed) {
-      const timeTillSnapshot = this.calcTimeTillSnapshot(snapshotBlock, latestBlock)
-      const { seconds, hours, days } = timeTillSnapshot
+      //This should probably be the deployment block
+      const timerBlockDuration = 1728
+      const blocksUntilSnapshot = airdropStore.getBlocksUntilSnapshot()
 
-      // Using 30 days a duration length
-      const maxDays = 30
-      dropTimer = `In ${days} days, ${hours} hours`
-      dropPercentage = 100 * (1 - (seconds / (maxDays * 24 * 60 * 60)))
+      dropPercentage = 100 * (blocksUntilSnapshot / timerBlockDuration)
+      dropTimer = `In ${blocksUntilSnapshot} blocks`
     }
 
     return {
@@ -211,8 +212,9 @@ class Airdrop extends React.Component {
   }
 
   render() {
-    const { airdropStore, providerStore, timeStore } = this.props.root
+    const { airdropStore, providerStore, tokenStore, timeStore } = this.props.root
     const userAddress = providerStore.getDefaultAccount()
+    const necTokenAddress = deployed.NectarToken
     const staticParamsLoaded = airdropStore.areStaticParamsLoaded()
     const userDataLoaded = airdropStore.isUserDataLoaded(userAddress)
 
@@ -222,13 +224,24 @@ class Airdrop extends React.Component {
       return (<LoadingCircle instruction={''} subinstruction={''} />)
     }
 
-    const necBalance = airdropStore.getSnapshotBalance(userAddress)
-    const necBalanceDisplay = helpers.roundValue(helpers.fromWei(necBalance))
     const repBalance = airdropStore.getSnapshotRep(userAddress)
     const snapshotBlock = airdropStore.getSnapshotBlock()
     const currentBlock = timeStore.currentBlock
     const dropVisuals = this.calcDropVisuals()
     const { dropPercentage, dropTimer, dropStatus } = dropVisuals
+
+    /* Before the snapshot, well get the users' CURRENT balance
+       After the snapshot, we'll get the users SNAPSHOT balance
+    */
+
+    let necBalance
+    if (dropStatus === snapshotStatus.NOT_STARTED) {
+      necBalance = tokenStore.getBalance(necTokenAddress, userAddress)
+    } else {
+      necBalance = airdropStore.getSnapshotBalance(userAddress)
+    }
+
+    const necBalanceDisplay = helpers.roundValue(helpers.fromWei(necBalance))
 
     return (
       <AirdropWrapper>

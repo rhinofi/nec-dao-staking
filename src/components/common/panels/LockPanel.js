@@ -4,6 +4,7 @@ import { observer, inject } from 'mobx-react'
 import ProgressCircle from 'components/common/ProgressCircle'
 import { CircleAndTextContainer, Instruction, SubInstruction, DisableButton } from './common'
 import ActiveButton from 'components/common/buttons/ActiveButton'
+import InactiveButton from 'components/common/buttons/InactiveButton'
 import * as helpers from 'utils/helpers'
 
 const PanelWrapper = styled.div`
@@ -140,10 +141,10 @@ class LockPanel extends React.Component {
     const cells = []
     for (let i = rangeStart; i <= rangeStart + numCells; i += 1) {
       if (i === lockDuration) {
-        cells.push(<ActiveLockingPeriodCell>{i}</ActiveLockingPeriodCell>)
+        cells.push(<ActiveLockingPeriodCell key={`cell-${i}`}>{i}</ActiveLockingPeriodCell>)
       } else {
         cells.push(
-          <LockingPeriodCell onClick={() => { this.changeLockDuration(i) }}>
+          <LockingPeriodCell key={`cell-${i}`} onClick={() => { this.changeLockDuration(i) }}>
             {i}
           </LockingPeriodCell>
         )
@@ -188,7 +189,7 @@ class LockPanel extends React.Component {
   }
 
   LockForm(values) {
-    const { amount, releaseableDate, buttonText } = values
+    const { amount, releaseableDate, buttonText, enabled } = values
     return (<React.Fragment>
       {this.LockingPeriod()}
       <LockAmountWrapper>
@@ -202,7 +203,11 @@ class LockPanel extends React.Component {
         <div>Releasable</div>
         <ReleaseableDate>{releaseableDate}</ReleaseableDate>
       </ReleaseableDateWrapper>
-      <ActiveButton onClick={() => { this.lockHandler() }}>{buttonText}</ActiveButton>
+      {
+        enabled ? <ActiveButton onClick={() => { this.lockHandler() }}>{buttonText}</ActiveButton> :
+          <InactiveButton>{buttonText}</InactiveButton>
+      }
+
     </React.Fragment>)
   }
 
@@ -218,7 +223,7 @@ class LockPanel extends React.Component {
 
   render() {
     const { lockNECStore, lockFormStore, timeStore } = this.props.root
-    const { buttonText, pending } = this.props
+    const { buttonText, pending, enabled } = this.props
 
     // The release period is now + (lockingPeriodLength * duration)
     const now = timeStore.currentTime
@@ -233,7 +238,7 @@ class LockPanel extends React.Component {
       <PanelWrapper>
         {pending ?
           this.Pending() :
-          this.LockForm({ amount, releaseableDate, buttonText })
+          this.LockForm({ amount, releaseableDate, buttonText, enabled })
         }
       </PanelWrapper >
     )
