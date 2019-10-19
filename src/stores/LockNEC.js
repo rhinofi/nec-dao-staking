@@ -101,6 +101,36 @@ export default class LockNECStore {
         return objectPath.get(this.asyncActions, `release.${userAddress}.${lockId}`) || false
     }
 
+    getBatchStartTime(batchIndex) {
+        const startTime = this.staticParams.startTime
+        const batchTime = this.staticParams.lockingPeriodLength
+
+        return (startTime + (batchIndex * batchTime))
+    }
+
+    getTimeUntilNextPeriod() {
+        const currentBatch = this.getActiveLockingPeriod()
+        const now = this.rootStore.timeStore.currentTime
+        const nextBatchStartTime = this.getBatchStartTime(currentBatch + 1)
+
+        return (nextBatchStartTime - now)
+    }
+
+    getFinalPeriodIndex() {
+        return (this.staticParams.numLockingPeriods - 1)
+    }
+
+    isLockingStarted() {
+        const now = this.rootStore.timeStore.currentTime
+        const startTime = this.staticParams.startTime
+        return (now > startTime)
+    }
+
+    isLockingEnded() {
+        const now = this.rootStore.timeStore.currentTime
+        const startTime = this.staticParams.startTime
+    }
+
     calcReleaseableTimestamp(lockingTime, duration) {
         const lockTime = Number(lockingTime)
         const batchLength = Number(this.staticParams.lockingPeriodLength)
@@ -171,13 +201,13 @@ export default class LockNECStore {
             throw new Error('Static properties must be loaded before fetching user locks')
         }
 
-        const startTime = new BN(this.staticParams.startTime)
-        const batchTime = new BN(this.staticParams.lockingPeriodLength)
-        const currentTime = new BN(Math.round((new Date()).getTime() / 1000))
-        const timeElapsed = currentTime.sub(startTime)
-        const currentLockingPeriod = timeElapsed.div(batchTime)
+        const startTime = this.staticParams.startTime
+        const batchTime = this.staticParams.lockingPeriodLength
+        const currentTime = this.rootStore.timeStore.currentTime
+        const timeElapsed = currentTime - startTime
+        const currentLockingPeriod = timeElapsed / batchTime
 
-        return currentLockingPeriod.toString()
+        return Math.trunc(currentLockingPeriod)
     }
 
     getTimeElapsed() {
@@ -212,11 +242,11 @@ export default class LockNECStore {
             const agreementHash = await contract.methods.getAgreementHash().call()
 
             this.staticParams = {
-                numLockingPeriods,
-                lockingPeriodLength,
-                startTime,
+                numLockingPeriods: Number(numLockingPeriods),
+                lockingPeriodLength: Number(lockingPeriodLength),
+                startTime: Number(startTime),
                 agreementHash,
-                maxLockingBatches
+                maxLockingBatches: Number(maxLockingBatches),
             }
 
             this.initialLoad.staticParams = true
@@ -303,7 +333,7 @@ export default class LockNECStore {
                 data[_lockingId].released = true
             }
 
-            log.info('[Fetch] User Locks', userAddress, data)
+            console.log('[Fetched] User Locks', userAddress, userAddress, lockEvents, data)
             this.setUserLocksProperty(userAddress, 'data', data)
             this.setUserLocksProperty(userAddress, 'initialLoad', true)
 
@@ -320,8 +350,7 @@ export default class LockNECStore {
 
     lock = async (amount, duration, batchId) => {
         const contract = this.loadContract()
-
-        log.info(
+        log.error(
             '[Action] Lock',
             `amount: ${amount} \n duration: ${duration} \n batchId:${batchId} \n agreementHash: ${AGREEMENT_HASH}`)
         this.setLockActionPending(true)

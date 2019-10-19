@@ -13,16 +13,6 @@ import LockDataTable from 'components/tables/LockDataTable'
 import UserLocksTable from 'components/tables/UserLocksTable'
 import LoadingCircle from '../../common/LoadingCircle'
 
-
-const { BN } = helpers
-
-const propertyNames = {
-  STATIC_PARAMS: 'staticParams',
-  USER_LOCKS: 'userLocks',
-  AUCTION_DATA: 'auctionData'
-}
-
-
 const LockNECWrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -90,6 +80,10 @@ const TableTabButton = styled.div`
 const tabs = {
   YOUR_LOCKS: 0,
   ALL_PERIODS: 1
+}
+
+const status = {
+  NOT_STARTED: 0
 }
 
 @inject('root')
@@ -171,46 +165,44 @@ class LockNEC extends React.Component {
   getTimerVisuals() {
     const { lockNECStore, timeStore } = this.props.root
 
-    let prefix = 'Next starts in'
-    let ended = false
-
     let periodPercentage = 0
     let periodTimer = '...'
+    let periodStatus = 0
 
-    const now = timeStore.currentTime
+    let prefix = 'Next starts in'
+
     const currentPeriod = Number(lockNECStore.getActiveLockingPeriod())
-    const numLockingPeriods = Number(lockNECStore.staticParams.numLockingPeriods)
-    const lockingStart = Number(lockNECStore.staticParams.startTime)
-    const numPeriods = Number(lockNECStore.staticParams.numLockingPeriods)
+    const finalPeriod = lockNECStore.getFinalPeriodIndex()
     const periodLength = Number(lockNECStore.staticParams.lockingPeriodLength)
 
+    const isLockingStarted = lockNECStore.isLockingStarted()
+    const isLockingEnded = lockNECStore.isLockingEnded()
+
+    if (!isLockingStarted) {
+      prefix = 'First period starts in'
+    }
+
     // Locking Ended
-    if (currentPeriod >= numPeriods) {
-      if (now > lockingStart) {
-        periodPercentage = 100
-        periodTimer = 'Locking has ended'
-        ended = true
-      } else {
-        prefix = 'Last period ends in'
-      }
+    if (isLockingEnded) {
+      periodPercentage = 100
+      periodTimer = 'Locking has ended'
+    }
+
+    if (currentPeriod === finalPeriod && !isLockingEnded) {
+      prefix = 'Last period ends in'
     }
 
     // Locking In Progress
-    if (!ended) {
-      const batchTime = new BN(periodLength)
-      const currentBatch = new BN(currentPeriod)
-      const startTime = new BN(lockingStart)
-      const currentBatchEndTime = batchTime.mul(currentBatch.add(new BN(1))).add(startTime)
-      const nowTime = new BN(now)
-      const timeUntilNextBatch = currentBatchEndTime.sub(nowTime)
-
-      periodPercentage = (timeUntilNextBatch.toNumber() / periodLength) * 100
+    if (!isLockingEnded) {
+      const timeUntilNextBatch = Number(lockNECStore.getTimeUntilNextPeriod())
+      periodPercentage = (timeUntilNextBatch / periodLength) * 100
       periodTimer = `${prefix}, ${timeUntilNextBatch} seconds`
     }
 
     return {
       periodPercentage,
-      periodTimer
+      periodTimer,
+      periodStatus
     }
   }
 
@@ -232,8 +224,6 @@ class LockNEC extends React.Component {
     const userAddress = providerStore.getDefaultAccount()
     const necTokenAddress = deployed.NectarToken
     const schemeAddress = deployed.ContinuousLocking4Reputation
-
-    console.log(currentTab)
 
     // Check Loading Conditions
     const staticParamsLoaded = lockNECStore.isStaticParamsInitialLoadComplete()

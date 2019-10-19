@@ -111,9 +111,10 @@ export default class BidGENStore {
             throw new Error(text.staticParamsNotLoaded)
         }
 
-        const currentAuction = this.getActiveAuction()
+        const now = this.rootStore.timeStore.currentTime
+        const startTime = this.staticParams.auctionsStartTime
 
-        if (currentAuction >= 0) {
+        if (now >= startTime) {
             return true
         }
         return false
@@ -124,16 +125,16 @@ export default class BidGENStore {
             throw new Error(text.staticParamsNotLoaded)
         }
 
-        const currentAuction = this.getActiveAuction()
-        const lastAuction = this.getFinalAuctionIndex()
+        const now = this.rootStore.timeStore.currentTime
+        const endTime = this.staticParams.auctionsEndTime
 
-        if (currentAuction > lastAuction) {
+        if (now > endTime) {
             return true
         }
         return false
     }
 
-    isPropertyInitialLoadComplete(propertyName, userAddress = null) {
+    isPropertyInitialLoadComplete(propertyName) {
         if (objectPath.get(this.loadingStatus, `${propertyName}.initialLoad`)) {
             return true
         }
@@ -154,18 +155,18 @@ export default class BidGENStore {
             throw new Error(text.staticParamsNotLoaded)
         }
 
-        const startTime = new BN(this.staticParams.auctionsStartTime)
-        const currentTime = new BN(Math.round((new Date()).getTime() / 1000))
-        const auctionLength = new BN(this.staticParams.auctionLength)
+        const startTime = this.staticParams.auctionsStartTime
+        const currentTime = this.rootStore.timeStore.currentTime
+        const auctionLength = this.staticParams.auctionLength
 
-        const timeElapsed = currentTime.sub(startTime)
-        const currentAuction = timeElapsed.div(auctionLength)
+        const timeElapsed = currentTime - startTime
+        const currentAuction = (timeElapsed / auctionLength) - 1
 
         // const maxAuctions = this.staticParams.numAuctions
         // if (currentAuction.toNumber() > maxAuctions) {
         //     return maxAuctions.toString()
         // }
-        return currentAuction.toString()
+        return Math.trunc(currentAuction)
     }
 
     getNextAuctionStartTime() {
@@ -173,25 +174,25 @@ export default class BidGENStore {
             throw new Error(text.staticParamsNotLoaded)
         }
 
-        const startTime = new BN(this.staticParams.auctionsStartTime)
-        const auctionLength = new BN(this.staticParams.auctionLength)
+        const startTime = this.staticParams.auctionsStartTime
+        const auctionLength = this.staticParams.auctionLength
 
-        const activeAuctionIndex = new BN(this.getActiveAuction())
-        const nextAuctionIndex = activeAuctionIndex.add(new BN(1))
-
-        const nextAuctionStartTime = startTime.add((auctionLength.mul(nextAuctionIndex)))
-
-        return nextAuctionStartTime.toString()
+        const activeAuctionIndex = this.getActiveAuction()
+        const nextAuctionIndex = activeAuctionIndex + 1 + 1
+        const duration = (auctionLength * nextAuctionIndex)
+        const nextAuctionStartTime = startTime + duration
+        return nextAuctionStartTime
     }
 
-    getTimeUntilNextAuction(currentTime) {
+    getTimeUntilNextAuction() {
         if (!this.isPropertyInitialLoadComplete(propertyNames.STATIC_PARAMS)) {
             throw new Error(text.staticParamsNotLoaded)
         }
-        const currentTimeBN = new BN(currentTime)
-        const nextAuctionStartTime = new BN(this.getNextAuctionStartTime())
-        const timeUntilNextAuction = nextAuctionStartTime.sub(currentTimeBN)
-        return timeUntilNextAuction.toString()
+
+        const currentTime = this.rootStore.timeStore.currentTime
+        const nextAuctionStartTime = this.getNextAuctionStartTime()
+        const timeUntilNextAuction = nextAuctionStartTime - currentTime
+        return timeUntilNextAuction
     }
 
     fetchStaticParams = async () => {
@@ -208,12 +209,12 @@ export default class BidGENStore {
             const auctionRepReward = await contract.methods.auctionReputationReward().call()
 
             this.staticParams = {
-                auctionsStartTime,
-                auctionsEndTime,
-                auctionLength,
-                numAuctions,
-                redeemEnableTime,
-                auctionRepReward,
+                auctionsStartTime: Number(auctionsStartTime),
+                auctionsEndTime: Number(auctionsEndTime),
+                auctionLength: Number(auctionLength),
+                numAuctions: Number(numAuctions),
+                redeemEnableTime: Number(redeemEnableTime),
+                auctionRepReward: Number(auctionRepReward)
             }
 
             this.setLoadingStatus(propertyNames.STATIC_PARAMS, statusCodes.SUCCESS)

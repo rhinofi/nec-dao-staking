@@ -128,9 +128,9 @@ class BidGEN extends React.Component {
 
     const now = timeStore.currentTime
     const currentAuction = bidGENStore.getActiveAuction()
+
     const finalAuction = bidGENStore.getFinalAuctionIndex()
-    const nextAuctionStartTime = bidGENStore.getNextAuctionStartTime()
-    const timeUntilNextAuction = bidGENStore.getTimeUntilNextAuction(now)
+    const timeUntilNextAuction = bidGENStore.getTimeUntilNextAuction()
     const auctionLength = bidGENStore.staticParams.auctionLength
 
     const auctionsStarted = bidGENStore.haveAuctionsStarted()
