@@ -226,7 +226,7 @@ class BidGEN extends React.Component {
         <ActionsWrapper>
           <ActionsHeader>
             <LogoAndText icon={icon} text="GEN" />
-            <div>{genBalanceDisplay}</div>
+            <div>{genBalanceDisplay} GEN</div>
           </ActionsHeader>
           {this.SidePanel()}
         </ActionsWrapper>
