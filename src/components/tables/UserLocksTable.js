@@ -63,7 +63,7 @@ class UserLocksTable extends React.Component {
             <TableWrapper>
                 <InactiveRowWrapper>
                     <Row>
-                        <LoadingCircle />
+                        <LoadingCircle instruction="Loading..." />
                     </Row>
                 </InactiveRowWrapper>
             </TableWrapper>

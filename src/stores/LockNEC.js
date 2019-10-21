@@ -4,8 +4,6 @@ import { observable, action, computed } from 'mobx'
 import * as deployed from "../deployed";
 import * as blockchain from "utils/blockchain"
 import * as helpers from "utils/helpers"
-import abiDecoder from 'abi-decoder'
-import Big from 'big.js/big.mjs';
 import * as log from 'loglevel'
 
 const objectPath = require("object-path")
@@ -207,6 +205,7 @@ export default class LockNECStore {
         const timeElapsed = timestamp - startTime
         const lockingPeriod = timeElapsed / batchTime
 
+
         return Math.trunc(lockingPeriod)
     }
 
@@ -278,92 +277,61 @@ export default class LockNECStore {
             throw new Error('Static properties must be loaded before fetching user locks')
         }
 
+        const { graphStore } = this.rootStore
+
+        // I think we can get the latest for each lock, and then do the locker searches for now. Subgraph will be able to do this later by getting CALLS - except it can't do that on rinkeby?? 
+
+        // Can we get the LOCKING TIME by the blocktime of the TX?
+
         const contract = this.loadContract()
         const currentBlock = this.rootStore.timeStore.currentBlock
         log.info('[Fetch] Fetching User Locks', userAddress)
 
         try {
             const data = {}
-            const userLockIds = []
+            const events = await contract.events.LockToken()
+            console.log(events)
 
-            const lockEvents = await contract.getPastEvents(LOCK_EVENT, {
-                filter: { _locker: userAddress },
-                fromBlock: 0,
-                toBlock: currentBlock
-            })
+            const locks = await graphStore.fetchLocks(userAddress)
 
-            const extendEvents = await contract.getPastEvents(EXTEND_LOCKING_EVENT, {
-                filter: { _locker: userAddress },
-                fromBlock: 0,
-                toBlock: 'latest'
-            })
-
-            const releaseEvents = await contract.getPastEvents(RELEASE_EVENT, {
-                filter: { _beneficiary: userAddress },
-                fromBlock: 0,
-                toBlock: 'latest'
-            })
-
-            const startTime = this.staticParams.startTime
+            console.log(locks)
             const batchTime = this.staticParams.lockingPeriodLength
 
             // Add Locks
-            for (const event of lockEvents) {
+            for (const lock of locks) {
                 const {
-                    _locker, _lockingId, _amount, _period
-                } = event.returnValues
+                    id, locker, period, amount, released, lockTimestamp, periodDuration
+                } = lock
 
-                // We need to get locking time from actual locker
-                const result = await contract.methods.lockers(_locker, _lockingId).call()
+                const a = helpers.toChecksum(userAddress)
+                const b = helpers.toChecksum(locker)
 
-                const lockingTime = Number(result.lockingTime)
-                const lockLength = Number(_period)
+                // console.log('address check', a, b, a == b)
 
-                const lockingPeriod = this.getLockingPeriodByTimestamp(result.lockingTime)
+                if (a != b) {
+                    continue
+                }
 
-                const lockDuration = lockLength * batchTime
-                const releasable = lockingTime + lockDuration
+                console.log('lock', lock)
 
-                // console.log('----------')
-                // console.log('lockingTime', lockingTime)
-                // console.log('lockLength', lockLength)
-                // console.log('batchTime', batchTime)
-                // console.log('lockingPeriod', lockingPeriod)
-                // console.log('lockDuration', lockDuration)
-                // console.log('releasable', releasable)
+                const lockingPeriod = this.getLockingPeriodByTimestamp(lockTimestamp)
+                const lockDuration = periodDuration * batchTime
+                const releasable = lockTimestamp + lockDuration
 
-                userLockIds.push(_lockingId)
 
-                data[_lockingId] = {
-                    userAddress: _locker,
-                    lockId: _lockingId,
-                    amount: _amount,
-                    duration: _period,
+
+                data[id] = {
+                    userAddress: locker,
+                    lockId: id,
+                    amount: amount,
+                    duration: period,
                     lockingPeriod,
                     releasable,
-                    released: false
+                    released
                 }
             }
 
-            log.info('lock events', lockEvents)
-            log.info('extend events', extendEvents)
-            log.info('release events', releaseEvents)
-
-            // Incorporate Extensions
-            for (const event of extendEvents) {
-                const { _lockingId, _extendPeriod } = event.returnValues
-                data[_lockingId].duration = ((new BN(_extendPeriod)).add(new BN(data[_lockingId].duration))).toString()
-
-                // TODO Add locking period
-            }
-
-            // Check Released Status
-            for (const event of releaseEvents) {
-                const { _lockingId } = event.returnValues
-                data[_lockingId].released = true
-            }
-
-            console.log('[Fetched] User Locks', userAddress, lockEvents, data)
+            console.log('[Fetched] User Locks', userAddress, data)
             this.setUserLocksProperty(userAddress, 'data', data)
             this.setUserLocksProperty(userAddress, 'initialLoad', true)
 

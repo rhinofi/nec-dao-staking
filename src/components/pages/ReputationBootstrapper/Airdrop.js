@@ -212,7 +212,7 @@ class Airdrop extends React.Component {
       if (!pending) {
         return (<ActiveButton onClick={() => { this.redeem() }}>Claim REP</ActiveButton>)
       } else {
-        return (<ActiveButton><LoadingCircle></LoadingCircle></ActiveButton>)
+        return (<ActiveButton><LoadingCircle /></ActiveButton>)
       }
 
     }
@@ -221,7 +221,7 @@ class Airdrop extends React.Component {
       if (!pending) {
         return (<InactiveButton>Claim REP</InactiveButton>)
       } else {
-        return (<InactiveButton><LoadingCircle></LoadingCircle></InactiveButton>)
+        return (<InactiveButton><LoadingCircle /></InactiveButton>)
       }
 
     }
@@ -239,7 +239,7 @@ class Airdrop extends React.Component {
     const redeemPending = airdropStore.isRedeemPending()
 
     if (!staticParamsLoaded || !userDataLoaded) {
-      return (<LoadingCircle instruction={''} subinstruction={''} />)
+      return (<LoadingCircle instruction={'Loading...'} subinstruction={''} />)
     }
 
     const repBalance = airdropStore.getSnapshotRep(userAddress)

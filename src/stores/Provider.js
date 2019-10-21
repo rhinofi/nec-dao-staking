@@ -64,7 +64,7 @@ export default class ProviderStore {
     @action setWeb3WebClient = async () => {
         try {
 
-            log.info(fetchEnd.setWeb3WebClient)
+            log.info(fetchStart.setWeb3WebClient)
             await blockchain.setWebClientProvider();
             await this.setNetwork();
             log.info(fetchEnd.setWeb3WebClient)

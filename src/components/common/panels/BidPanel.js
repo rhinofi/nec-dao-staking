@@ -6,6 +6,7 @@ import ProgressCircle from 'components/common/ProgressCircle'
 import { CircleAndTextContainer, Instruction, SubInstruction } from './common'
 import InactiveButton from 'components/common/buttons/InactiveButton'
 import ActiveButton from 'components/common/buttons/ActiveButton'
+import LoadingCircle from '../LoadingCircle';
 const PanelWrapper = styled.div`
 `
 
@@ -50,14 +51,7 @@ class BidPanel extends React.Component {
   Pending() {
     return (
       <React.Fragment>
-        <CircleAndTextContainer>
-          <ProgressCircle
-            value={66} width={"45px"} height={"45px"}
-            rotate
-          />
-          <Instruction>{'Instruction'}</Instruction>
-          <SubInstruction>{'Sub Instruction'}</SubInstruction>
-        </CircleAndTextContainer>
+        <LoadingCircle instruction="Bid GEN" />
       </React.Fragment >
     )
   }

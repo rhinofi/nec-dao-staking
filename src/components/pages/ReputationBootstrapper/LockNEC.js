@@ -9,15 +9,6 @@ import TokenValue from 'components/common/TokenValue'
 import icon from 'assets/svgs/ethfinex-logo.svg'
 import * as deployed from 'deployed'
 import * as helpers from 'utils/helpers'
-
-const { BN } = helpers
-
-const propertyNames = {
-  STATIC_PARAMS: 'staticParams',
-  USER_LOCKS: 'userLocks',
-  AUCTION_DATA: 'auctionData'
-}
-=======
 import LockDataTable from 'components/tables/LockDataTable'
 import UserLocksTable from 'components/tables/UserLocksTable'
 import LoadingCircle from '../../common/LoadingCircle'
@@ -246,7 +237,7 @@ class LockNEC extends React.Component {
   }
 
   TabButton = (currentTab, tabType, tabText) => {
-    if(currentTab === tabType) {
+    if (currentTab === tabType) {
       return (
         <TableTabButton onClick={() => this.setCurrentTab(tabType)}>
           {tabText}
@@ -276,7 +267,7 @@ class LockNEC extends React.Component {
     const auctionDataLoaded = lockNECStore.isAuctionDataInitialLoadComplete(userAddress)
 
     if (!staticParamsLoaded || !hasBalance || !hasAllowance) {
-      return (<LoadingCircle instruction={''} subinstruction={''} />)
+      return (<LoadingCircle instruction={'Loading...'} subinstruction={''} />)
     }
 
     const necBalance = tokenStore.getBalance(necTokenAddress, userAddress)

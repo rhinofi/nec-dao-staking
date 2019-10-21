@@ -190,6 +190,7 @@ class BidGEN extends React.Component {
     const auctionDataLoaded = bidGENStore.isPropertyInitialLoadComplete(propertyNames.AUCTION_DATA)
     const hasBalance = tokenStore.hasBalance(genTokenAddress, userAddress)
     const hasAllowance = tokenStore.hasAllowance(genTokenAddress, userAddress, schemeAddress)
+    const tokenApproved = tokenStore.getMaxApprovalFlag(genTokenAddress, userAddress, schemeAddress)
 
     if (!staticParamsLoaded || !hasBalance || !hasAllowance) {
       return (<LoadingCircle instruction={'Loading...'} subinstruction={''} />)

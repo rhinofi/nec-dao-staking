@@ -2,10 +2,11 @@ import React from 'react'
 import styled from 'styled-components'
 import { observer, inject } from 'mobx-react'
 import ProgressCircle from 'components/common/ProgressCircle'
-import { CircleAndTextContainer, Instruction, SubInstruction, DisableButton } from './common'
+import { CircleAndTextContainer, Instruction } from './common'
 import ActiveButton from 'components/common/buttons/ActiveButton'
 import InactiveButton from 'components/common/buttons/InactiveButton'
 import * as helpers from 'utils/helpers'
+import LoadingCircle from '../LoadingCircle'
 
 const PanelWrapper = styled.div`
 `
@@ -181,15 +182,7 @@ class LockPanel extends React.Component {
 
   Pending() {
     return (
-      <React.Fragment>
-        <CircleAndTextContainer>
-          <ProgressCircle
-            value={66} width={"45px"} height={"45px"}
-            rotate
-          />
-          <Instruction>{'Lock NEC'}</Instruction>
-        </CircleAndTextContainer>
-      </React.Fragment >
+      <LoadingCircle instruction="Lock NEC" />
     )
   }
 

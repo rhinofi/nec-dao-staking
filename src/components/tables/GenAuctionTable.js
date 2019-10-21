@@ -36,7 +36,6 @@ class GenAuctionTable extends React.Component {
             <TableWrapper>
                 <InactiveRowWrapper>
                     <Row>
-                        Loading auction data...
                     </Row>
                 </InactiveRowWrapper>
             </TableWrapper>

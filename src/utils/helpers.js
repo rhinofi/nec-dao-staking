@@ -87,6 +87,31 @@ function numSecounds(value) {
   // remainingHours = remainder / MINUTE
 }
 
+export function getNetworkNameById(id) {
+  switch (id) {
+    case "main":
+    case "1":
+      return "main";
+    case "morden":
+    case "2":
+      return "morden";
+    case "ropsten":
+    case "3":
+      return "ropsten";
+    case "rinkeby":
+    case "4":
+      return "rinkeby";
+    case "kovan":
+    case "42":
+      return "kovan";
+    case "private":
+    case "1512051714758":
+      return "ganache";
+    default:
+      return `unknown (${id})`;
+  }
+}
+
 export function getDurationTimeText(value) {
   const inSeconds = Number(value)
   const time = timeConstants.inSeconds

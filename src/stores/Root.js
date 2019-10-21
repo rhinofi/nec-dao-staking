@@ -7,7 +7,12 @@ import LockFormStore from "./LockForm"
 import BidFormStore from "./BidForm"
 import TokenStore from "./Token"
 import TimeStore from "./Time"
+import GraphStore from "./Graph"
 import * as deployed from 'deployed'
+
+const GRAPH_HTTP_URI = 'https://api.thegraph.com/subgraphs/name/tspoff/nectardao'
+const GRAPH_WEBSOCKET_URI = 'wss://api.thegraph.com/subgraphs/name/tspoff/nectardao'
+
 
 class RootStore {
     constructor() {
@@ -19,11 +24,14 @@ class RootStore {
         this.bidFormStore = new BidFormStore(this)
         this.tokenStore = new TokenStore(this)
         this.timeStore = new TimeStore(this)
+        this.graphStore = new GraphStore(this)
+        this.graphStore.setHttpClient(GRAPH_HTTP_URI)
         this.asyncSetup()
     }
 
     asyncSetup = async () => {
         await this.providerStore.setWeb3WebClient()
+        await this.graphStore.fetchLocks(this.providerStore.getDefaultAccount())
     }
 
     setClockUpdateInteral = () => {
