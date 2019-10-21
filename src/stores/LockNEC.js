@@ -136,13 +136,18 @@ export default class LockNECStore {
         return (now >= startTime)
     }
 
-    isLockingEnded() {
-        const now = this.rootStore.timeStore.currentTime
+    getLockingEndTime() {
         const startTime = this.staticParams.startTime
         const batchTime = this.staticParams.lockingPeriodLength
         const numAuctions = this.staticParams.numLockingPeriods
 
         const endTime = startTime + (batchTime * numAuctions)
+        return endTime
+    }
+
+    isLockingEnded() {
+        const now = this.rootStore.timeStore.currentTime
+        const endTime = this.getLockingEndTime()
         return (now >= endTime)
     }
 
@@ -193,6 +198,18 @@ export default class LockNECStore {
         // }
 
         // return this.auctionData[userAddress].initialLoad
+    }
+
+    getPeriodsRemaining() {
+        const now = this.rootStore.timeStore.currentTime
+        const endTime = this.getLockingEndTime()
+        const currentPeriod = this.getActiveLockingPeriod()
+        const batchTime = this.staticParams.batchTime
+
+        const remainingTime = endTime - now
+        const remainingPeriods = Math.trunc(remainingTime / batchTime)
+
+        return remainingPeriods
     }
 
     getLockingPeriodByTimestamp(timestamp) {

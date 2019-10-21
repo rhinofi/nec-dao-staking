@@ -2,19 +2,20 @@ import React from 'react'
 import styled from 'styled-components'
 import { inject, observer } from "mobx-react";
 import * as helpers from 'utils/helpers'
-import { LockAmountForm, LockAmountWrapper } from './LockPanel'
+import { LockAmountForm, LockAmountWrapper, MaxTokensText } from './LockPanel'
 import InactiveButton from 'components/common/buttons/InactiveButton'
 import ActiveButton from 'components/common/buttons/ActiveButton'
 import LoadingCircle from '../LoadingCircle';
+import * as deployed from 'deployed'
 const PanelWrapper = styled.div`
 `
 
 @inject('root')
 @observer
 class BidPanel extends React.Component {
-  setBidAmount(e) {
+  setBidAmount(value) {
     const { bidFormStore } = this.props.root
-    bidFormStore.setBidAmount(e.target.value)
+    bidFormStore.setBidAmount(value)
   }
 
   async bid() {
@@ -37,14 +38,15 @@ class BidPanel extends React.Component {
     )
   }
 
-  BidForm(bidAmount, buttonText, auctionsEnded, auctionsStarted) {
+  BidForm(bidAmount, buttonText, auctionsEnded, auctionsStarted, userBalance) {
     const actionEnabled = auctionsStarted && !auctionsEnded
     return (
       <React.Fragment>
         <LockAmountWrapper>
           <div>Bid Amount</div>
           <LockAmountForm>
-            <input type="text" name="name" value={bidAmount} onChange={e => this.setBidAmount(e)} />
+            <input type="text" name="name" value={bidAmount} onChange={e => this.setBidAmount(e.target.value)} />
+            <MaxTokensText onClick={e => this.setBidAmount(userBalance)}>Max</MaxTokensText>
             <div>GEN</div>
           </LockAmountForm>
         </LockAmountWrapper>
@@ -64,17 +66,18 @@ class BidPanel extends React.Component {
   }
 
   render() {
-    const { bidGENStore, bidFormStore } = this.props.root
-    const { buttonText } = this.props
+    const { bidGENStore, bidFormStore, tokenStore } = this.props.root
+    const { buttonText, userAddress } = this.props
     const auctionsEnded = bidGENStore.areAuctionsOver()
     const auctionsStarted = bidGENStore.haveAuctionsStarted()
+    const userBalance = helpers.fromWei(tokenStore.getBalance(deployed.GenToken, userAddress))
     const pending = bidGENStore.isBidActionPending()
     return (
       <PanelWrapper>
         {
           pending ?
             this.Pending() :
-            this.BidForm(bidFormStore.bidAmount, buttonText, auctionsEnded, auctionsStarted)
+            this.BidForm(bidFormStore.bidAmount, buttonText, auctionsEnded, auctionsStarted, userBalance)
         }
       </PanelWrapper>
     )

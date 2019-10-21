@@ -5,6 +5,7 @@ import LockNECStore from "./LockNEC";
 import BidGENStore from "./BidGEN";
 import LockFormStore from "./LockForm"
 import BidFormStore from "./BidForm"
+import ExtendLockFormStore from "./ExtendLockForm"
 import TokenStore from "./Token"
 import TimeStore from "./Time"
 import GraphStore from "./Graph"
@@ -22,6 +23,7 @@ class RootStore {
         this.bidGENStore = new BidGENStore(this)
         this.lockFormStore = new LockFormStore(this)
         this.bidFormStore = new BidFormStore(this)
+        this.extendLockFormStore = new ExtendLockFormStore(this)
         this.tokenStore = new TokenStore(this)
         this.timeStore = new TimeStore(this)
         this.graphStore = new GraphStore(this)

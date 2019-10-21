@@ -6,44 +6,9 @@ import InactiveButton from 'components/common/buttons/InactiveButton'
 import * as helpers from 'utils/helpers'
 import LoadingCircle from '../LoadingCircle'
 import * as deployed from 'deployed'
+import { ActiveLockingPeriodCell, LockingPeriodCell, LockingPeriodSelectorWrapper, LockingPeriodSelector, LockingPeriodStartCell, LockingPeriodEndCell } from 'components/common/LockingPeriodForm'
 
 const PanelWrapper = styled.div`
-`
-
-const LockingPeriodSelectorWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  color: var(--inactive-text);
-  margin: 24px;
-`
-
-const LockingPeriodSelector = styled.div`
-  display: flex;
-  flex-direction: row;
-  color: var(--inactive-header-text);
-  margin-top: 12px;
-`
-
-const LockingPeriodCell = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 40px;
-  height: 34px;
-  border: 1px solid var(--inactive-border);
-`
-
-const ActiveLockingPeriodCell = styled(LockingPeriodCell)`
-  color: var(--white-text);
-  border: 1px solid var(--active-border);
-`
-
-const LockingPeriodStartCell = styled(LockingPeriodCell)`
-  border-radius: 4px 0px 0px 4px;
-`
-
-const LockingPeriodEndCell = styled(LockingPeriodCell)`
-  border-radius: 0px 4px 4px 0px;
 `
 
 export const MaxTokensText = styled.div`
@@ -87,33 +52,6 @@ const ReleaseableDateWrapper = styled.div`
 
 const ReleaseableDate = styled.div`
   color: var(--white-text);  
-`
-
-const LockNECButton = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 34px;
-  margin: 0px 24px;
-  color: var(--inactive-text);
-  border: 1px solid var(--border);
-`
-
-const Button = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 34px;
-  margin: 0px 24px;
-  background: var(--action-button);
-  font-family: Montserrat;
-  font-style: normal;
-  font-weight: 600;
-  font-size: 15px;
-  line-height: 18px;
-  color: var(--white-text);
 `
 
 @inject('root')

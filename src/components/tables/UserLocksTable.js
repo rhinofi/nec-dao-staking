@@ -6,8 +6,9 @@ import * as helpers from 'utils/helpers'
 import LoadingCircle from '../common/LoadingCircle';
 import TableButton from 'components/common/buttons/TableButton'
 import DisabledText from 'components/common/DisabledText'
-
-const NO_DATA_MESSAGE = 'User has no token locks'
+import Popup from "reactjs-popup";
+import ExtendLockPopup from '../common/panels/ExtendLockPopup';
+import 'components/common/Modal.scss'
 
 @inject('root')
 @observer
@@ -102,12 +103,42 @@ class UserLocksTable extends React.Component {
 
         if (key === 'extendData') {
             const { lockId } = value
-            const canExtend = true
-            if (canExtend) {
-                return <TableButton onClick={() => { console.log('make the modal appear and pass in this lockId') }}>Extend</TableButton>
-            } else {
-                return <DisabledText>Extend</DisabledText>
+            const isLockingOver = lockNECStore.isLockingEnded()
+            const remainingPeriods = lockNECStore.getPeriodsRemaining()
+            const isPendingAction = lockNECStore.isExtendLockActionPending()
+
+            //TODO: Revert to proper logic
+            // if (isLockingOver && !isPendingAction) {
+            //     return <DisabledText>-</DisabledText>
+            // }
+
+            if (!isPendingAction) {
+                // This is where you put the popus
+                return (
+                    <Popup trigger={<TableButton>Extend</TableButton>} modal closeOnDocumentClick closeOnEscape position="right center">
+                        <div className="modalform modalinput">
+                            <ExtendLockPopup className="modalinput modalform" rangeStart={1} />
+                            <TableButton className="modalinput modalform" onClick={() => { console.log('make the modal appear and pass in this lockId') }}>Extend</TableButton>
+                        </div>
+                    </Popup>
+                )
             }
+
+            // if (!isLockingOver && !isPendingAction) {
+            //     // This is where you put the popus
+            //     return (<Popup trigger={<button>Extend</button>} position="right center">
+            //         <div>
+            //             <TableButton onClick={() => { console.log('make the modal appear and pass in this lockId') }}>Extend</TableButton>
+            //         </div>
+            //     </Popup>)
+            // }
+
+            if (isPendingAction) {
+                // This is where you put the popus
+                return <TableButton>-</TableButton>
+            }
+
+            return <DisabledText>Error</DisabledText>
         }
 
         return value
