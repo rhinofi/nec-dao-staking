@@ -7,6 +7,7 @@ import InactiveButton from 'components/common/buttons/InactiveButton'
 import ActiveButton from 'components/common/buttons/ActiveButton'
 import LoadingCircle from '../LoadingCircle';
 import * as deployed from 'deployed'
+
 const PanelWrapper = styled.div`
 `
 
