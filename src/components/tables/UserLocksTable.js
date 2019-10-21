@@ -71,21 +71,33 @@ class UserLocksTable extends React.Component {
     }
 
     generateCell(key, value) {
-        const { timeStore } = this.props.root
+        const { timeStore, lockNECStore } = this.props.root
         const now = timeStore.currentTime
 
         if (key === 'releaseData') {
             const { released, releasable, releasableDisplay, beneficiary, lockId } = value
 
-            if (now < releasable) {
+            const isReleasable = (now > releasable)
+            const isReleaseActionPending = lockNECStore.isReleaseActionPending(lockId)
+
+
+            if (!isReleasable) {
                 return <div>{releasableDisplay}</div>
-            } else {
-                if (released) {
-                    return <DisabledText>Released</DisabledText>
-                } else {
-                    return <TableButton onClick={() => { this.release(beneficiary, lockId) }}>Release</TableButton>
-                }
             }
+
+            if (released) {
+                return <DisabledText>Released</DisabledText>
+            }
+
+            if (isReleasable && !released && !isReleaseActionPending) {
+                return <TableButton onClick={() => { this.release(beneficiary, lockId) }}>Release</TableButton>
+            }
+
+            if (isReleasable && !released && isReleaseActionPending) {
+                return <TableButton>Pending...</TableButton>
+            }
+
+            return <DisabledText>Error</DisabledText>
         }
 
         if (key === 'extendData') {

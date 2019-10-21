@@ -1,12 +1,11 @@
 import React from 'react'
 import styled from 'styled-components'
 import { observer, inject } from 'mobx-react'
-import ProgressCircle from 'components/common/ProgressCircle'
-import { CircleAndTextContainer, Instruction } from './common'
 import ActiveButton from 'components/common/buttons/ActiveButton'
 import InactiveButton from 'components/common/buttons/InactiveButton'
 import * as helpers from 'utils/helpers'
 import LoadingCircle from '../LoadingCircle'
+import * as deployed from 'deployed'
 
 const PanelWrapper = styled.div`
 `
@@ -47,7 +46,13 @@ const LockingPeriodEndCell = styled(LockingPeriodCell)`
   border-radius: 0px 4px 4px 0px;
 `
 
-const LockAmountWrapper = styled.div`
+export const MaxTokensText = styled.div`
+display: flex;
+font-weight: 600;
+color: var(--action-button);
+`
+
+export const LockAmountWrapper = styled.div`
   display: flex;
   flex-direction: column;
   margin: 0px 24px;
@@ -56,7 +61,7 @@ const LockAmountWrapper = styled.div`
   height: 87px;
 `
 
-const LockAmountForm = styled.div`
+export const LockAmountForm = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -127,9 +132,9 @@ class LockPanel extends React.Component {
     this.setState({ rangeStart: value })
   }
 
-  setLockAmount(e) {
+  setLockAmount(value) {
     const { lockFormStore } = this.props.root
-    lockFormStore.amount = e.target.value
+    lockFormStore.amount = value
   }
 
   changeLockDuration(i) {
@@ -187,13 +192,14 @@ class LockPanel extends React.Component {
   }
 
   LockForm(values) {
-    const { amount, releaseableDate, buttonText, enabled } = values
+    const { amount, releaseableDate, buttonText, enabled, userBalance } = values
     return (<React.Fragment>
       {this.LockingPeriod()}
       <LockAmountWrapper>
         <div>Lock Amount</div>
         <LockAmountForm>
-          <input type="text" name="name" placeholder="0" value={amount} onChange={e => this.setLockAmount(e)} />
+          <input type="text" name="name" placeholder="0" value={amount} onChange={e => this.setLockAmount(e.target.value)} />
+          <MaxTokensText onClick={e => this.setLockAmount(userBalance)}>Max</MaxTokensText>
           <div>NEC</div>
         </LockAmountForm>
       </LockAmountWrapper>
@@ -206,7 +212,7 @@ class LockPanel extends React.Component {
           <InactiveButton>{buttonText}</InactiveButton>
       }
 
-    </React.Fragment>)
+    </React.Fragment >)
   }
 
   async lockHandler() {
@@ -221,12 +227,14 @@ class LockPanel extends React.Component {
   }
 
   render() {
-    const { lockNECStore, lockFormStore, timeStore } = this.props.root
-    const { buttonText, pending, enabled } = this.props
+    const { lockNECStore, lockFormStore, timeStore, tokenStore } = this.props.root
+    const { buttonText, pending, enabled, userAddress } = this.props
 
     // The release period is now + (lockingPeriodLength * duration)
     const now = timeStore.currentTime
     const duration = lockFormStore.duration
+    const necTokanAddress = deployed.NectarToken
+    const userBalance = helpers.fromWei(tokenStore.getBalance(necTokanAddress, userAddress))
 
     const releaseableTimestamp = lockNECStore.calcReleaseableTimestamp(now, duration)
     const releaseableDate = helpers.timestampToDate(releaseableTimestamp)
@@ -237,7 +245,7 @@ class LockPanel extends React.Component {
       <PanelWrapper>
         {pending ?
           this.Pending() :
-          this.LockForm({ amount, releaseableDate, buttonText, enabled })
+          this.LockForm({ amount, releaseableDate, buttonText, enabled, userBalance })
         }
       </PanelWrapper >
     )

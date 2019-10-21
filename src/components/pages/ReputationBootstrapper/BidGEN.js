@@ -103,6 +103,7 @@ class BidGEN extends React.Component {
               instruction="Enable NEC for locking"
               subinstruction="-"
               buttonText="Bid GEN"
+              userAddress={userAddress}
               tokenAddress={genTokenAddress}
               spenderAddress={spenderAddress}
               pending={bidPending}

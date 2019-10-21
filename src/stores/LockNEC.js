@@ -316,9 +316,7 @@ export default class LockNECStore {
 
                 const lockingPeriod = this.getLockingPeriodByTimestamp(lockTimestamp)
                 const lockDuration = periodDuration * batchTime
-                const releasable = lockTimestamp + lockDuration
-
-
+                const releasable = Number(lockTimestamp) + Number(lockDuration)
 
                 data[id] = {
                     userAddress: locker,
@@ -329,6 +327,7 @@ export default class LockNECStore {
                     releasable,
                     released
                 }
+
             }
 
             console.log('[Fetched] User Locks', userAddress, data)

@@ -2,30 +2,11 @@ import React from 'react'
 import styled from 'styled-components'
 import { inject, observer } from "mobx-react";
 import * as helpers from 'utils/helpers'
-import ProgressCircle from 'components/common/ProgressCircle'
-import { CircleAndTextContainer, Instruction, SubInstruction } from './common'
+import { LockAmountForm, LockAmountWrapper } from './LockPanel'
 import InactiveButton from 'components/common/buttons/InactiveButton'
 import ActiveButton from 'components/common/buttons/ActiveButton'
 import LoadingCircle from '../LoadingCircle';
 const PanelWrapper = styled.div`
-`
-
-const LockAmountWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin: 0px 24px;
-  font-weight: 600;
-  color: var(--inactive-text);
-  height: 87px;
-`
-
-const LockAmountForm = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  margin-top: 30px;
-  padding: 0px 20px 6px 20px;
-  border-bottom: 1px solid var(--inactive-border);
 `
 
 @inject('root')

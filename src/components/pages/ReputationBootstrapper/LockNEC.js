@@ -155,6 +155,7 @@ class LockNEC extends React.Component {
             <LockPanel
               rangeStart={1}
               buttonText="Lock NEC"
+              userAddress={userAddress}
               enabled={isLockingStarted && !isLockingEnded}
               pending={lockPending}
             />
