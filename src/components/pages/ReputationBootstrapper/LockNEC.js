@@ -229,7 +229,7 @@ class LockNEC extends React.Component {
       return (
         <UserLocksTable />
       )
-    } else if (currentTab === tabs.AUCTION_DATA) {
+    } else if (currentTab === tabs.ALL_PERIODS) {
       return (
         < LockDataTable />
       )
@@ -264,7 +264,7 @@ class LockNEC extends React.Component {
     const hasBalance = tokenStore.hasBalance(necTokenAddress, userAddress)
     const hasAllowance = tokenStore.hasAllowance(necTokenAddress, userAddress, schemeAddress)
     const userLocksLoaded = lockNECStore.isUserLockInitialLoadComplete(userAddress)
-    const auctionDataLoaded = lockNECStore.isAuctionDataInitialLoadComplete(userAddress)
+    const auctionDataLoaded = lockNECStore.isOverviewLoadComplete(userAddress)
 
     if (!staticParamsLoaded || !hasBalance || !hasAllowance) {
       return (<LoadingCircle instruction={'Loading...'} subinstruction={''} />)

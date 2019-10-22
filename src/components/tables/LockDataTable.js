@@ -57,30 +57,28 @@ class LockDataTable extends React.Component {
         const { lockNECStore, providerStore } = this.props.root
 
         const userAddress = providerStore.getDefaultAccount()
-        const lockDataLoaded = lockNECStore.isAuctionDataInitialLoadComplete(userAddress)
+        const lockDataLoaded = lockNECStore.isOverviewLoadComplete(userAddress)
 
-        let data
+        let rows
         if (lockDataLoaded) {
             const userLocks = lockNECStore.getUserTokenLocks(userAddress)
-            const tableData = this.generateTableRows(userLocks.data)
-            data = this.generateTableData(tableData, userAddress)
+            rows = this.generateTableRows(userLocks.data)
         }
 
         const columns = [
-            { name: 'Period #', key: 'startPeriod', width: '20%', align: 'left' },
-            { name: 'You Locked', key: 'amount', width: '20%', align: 'left' },
-            { name: 'Total Locked', key: 'duration', width: '20%', align: 'left' },
-            { name: 'You Recieved', key: 'releasable', width: '20%', align: 'left' },
+            { name: 'Period #', key: 'batchId', width: '15%', align: 'left' },
+            { name: 'You Locked', key: 'userScore', width: '25%', align: 'left' },
+            { name: 'Total Locked', key: 'totalScore', width: '25%', align: 'left' },
+            { name: 'You Recieved', key: 'userRepRecieved', width: '25%', align: 'left' },
             // { name: 'Extend', key: 'extendActionData', width: '15%', align: 'left' },
-            { name: 'Action', key: 'releaseActionData', width: '20%', align: 'left' }
         ]
 
         return (
             <React.Fragment>
                 <RowWrapper>
                     <Row>
-                        {columns.map(column => (
-                            <GreyCell width={column.width} align={column.align}>
+                        {columns.map((column, index) => (
+                            <GreyCell key={`col-${index}`} width={column.width} align={column.align}>
                                 {column.name}
                             </GreyCell>
                         ))}
@@ -90,7 +88,7 @@ class LockDataTable extends React.Component {
                 <TableWrapper>
                     {lockDataLoaded ?
                         <div>
-                            {data.map((row, index) => {
+                            {rows.map((row, index) => {
                                 const highlight = !highlightTopRow || index === 0
                                 const Cell = highlight ? CellWrapper : GreyCell
                                 const Wrapper = highlight ? RowWrapper : InactiveRowWrapper

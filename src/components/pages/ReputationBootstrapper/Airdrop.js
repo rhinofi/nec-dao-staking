@@ -198,32 +198,32 @@ class Airdrop extends React.Component {
     airdropStore.redeem(userAddress)
   }
 
-  renderActionButton(status, userBalance, pending) {
+  renderActionButton(status, userBalance, pending, userData) {
     if (status === snapshotStatus.NOT_STARTED) {
       return (<ActiveButton>Buy NEC</ActiveButton>)
     }
 
-    else if (userBalance === "0") {
+    const hasRedeemed = userData.hasRedeemed
+
+    if (userBalance === "0") {
       // return (<div>This address has no REP to claim from the Airdrop</div>)
-      return (<React.Fragment></React.Fragment>)
+      return (<InactiveButton>No REP to Claim</InactiveButton>)
     }
 
-    else if (status === snapshotStatus.CLAIM_STARTED && userBalance !== "0") {
-      if (!pending) {
-        return (<ActiveButton onClick={() => { this.redeem() }}>Claim REP</ActiveButton>)
-      } else {
-        return (<ActiveButton><LoadingCircle /></ActiveButton>)
-      }
-
+    if (pending) {
+      return (<LoadingCircle title="Claiming REP..." />)
     }
 
-    else if (status === snapshotStatus.CLAIM_ENDED && userBalance !== "0") {
-      if (!pending) {
-        return (<InactiveButton>Claim REP</InactiveButton>)
-      } else {
-        return (<InactiveButton><LoadingCircle /></InactiveButton>)
-      }
+    if (status === snapshotStatus.CLAIM_STARTED && userBalance !== "0" && !hasRedeemed) {
+      return (<ActiveButton onClick={() => { this.redeem() }}>Claim REP</ActiveButton>)
+    }
 
+    if (hasRedeemed) {
+      return (<InactiveButton>REP Already Claimed</InactiveButton>)
+    }
+
+    if (status === snapshotStatus.CLAIM_ENDED && userBalance !== "0" && !hasRedeemed) {
+      return (<InactiveButton>Claiming Period has Ended</InactiveButton>)
     }
   }
 
@@ -234,19 +234,21 @@ class Airdrop extends React.Component {
     const staticParamsLoaded = airdropStore.areStaticParamsLoaded()
     const userDataLoaded = airdropStore.isUserDataLoaded(userAddress)
 
-    const data = airdropStore.userData[userAddress]
-
     const redeemPending = airdropStore.isRedeemPending()
+
+    const data = airdropStore.userData[userAddress]
 
     if (!staticParamsLoaded || !userDataLoaded) {
       return (<LoadingCircle instruction={'Loading...'} subinstruction={''} />)
     }
 
-    const repBalance = airdropStore.getSnapshotRep(userAddress)
+    const repBalance = helpers.fromWei(airdropStore.getSnapshotRep(userAddress))
     const snapshotBlock = airdropStore.getSnapshotBlock()
     const currentBlock = timeStore.currentBlock
     const dropVisuals = this.calcDropVisuals()
+    const userData = airdropStore.getUserData(userAddress)
     const { dropPercentage, dropTimer, dropStatus } = dropVisuals
+    const hasRedeemed = data.hasRedeemed
 
     /* Before the snapshot, well get the users' CURRENT balance
        After the snapshot, we'll get the users SNAPSHOT balance
@@ -278,7 +280,7 @@ class Airdrop extends React.Component {
         <InfoLine title="Airdrop Blocknumber" info={snapshotBlock} />
         <InfoLine title="Current Blocknumber" info={currentBlock} />
         <Divider width="80%" margin="20px 0px 20px 0px" />
-        {this.renderActionButton(dropStatus, necBalance, redeemPending)}
+        {this.renderActionButton(dropStatus, necBalance, redeemPending, userData)}
       </AirdropWrapper>
     )
   }

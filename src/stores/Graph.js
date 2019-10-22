@@ -1,6 +1,5 @@
 import { observable, action, computed } from 'mobx'
-import ApolloClient from 'apollo-boost';
-import { gql } from "apollo-boost";
+import { createApolloFetch } from 'apollo-fetch';
 
 export default class GraphStore {
     @observable httpClient = undefined;
@@ -11,9 +10,7 @@ export default class GraphStore {
     }
 
     @action setHttpClient(uri) {
-        this.httpClient = new ApolloClient({
-            uri,
-        });
+        this.httpClient = createApolloFetch({ uri });
     }
 
     getHttpClient() {
@@ -21,8 +18,7 @@ export default class GraphStore {
     }
 
     async fetchLocks(address) {
-        const result = await this.httpClient.query({
-            query: gql`{
+        const query = `{
             locks(orderDirection: asc) {
                 id
                 locker
@@ -32,10 +28,46 @@ export default class GraphStore {
                 lockTimestamp
                 periodDuration
             }
-        }`
-        })
-        console.log('GRAPHHH', result)
+        }`;
+
+        const result = await this.httpClient({ query })
+        console.log('Fetch Locks', result)
         return result.data.locks
     }
 
+    async fetchAllBatches() {
+        const query = `{
+            locks(orderDirection: asc) {
+                id
+                locker
+                period
+                amount
+                released
+                lockTimestamp
+                periodDuration
+            }
+        }`;
+
+        const result = await this.httpClient({ query })
+        console.log('Fetch Batches', result)
+        return result.data.batches
+    }
+
+    async fetchScore(batchId, userAddress) {
+        const query = `{
+            locks(orderDirection: asc) {
+                id
+                locker
+                period
+                amount
+                released
+                lockTimestamp
+                periodDuration
+            }
+        }`;
+
+        const result = await this.httpClient({ query })
+        console.log('Fetch Batches', result)
+        return result.data.score
+    }
 }

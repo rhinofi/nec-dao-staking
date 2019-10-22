@@ -33,7 +33,7 @@ const defaultAsyncActions = {
 const propertyNames = {
     STATIC_PARAMS: 'staticParams',
     USER_LOCKS: 'userLocks',
-    AUCTION_DATA: 'auctionData'
+    LOCK_OVERVIEW: 'lockOverview'
 }
 export default class LockNECStore {
     // Static Parameters
@@ -47,7 +47,7 @@ export default class LockNECStore {
 
     // Dynamic Data
     @observable userLocks = {}
-    @observable auctionData = {}
+    @observable lockOverview = {}
 
     @observable initialLoad = {
         staticParams: false,
@@ -75,8 +75,8 @@ export default class LockNECStore {
         objectPath.set(this.asyncActions, `redeem.${userAddress}.${lockId}`, flag)
     }
 
-    setExtendLockActionPending(userAddress, lockId, flag) {
-        objectPath.set(this.asyncActions, `extendLock.${userAddress}.${lockId}`, flag)
+    setExtendLockActionPending(lockId, flag) {
+        objectPath.set(this.asyncActions, `extendLock.${lockId.toString()}`, flag)
     }
 
     setReleaseActionPending(lockId, flag) {
@@ -102,8 +102,8 @@ export default class LockNECStore {
         return flag
     }
 
-    isExtendLockActionPending(userAddress, lockId) {
-        return objectPath.get(this.asyncActions, `extendLock.${userAddress}.${lockId}`) || false
+    isExtendLockActionPending(lockId) {
+        return objectPath.get(this.asyncActions, `extendLock.${lockId.toString()}`) || false
     }
 
     isReleaseActionPending(lockId) {
@@ -116,6 +116,15 @@ export default class LockNECStore {
         const batchTime = this.staticParams.lockingPeriodLength
 
         return (startTime + (batchIndex * batchTime))
+    }
+
+    getBatchEndTime(batchIndex) {
+        const startTime = this.staticParams.startTime
+        const batchTime = this.staticParams.lockingPeriodLength
+
+        const nextIndex = Number(batchIndex) + 1
+
+        return (startTime + (nextIndex * batchTime))
     }
 
     getTimeUntilNextPeriod() {
@@ -191,7 +200,7 @@ export default class LockNECStore {
         return this.userLocks[userAddress].initialLoad
     }
 
-    isAuctionDataInitialLoadComplete(userAddress) {
+    isOverviewLoadComplete(userAddress) {
         return true
         // if (!this.auctionData[userAddress]) {
         //     return false
@@ -339,7 +348,7 @@ export default class LockNECStore {
                     userAddress: locker,
                     lockId: id,
                     amount: amount,
-                    duration: period,
+                    duration: periodDuration,
                     lockingPeriod,
                     releasable,
                     released
@@ -356,23 +365,71 @@ export default class LockNECStore {
         }
     }
 
+    setBatchResult() {
+
+    }
+
+    getOverviewForUser(userAddress) {
+        return
+    }
+
+    /*
+        Reconstruct the scores from events. Hepefully can move this logic to TheGraph soon.
+    */
     @action fetchOverview = async (userAddress) => {
+        const contract = this.loadContract()
+
         if (!this.initialLoad.staticParams) {
             throw new Error('Static properties must be loaded before fetching user locks')
         }
+
+        const numBatches = this.staticParams.numLockingPeriods
+
+        for (let i = 0; i < numBatches; i++) {
+            const totalScore = await contract.methods.batches(i)
+            // const totalRepAllocation = await contract.methods.getRepRewardPerBatch(i)
+        }
+
+        // const { graphStore, timeStore } = this.rootStore
+
+        // const batches = await graphStore.fetchAllBatches()
+        // const now = timeStore.currentTime
+
+        // let result = {}
+
+        // for (let batch of batches) {
+        //     const batchId = batch.id
+        //     let totalScore = batch.totalScore
+        //     let userScore = await graphStore.fetchScore(batchId, userAddress)
+        //     let batchEndTime = this.getBatchEndTime(batchId)
+        //     let isComplete = (now > batchEndTime)
+        //     let userRepRecieved = 0
+        //     if (isComplete) {
+        //         userRepRecieved = Number(userScore) / Number(totalScore)
+        //     }
+        //     result[batchId] = {
+        //         userScore: userScore,
+        //         totalScore,
+        //         isComplete,
+        //         userRepRecieved: userRepRecieved
+        //     }
+        // }
     }
 
     lock = async (amount, duration, batchId) => {
         const contract = this.loadContract()
+        const userAddress = this.rootStore.providerStore.getDefaultAccount()
         log.error(
             '[Action] Lock',
             `amount: ${amount} \n duration: ${duration} \n batchId:${batchId} \n agreementHash: ${AGREEMENT_HASH}`)
         this.setLockActionPending(true)
         try {
             await contract.methods.lock(amount, duration, batchId, AGREEMENT_HASH).send()
+            this.fetchUserLocks(userAddress)
             this.setLockActionPending(false)
         } catch (e) {
             log.error(e)
+            this.fetchUserLocks(userAddress)
             this.setLockActionPending(false)
         }
 
@@ -381,15 +438,17 @@ export default class LockNECStore {
     extendLock = async (lockId, periodsToExtend, batchId) => {
         const contract = this.loadContract()
         const userAddress = this.rootStore.providerStore.getDefaultAccount()
-        this.setExtendLockActionPending(userAddress, lockId, true)
+        this.setExtendLockActionPending(lockId, true)
         log.info('extendLock', lockId, periodsToExtend, batchId)
 
         try {
             await contract.methods.extendLocking(periodsToExtend, batchId, lockId, AGREEMENT_HASH).send()
-            this.setExtendLockActionPending(userAddress, lockId, false)
+            this.fetchUserLocks(userAddress)
+            this.setExtendLockActionPending(lockId, false)
         } catch (e) {
             log.error(e)
-            this.setExtendLockActionPending(userAddress, lockId, false)
+            this.fetchUserLocks(userAddress)
+            this.setExtendLockActionPending(lockId, false)
         }
 
     }
@@ -406,6 +465,7 @@ export default class LockNECStore {
             this.fetchUserLocks(userAddress)
         } catch (e) {
             log.error(e)
+            this.fetchUserLocks(userAddress)
             this.setReleaseActionPending(lockId, false)
         }
 

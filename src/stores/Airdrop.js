@@ -98,12 +98,19 @@ export default class AirdropStore {
 
     isUserDataLoaded(userAddress) {
         const loaded = objectPath.get(this.userData, `${userAddress}.initialLoad`) || false
+
         return loaded
     }
 
     areStaticParamsLoaded() {
         const loaded = objectPath.get(this.initialLoad, `staticParams`) || false
         return loaded
+    }
+
+    getUserData(userAddress) {
+        const a = objectPath.get(this.userData, `${userAddress}`)
+
+        return objectPath.get(this.userData, `${userAddress}`)
     }
 
     setUserData(userAddress, data) {
@@ -167,43 +174,50 @@ export default class AirdropStore {
             throw new Error(text.staticParamsNotLoaded)
         }
 
+
         const contract = this.loadRepFromTokenContract()
         const necRepAllocationContract = this.loadNecRepAllocationContract()
-        log.info('[Fetch] User Airdrop Data', userAddress)
+        console.log('[Fetch] User Airdrop Data', userAddress)
         try {
             const redeemEvents = await contract.getPastEvents(REDEEM_EVENT, {
+                filter: { _beneficiary: userAddress },
                 fromBlock: 0,
                 toBlock: 'latest'
             })
 
             const userBalance = await necRepAllocationContract.methods.balanceOf(userAddress).call()
             const userRep = await necRepAllocationContract.methods.balanceOf(userAddress).call()
-            const hasReemeed = false
+            const hasRedeemed = (redeemEvents.length && redeemEvents.length >= 1)
 
-            //TODO: filter events for user redemption
-            //TODO: calculate REP from (user balance / total supply) * totalREP
-            this.setUserData(userAddress, {
+            const data = {
                 snapshotBalance: userBalance,
                 snapshotRep: userRep,
-                hasReemeed,
+                hasRedeemed,
                 initialLoad: true
-            })
+            }
+            //TODO: filter events for user redemption
+            //TODO: calculate REP from (user balance / total supply) * totalREP
+            console.log('[Fetched] User Airdrop Data', userAddress, data)
+
+            this.setUserData(userAddress, data)
 
         } catch (e) {
             log.error(e)
         }
     }
 
-    redeem = async (beneficiary) => {
-        const contract = this.loadNecRepAllocationContract()
+    @action redeem = async (beneficiary) => {
+        const contract = this.loadRepFromTokenContract()
 
         console.log('redeem', beneficiary)
         this.setRedeemPending(true)
         try {
             await contract.methods.redeem(beneficiary).send()
+            this.fetchUserData(beneficiary)
             this.setRedeemPending(false)
         } catch (e) {
             log.error(e)
+            this.fetchUserData(beneficiary)
             this.setRedeemPending(false)
         }
 

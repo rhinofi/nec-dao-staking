@@ -59,6 +59,11 @@ class UserLocksTable extends React.Component {
         lockNECStore.release(beneficiary, lockId)
     }
 
+    extend(lockId, periodsToExtend, batchId) {
+        const { lockNECStore } = this.props.root
+        lockNECStore.extendLock(lockId, periodsToExtend, batchId)
+    }
+
     renderNoDataTable() {
         return (
             <TableWrapper>
@@ -72,8 +77,10 @@ class UserLocksTable extends React.Component {
     }
 
     generateCell(key, value) {
-        const { timeStore, lockNECStore } = this.props.root
+        const { timeStore, lockNECStore, extendLockFormStore, providerStore } = this.props.root
         const now = timeStore.currentTime
+
+        const userAddress = providerStore.getDefaultAccount()
 
         if (key === 'releaseData') {
             const { released, releasable, releasableDisplay, beneficiary, lockId } = value
@@ -90,11 +97,11 @@ class UserLocksTable extends React.Component {
                 return <DisabledText>Released</DisabledText>
             }
 
-            if (isReleasable && !released && !isReleaseActionPending) {
+            if (!isReleaseActionPending) {
                 return <TableButton onClick={() => { this.release(beneficiary, lockId) }}>Release</TableButton>
             }
 
-            if (isReleasable && !released && isReleaseActionPending) {
+            if (isReleaseActionPending) {
                 return <TableButton>Pending...</TableButton>
             }
 
@@ -103,14 +110,21 @@ class UserLocksTable extends React.Component {
 
         if (key === 'extendData') {
             const { lockId } = value
+
             const isLockingOver = lockNECStore.isLockingEnded()
             const remainingPeriods = lockNECStore.getPeriodsRemaining()
-            const isPendingAction = lockNECStore.isExtendLockActionPending()
+            const isPendingAction = lockNECStore.isExtendLockActionPending(lockId)
+            const periodsToExtend = extendLockFormStore.duration
+            const batchId = lockNECStore.getActiveLockingPeriod()
 
             //TODO: Revert to proper logic
             // if (isLockingOver && !isPendingAction) {
             //     return <DisabledText>-</DisabledText>
             // }
+
+            if (isPendingAction) {
+                return <TableButton>Pending...</TableButton>
+            }
 
             if (!isPendingAction) {
                 // This is where you put the popus
@@ -118,7 +132,7 @@ class UserLocksTable extends React.Component {
                     <Popup trigger={<TableButton>Extend</TableButton>} modal closeOnDocumentClick closeOnEscape position="right center">
                         <div className="modalform modalinput">
                             <ExtendLockPopup className="modalinput modalform" rangeStart={1} />
-                            <TableButton className="modalinput modalform" onClick={() => { console.log('make the modal appear and pass in this lockId') }}>Extend</TableButton>
+                            <TableButton className="modalinput modalform" onClick={() => { this.extend(lockId, periodsToExtend, batchId) }}>Extend</TableButton>
                         </div>
                     </Popup>
                 )

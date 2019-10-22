@@ -84,10 +84,19 @@ class LockPanel extends React.Component {
     const { lockNECStore, lockFormStore } = this.props.root
     const { rangeStart } = this.state
 
-    const maxLockDuration = lockNECStore.staticParams.maxLockingBatches
+    const periodsRemaining = lockNECStore.getPeriodsRemaining()
     const lockDuration = lockFormStore.duration
 
-    const numCells = 4
+    let maxLockDuration = lockNECStore.staticParams.maxLockingBatches
+    let numCells = 4
+
+    if (periodsRemaining < 4) {
+      numCells = periodsRemaining
+    }
+
+    if (periodsRemaining < maxLockDuration) {
+      maxLockDuration = periodsRemaining
+    }
 
     const cells = []
     for (let i = rangeStart; i <= rangeStart + numCells; i += 1) {

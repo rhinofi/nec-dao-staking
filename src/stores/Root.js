@@ -74,7 +74,6 @@ class RootStore {
             await this.tokenStore.fetchBalanceOf(necTokenAddress, userAddress)
             await this.tokenStore.fetchAllowance(necTokenAddress, userAddress, lockSchemeAddress)
             await this.lockNECStore.fetchUserLocks(userAddress)
-
         }, 3000);
     }
 
