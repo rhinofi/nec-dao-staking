@@ -22,6 +22,7 @@ const LockNECWrapper = styled.div`
 
 const DetailsWrapper = styled.div`
   width: 80%;
+  height: 364px;
   border-right: 1px solid var(--border);
 `
 

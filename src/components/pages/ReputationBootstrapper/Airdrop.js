@@ -31,6 +31,7 @@ const AirdropWrapper = styled.div`
   border-top: none;
   border-bottom: none;
   width: 450px;
+  height: 324px;
   padding-top: 20px;
   padding-bottom: 20px;
 `

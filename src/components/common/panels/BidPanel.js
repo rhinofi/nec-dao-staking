@@ -23,7 +23,7 @@ const BidForm = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  margin-top: 30px;
+  margin-top: 18px;
   padding: 0px 20px 6px 20px;
   border-bottom: 1px solid var(--inactive-border);
   input {
