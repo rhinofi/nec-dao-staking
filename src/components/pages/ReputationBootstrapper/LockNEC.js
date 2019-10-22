@@ -287,6 +287,7 @@ class LockNEC extends React.Component {
               subtitle={periodTimer}
               width="28px"
               height="28px"
+              displayTooltip={true}
             />
             <TableTabsWrapper>
               {this.TabButton(currentTab, tabs.YOUR_LOCKS, "Your Locks")}
