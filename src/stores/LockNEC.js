@@ -48,6 +48,7 @@ export default class LockNECStore {
     // Dynamic Data
     @observable userLocks = {}
     @observable lockOverview = {}
+    @observable lockOverviewLoaded = false
 
     @observable initialLoad = {
         staticParams: false,
@@ -207,6 +208,10 @@ export default class LockNECStore {
         // }
 
         // return this.auctionData[userAddress].initialLoad
+    }
+
+    isLockOverviewLoaded(userAddress) {
+        return this.lockOverviewLoaded
     }
 
     getPeriodsRemaining() {
@@ -369,8 +374,8 @@ export default class LockNECStore {
 
     }
 
-    getOverviewForUser(userAddress) {
-        return
+    getOverview(userAddress) {
+        return this.lockOverview;
     }
 
     /*
@@ -383,11 +388,29 @@ export default class LockNECStore {
             throw new Error('Static properties must be loaded before fetching user locks')
         }
 
-        const numBatches = this.staticParams.numLockingPeriods
+        if (!this.isUserLockInitialLoadComplete(userAddress)) {
+            throw new Error('user locks must be loaded')
+        }
 
-        for (let i = 0; i < numBatches; i++) {
-            const totalScore = await contract.methods.batches(i)
-            // const totalRepAllocation = await contract.methods.getRepRewardPerBatch(i)
+        try {
+            let data = []
+            const numBatches = this.staticParams.numLockingPeriods
+
+            for (let i = 0; i < numBatches; i++) {
+                const totalScore = await contract.methods.batches(i).call()
+                const totalRepAllocation = await contract.methods.getRepRewardPerBatch(i).call()
+
+                data[i] = {
+                    batchId: i,
+                    totalScore: totalScore,
+                    totalRepAllocation: totalRepAllocation
+                }
+            }
+            console.log('batchData', data)
+            this.lockOverviewLoaded = true
+            this.lockOverview = data
+        } catch (e) {
+            log.error(e)
         }
 
         // const { graphStore, timeStore } = this.rootStore

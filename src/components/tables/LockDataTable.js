@@ -5,7 +5,14 @@ import 'components/common/Table.scss'
 import * as helpers from 'utils/helpers'
 import LoadingCircle from '../common/LoadingCircle';
 
-const NO_DATA_MESSAGE = 'All lock data not available'
+const columns = [
+    { name: 'Period #', key: 'batchId', width: '15%', align: 'left' },
+    { name: 'Your Score', key: 'userScore', width: '25%', align: 'left' },
+    { name: 'Total Score', key: 'totalScore', width: '25%', align: 'left' },
+    { name: 'Total Rep', key: 'totalRepAllocation', width: '25%', align: 'left' },
+    // { name: 'Total Rep', key: 'userRepRecieved', width: '25%', align: 'left' },
+    // { name: 'Extend', key: 'extendActionData', width: '15%', align: 'left' },
+]
 
 @inject('root')
 @observer
@@ -13,28 +20,17 @@ class LockDataTable extends React.Component {
     generateTableRows(data) {
         const tableData = []
 
-        Object.keys(data).forEach(function (key, index) {
-
-            const releasable = data[key].releasable
-
-            /* Data
-            userAddress
-            lockId
-            actionAvailable 
-            (whatever else is needed will be set in popup)
-            */
+        for (let i = 0; i < data.length; i++) {
 
             const row = {
-                extendActionData: data[key].lockId,
-                releaseActionData: data[key].lockId,
-                releasable,
-                startPeriod: data[key].lockingPeriod,
-                duration: `${data[key].duration} Months`,
-                amount: `${helpers.fromWei(data[key].amount)} NEC`
+                batchId: data[i].batchId,
+                totalScore: helpers.fromWei(data[i].totalScore),
+                totalRepAllocation: helpers.fromWei(data[i].totalRepAllocation),
+                userScore: '-'
             }
 
             tableData.push(row)
-        })
+        }
 
         tableData.reverse()
         return tableData
@@ -57,21 +53,13 @@ class LockDataTable extends React.Component {
         const { lockNECStore, providerStore } = this.props.root
 
         const userAddress = providerStore.getDefaultAccount()
-        const lockDataLoaded = lockNECStore.isOverviewLoadComplete(userAddress)
+        const lockDataLoaded = lockNECStore.isLockOverviewLoaded(userAddress)
 
         let rows
         if (lockDataLoaded) {
-            const userLocks = lockNECStore.getUserTokenLocks(userAddress)
-            rows = this.generateTableRows(userLocks.data)
+            const lockData = lockNECStore.getOverview(userAddress)
+            rows = this.generateTableRows(lockData)
         }
-
-        const columns = [
-            { name: 'Period #', key: 'batchId', width: '15%', align: 'left' },
-            { name: 'You Locked', key: 'userScore', width: '25%', align: 'left' },
-            { name: 'Total Locked', key: 'totalScore', width: '25%', align: 'left' },
-            { name: 'You Recieved', key: 'userRepRecieved', width: '25%', align: 'left' },
-            // { name: 'Extend', key: 'extendActionData', width: '15%', align: 'left' },
-        ]
 
         return (
             <React.Fragment>

@@ -219,7 +219,7 @@ class Airdrop extends React.Component {
     }
 
     if (hasRedeemed) {
-      return (<InactiveButton>REP Already Claimed</InactiveButton>)
+      return (<InactiveButton>REP Claimed</InactiveButton>)
     }
 
     if (status === snapshotStatus.CLAIM_ENDED && userBalance !== "0" && !hasRedeemed) {
