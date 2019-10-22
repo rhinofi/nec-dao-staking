@@ -32,6 +32,11 @@ const AirdropWrapper = styled.div`
   border-bottom: none;
   width: 450px;
   padding-top: 20px;
+  padding-bottom: 20px;
+`
+
+const ButtonWrapper = styled.div`
+  width: 80%;
 `
 
 const Logo = styled.img`
@@ -270,7 +275,9 @@ class Airdrop extends React.Component {
         <InfoLine title="Airdrop Blocknumber" info={snapshotBlock} tooltipText={true}/>
         <InfoLine title="Current Blocknumber" info={currentBlock} />
         <Divider width="80%" margin="20px 0px 20px 0px" />
-        {this.renderActionButton(dropStatus, necBalance, redeemPending, userData)}
+        <ButtonWrapper>
+          {this.renderActionButton(dropStatus, necBalance, redeemPending, userData)}
+        </ButtonWrapper>
       </AirdropWrapper>
     )
   }
