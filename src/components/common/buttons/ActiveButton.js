@@ -14,6 +14,7 @@ export const ActiveButton = styled.div`
   font-size: 15px;
   line-height: 18px;
   color: var(--white-text);
+  cursor: pointer;
 `
 
 export default ActiveButton

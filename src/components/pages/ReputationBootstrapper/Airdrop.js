@@ -65,22 +65,6 @@ const Info = styled(InfoTitle)`
   text-align: right;
 `
 
-const Button = styled.div`
-  background: var(--action-button);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: var(--white-text);
-  font-family: Montserrat;
-  font-style: normal;
-  font-weight: 500;
-  font-size: 15px;
-  line-height: 18px;
-  padding: 10px 0px;
-  width: 80%;
-  margin-bottom: 20px;
-`
-
 const InfoLine = ({ title, info, tooltipText }) => (
   <InfoWrapper>
     <InfoTitle>

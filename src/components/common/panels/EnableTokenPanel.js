@@ -55,12 +55,14 @@ const Button = styled.div`
   font-size: 15px;
   line-height: 18px;
   color: var(--white-text);
+  cursor: pointer;
 `
 
 const DisableButton = styled(Button)`
   border: 1px solid var(--inactive-border);
   color: var(--inactive-header-text);
   background: none;
+  cursor: default;
 `
 
 @inject('root')

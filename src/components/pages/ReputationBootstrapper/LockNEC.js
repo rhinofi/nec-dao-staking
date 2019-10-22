@@ -50,6 +50,7 @@ const TableTabButton = styled.div`
   margin-left: 12px;
   background: var(--background);
   border: 1px solid var(--active-border);
+  cursor: pointer;
   font-family: Montserrat;
   font-style: normal;
   font-weight: 600;

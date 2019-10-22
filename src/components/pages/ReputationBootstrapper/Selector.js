@@ -73,6 +73,7 @@ const ActiveButton = styled.div`
   flex-direction: column;
   align-items: center;
   color: var(--white-text);
+  cursor: pointer;
   border: 1px solid var(--active-border);
   font-family: Montserrat;
   font-style: normal;
