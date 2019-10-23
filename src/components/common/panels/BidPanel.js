@@ -2,12 +2,52 @@ import React from 'react'
 import styled from 'styled-components'
 import { inject, observer } from "mobx-react";
 import * as helpers from 'utils/helpers'
-import { LockAmountForm, LockAmountWrapper, MaxTokensText } from './LockPanel'
+import { MaxTokensText } from './LockPanel'
 import InactiveButton from 'components/common/buttons/InactiveButton'
 import ActiveButton from 'components/common/buttons/ActiveButton'
 import LoadingCircle from '../LoadingCircle';
 import * as deployed from 'deployed'
+
 const PanelWrapper = styled.div`
+`
+
+const BidWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin: 0px 24px 42px;
+  font-weight: 500;
+  color: var(--inactive-text);
+`
+
+const BidForm = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 18px;
+  padding: 0px 20px 6px 20px;
+  border-bottom: 1px solid var(--inactive-border);
+  input {
+    font-size: 15px;
+    line-height: 18px;
+    color: var(--white-text);
+    background: var(--background);
+    border: none;
+  }
+`
+
+const PanelText = styled.div`
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 18px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  letter-spacing: 0.4px;
+  padding: 24px 0px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--faint-divider);
 `
 
 @inject('root')
@@ -42,14 +82,17 @@ class BidPanel extends React.Component {
     const actionEnabled = auctionsStarted && !auctionsEnded
     return (
       <React.Fragment>
-        <LockAmountWrapper>
+        <BidWrapper>
+          <PanelText>
+            GEN is the native DAOstack token, primarily used for prediction markets and boosting proposals.
+          </PanelText>
           <div>Bid Amount</div>
-          <LockAmountForm>
-            <input type="text" name="name" value={bidAmount} onChange={e => this.setBidAmount(e.target.value)} />
+          <BidForm>
+            <input type="text" name="name" placeholder="0" value={bidAmount} onChange={e => this.setBidAmount(e.target.value)} />
             <MaxTokensText onClick={e => this.setBidAmount(userBalance)}>Max</MaxTokensText>
             <div>GEN</div>
-          </LockAmountForm>
-        </LockAmountWrapper>
+          </BidForm>
+        </BidWrapper>
         {actionEnabled ?
           (<ActiveButton
             onClick={() => { this.bid() }}>

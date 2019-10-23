@@ -22,6 +22,7 @@ const LockNECWrapper = styled.div`
 
 const DetailsWrapper = styled.div`
   width: 80%;
+  height: 364px;
   border-right: 1px solid var(--border);
 `
 
@@ -50,6 +51,7 @@ const TableTabButton = styled.div`
   margin-left: 12px;
   background: var(--background);
   border: 1px solid var(--active-border);
+  cursor: pointer;
   font-family: Montserrat;
   font-style: normal;
   font-weight: 600;
@@ -287,6 +289,7 @@ class LockNEC extends React.Component {
               subtitle={periodTimer}
               width="28px"
               height="28px"
+              displayTooltip={true}
             />
             <TableTabsWrapper>
               {this.TabButton(currentTab, tabs.YOUR_LOCKS, "Your Locks")}

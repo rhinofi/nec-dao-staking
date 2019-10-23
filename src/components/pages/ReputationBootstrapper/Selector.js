@@ -2,6 +2,7 @@ import React from 'react'
 import { observer, inject } from 'mobx-react'
 import { withRouter } from 'react-router-dom'
 import LogoAndText from 'components/common/LogoAndText'
+import Tooltip from 'components/common/Tooltip'
 import EthFinexLogo from 'assets/svgs/ethfinex-logo.svg'
 import GENLogo from 'assets/svgs/GEN-logo.svg'
 import StarIcon from 'assets/svgs/star.svg'
@@ -16,6 +17,8 @@ const HeaderWrapper = styled.div`
 `
 
 const Title = styled.div`
+  display: flex;
+  flex-direction: row;
   color: var(--white-text);
   font-family: Montserrat;
   font-style: normal;
@@ -70,6 +73,7 @@ const ActiveButton = styled.div`
   flex-direction: column;
   align-items: center;
   color: var(--white-text);
+  cursor: pointer;
   border: 1px solid var(--active-border);
   font-family: Montserrat;
   font-style: normal;
@@ -120,7 +124,10 @@ const Selector = ({ height }) => {
 
   return (
     <HeaderWrapper height={height}>
-      <Title>How do you want to earn Reputation for the NectarDAO?</Title>
+      <Title>
+        How do you want to earn Reputation for the NectarDAO?
+        <Tooltip title="Tooltip title" content="This is placeholder text describing the Title in the Selector." position="right top" />
+      </Title>
       <NavWrapper>
         <Button option={1} route="/lock-nec">
           <LogoAndText icon={EthFinexLogo} text="Lock NEC" />

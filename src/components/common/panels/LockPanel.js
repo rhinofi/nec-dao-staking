@@ -23,14 +23,14 @@ export const LockAmountWrapper = styled.div`
   margin: 0px 24px;
   font-weight: 600;
   color: var(--inactive-text);
-  height: 87px;
+  height: 64px;
 `
 
 export const LockAmountForm = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  margin-top: 30px;
+  margin-top: 18px;
   padding: 0px 20px 6px 20px;
   border-bottom: 1px solid var(--inactive-border);
   input {

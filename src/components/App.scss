@@ -5,6 +5,7 @@
   --border: #4E5568;
   --enable-purple-border: rgba(153, 114, 251, 0.4);
   --enable-purple-text: #9972FB;
+  --faint-divider: rgba(78, 85, 104, 0.25);
   --faded-border: rgba(255, 255, 255, 0.08);
   --inactive-border: #4D5474;
   --inactive-header-text: rgba(255, 255, 255, 0.6);
@@ -32,4 +33,8 @@ h1 {
 
 .blue-text {
   color: #536DFE;
+}
+
+.popup-content {
+  color: var(--background);
 }

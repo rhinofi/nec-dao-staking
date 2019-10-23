@@ -9,6 +9,7 @@ import * as deployed from 'deployed.json'
 import ActiveButton from 'components/common/buttons/ActiveButton'
 import InactiveButton from 'components/common/buttons/InactiveButton'
 import LoadingCircle from '../../common/LoadingCircle'
+import Tooltip from 'components/common/Tooltip'
 
 const propertyNames = {
   STATIC_PARAMS: 'staticParams',
@@ -30,7 +31,13 @@ const AirdropWrapper = styled.div`
   border-top: none;
   border-bottom: none;
   width: 450px;
+  height: 324px;
   padding-top: 20px;
+  padding-bottom: 20px;
+`
+
+const ButtonWrapper = styled.div`
+  width: 80%;
 `
 
 const Logo = styled.img`
@@ -40,12 +47,15 @@ const Logo = styled.img`
 const InfoWrapper = styled.div`
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
   align-tems: center;
   margin: 0px 0px 0px 0px;
   width: 80%
 `
 
 const InfoTitle = styled.div`
+  display: flex;
+  flex-direction: row;
   color: var(--inactive-text);
   font-family: Montserrat;
   font-style: normal;
@@ -54,7 +64,6 @@ const InfoTitle = styled.div`
   line-height: 20px;
   text-align: left;
   letter-spacing: 1px;
-  width: 100%
 `
 
 const Info = styled(InfoTitle)`
@@ -62,25 +71,12 @@ const Info = styled(InfoTitle)`
   text-align: right;
 `
 
-const Button = styled.div`
-  background: var(--action-button);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: var(--white-text);
-  font-family: Montserrat;
-  font-style: normal;
-  font-weight: 500;
-  font-size: 15px;
-  line-height: 18px;
-  padding: 10px 0px;
-  width: 80%;
-  margin-bottom: 20px;
-`
-
-const InfoLine = ({ title, info }) => (
+const InfoLine = ({ title, info, tooltipText }) => (
   <InfoWrapper>
-    <InfoTitle>{title}</InfoTitle>
+    <InfoTitle>
+      {title}
+      {tooltipText ? <Tooltip content="This is placeholder text describing the Airdrop Blocknumber." position="right top" /> : <div />}
+    </InfoTitle>
     <Info>{info}</Info>
   </InfoWrapper>
 )
@@ -277,10 +273,12 @@ class Airdrop extends React.Component {
         <InfoLine title="Nectar Balance" info={necBalanceDisplay} />
         <InfoLine title="Receive Voting Power" info={repBalance} />
         <Divider width="80%" margin="20px 0px 20px 0px" />
-        <InfoLine title="Airdrop Blocknumber" info={snapshotBlock} />
+        <InfoLine title="Airdrop Blocknumber" info={snapshotBlock} tooltipText={true}/>
         <InfoLine title="Current Blocknumber" info={currentBlock} />
         <Divider width="80%" margin="20px 0px 20px 0px" />
-        {this.renderActionButton(dropStatus, necBalance, redeemPending, userData)}
+        <ButtonWrapper>
+          {this.renderActionButton(dropStatus, necBalance, redeemPending, userData)}
+        </ButtonWrapper>
       </AirdropWrapper>
     )
   }
