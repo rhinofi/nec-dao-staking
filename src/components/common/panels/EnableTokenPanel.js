@@ -8,7 +8,7 @@ const PanelWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  height: 100%;
+  height: 80%;
 `
 
 const CircleAndTextContainer = styled.div`
