@@ -145,40 +145,10 @@ export const setTokenAllowance = (token, to, allowedAmount) => {
   });
 }
 
-export const getTokenTrusted = (token, from, to) => {
-  return promisify(objects[token].allowance.call)(from, to)
-    .then((result) => result.eq(web3.toBN(2).pow(256).minus(1)));
-}
-
-export function isEmptyProxy(address) {
-  return !address || address === "0x0000000000000000000000000000000000000000" || address === "0x0" || address === "0x"
-}
-
-export const getProxy = account => {
-  return promisify(objects.proxyRegistry.proxies)(account).then(r => isEmptyProxy(r) ? null : getProxyOwner(r).then(r2 => r2 === account ? r : null));
-}
-
-/*
-   On the contract side, there is a mapping (address) -> []DsProxy
-   A given address can have multiple proxies. Since lists cannot be
-   iterated, the way to access a give element is access it by index
- */
-export const legacy_getProxy = (registry, account, proxyIndex) => {
-  return promisify(registry.proxies)(account, proxyIndex);
-}
-
-export const getProxyOwner = proxy => {
-  return promisify(loadObject("dsproxy", proxy).owner)();
-}
-
 export const isMetamask = () => web3.currentProvider.isMetaMask || web3.currentProvider.constructor.name === "MetamaskInpageProvider";
 
 export const stopProvider = () => {
   web3.stop();
-}
-
-export const setHWProvider = (device, network, path, accountsOffset = 0, accountsLength = 1) => {
-  return web3.setHWProvider(device, network, path, accountsOffset, accountsLength);
 }
 
 export const setWebClientProvider = () => {

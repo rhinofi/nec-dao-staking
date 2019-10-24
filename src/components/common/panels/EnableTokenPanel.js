@@ -1,69 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
 import ProgressCircle from 'components/common/ProgressCircle'
+import { PanelWrapper, Instruction, SubInstruction, CircleAndTextContainer, Icon, Button, DisableButton } from 'components/common'
 import checkboxIcon from 'assets/svgs/checkbox.svg'
 import { observer, inject } from 'mobx-react'
-
-const PanelWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  height: 80%;
-`
-
-const CircleAndTextContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`
-
-const Icon = styled.img`
-  width: 20px;
-  height: 20px;
-`
-
-const Instruction = styled.div`
-  font-family: Montserrat;
-  font-style: normal;
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 20px;
-  margin-top: 16px;
-  color: var(--enable-purple-text);
-`
-
-// TODO include SF Pro Text font
-const SubInstruction = styled.div`
-  font-family: SF Pro Text;
-  font-size: 14px;
-  line-height: 17px;
-  letter-spacing: 0.4px;
-  color: var(--enable-purple-border);
-`
-
-const Button = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 34px;
-  margin: 0px 24px;
-  background: var(--action-button);
-  font-family: Montserrat;
-  font-style: normal;
-  font-weight: 600;
-  font-size: 15px;
-  line-height: 18px;
-  color: var(--white-text);
-  cursor: pointer;
-`
-
-const DisableButton = styled(Button)`
-  border: 1px solid var(--inactive-border);
-  color: var(--inactive-header-text);
-  background: none;
-  cursor: default;
-`
 
 @inject('root')
 @observer

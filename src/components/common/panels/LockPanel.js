@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { observer, inject } from 'mobx-react'
 import ActiveButton from 'components/common/buttons/ActiveButton'
 import InactiveButton from 'components/common/buttons/InactiveButton'
+import { NumberInput } from 'components/common'
 import * as helpers from 'utils/helpers'
 import LoadingCircle from '../LoadingCircle'
 import * as deployed from 'deployed'
@@ -34,6 +35,7 @@ export const LockAmountForm = styled.div`
   padding: 0px 20px 6px 20px;
   border-bottom: 1px solid var(--inactive-border);
   input {
+    border: ${props => props.border || '1px solid #ccc'};
     font-size: 15px;
     line-height: 18px;
     color: var(--white-text);
@@ -113,7 +115,7 @@ class LockPanel extends React.Component {
 
     return (
       <LockingPeriodSelectorWrapper>
-        <div>Lock Duration (Months)</div>
+        <div>Lock Duration (Periods)</div>
         <LockingPeriodSelector>
           <LockingPeriodStartCell onClick={() => {
             this.setRangeStart(rangeStart > 1 ? rangeStart - 1 : 1)
@@ -132,9 +134,11 @@ class LockPanel extends React.Component {
     )
   }
 
-  Pending() {
+  Pending(values) {
+    const { amount, releaseableDate, duration } = values
+    const periodText = helpers.getPeriodText(duration)
     return (
-      <LoadingCircle instruction="Lock NEC" />
+      <LoadingCircle instruction={`Lock ${amount} NEC`} subinstruction={`${duration} ${periodText} - Unlock on ${releaseableDate}`} />
     )
   }
 
@@ -176,23 +180,26 @@ class LockPanel extends React.Component {
   render() {
     const { lockNECStore, lockFormStore, timeStore, tokenStore } = this.props.root
     const { buttonText, pending, enabled, userAddress } = this.props
+    const necTokanAddress = deployed.NectarToken
 
     // The release period is now + (lockingPeriodLength * duration)
     const now = timeStore.currentTime
     const duration = lockFormStore.duration
-    const necTokanAddress = deployed.NectarToken
-    const userBalance = helpers.fromWei(tokenStore.getBalance(necTokanAddress, userAddress))
+    const amount = lockFormStore.amount
 
+    const userBalance = helpers.fromWei(tokenStore.getBalance(necTokanAddress, userAddress))
     const releaseableTimestamp = lockNECStore.calcReleaseableTimestamp(now, duration)
     const releaseableDate = helpers.timestampToDate(releaseableTimestamp)
 
-    const amount = lockFormStore.amount
+    const values = {
+      amount, releaseableDate, buttonText, enabled, userBalance, duration
+    }
 
     return (
       <PanelWrapper>
         {pending ?
-          this.Pending() :
-          this.LockForm({ amount, releaseableDate, buttonText, enabled, userBalance })
+          this.Pending(values) :
+          this.LockForm(values)
         }
       </PanelWrapper >
     )

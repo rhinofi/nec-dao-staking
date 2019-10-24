@@ -7,7 +7,7 @@ import EnableTokenPanel from 'components/common/panels/EnableTokenPanel'
 import BidPanel from 'components/common/panels/BidPanel'
 import LogoAndText from 'components/common/LogoAndText'
 // TODO: change to GEN
-import icon from 'assets/svgs/ethfinex-logo.svg'
+import GENLogo from 'assets/svgs/GEN-logo.svg'
 import * as helpers from 'utils/helpers'
 import * as deployed from 'deployed.json'
 import LoadingCircle from '../../common/LoadingCircle'
@@ -225,7 +225,7 @@ class BidGEN extends React.Component {
         </DetailsWrapper>
         <ActionsWrapper>
           <ActionsHeader>
-            <LogoAndText icon={icon} text="GEN" />
+            <LogoAndText icon={GENLogo} text="GEN" />
             <div>{genBalanceDisplay} GEN</div>
           </ActionsHeader>
           {this.SidePanel()}

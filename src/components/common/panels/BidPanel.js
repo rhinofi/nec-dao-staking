@@ -71,9 +71,15 @@ class BidPanel extends React.Component {
   }
 
   Pending() {
+    const { bidGENStore, bidFormStore } = this.props.root
+    const currentAuction = bidGENStore.getActiveAuction()
+    const timeUntilNextAuction = bidGENStore.getTimeUntilNextAuction()
+    const timeText = helpers.getSecondsText(timeUntilNextAuction)
+    const amount = bidFormStore.bidAmount
+
     return (
       <React.Fragment>
-        <LoadingCircle instruction="Bid GEN" />
+        <LoadingCircle instruction={`Bid ${amount} GEN`} subinstruction={`Auction ${currentAuction} - Ends in ${timeText}`} />
       </React.Fragment >
     )
   }

@@ -8,7 +8,7 @@ import LogoAndText from 'components/common/LogoAndText'
 import TokenValue from 'components/common/TokenValue'
 import icon from 'assets/svgs/ethfinex-logo.svg'
 import * as deployed from 'deployed'
-import LockDataTable from 'components/tables/LockDataTable'
+import BatchesTable from 'components/tables/BatchesTable'
 import UserLocksTable from 'components/tables/UserLocksTable'
 import LoadingCircle from '../../common/LoadingCircle'
 
@@ -122,7 +122,6 @@ class LockNEC extends React.Component {
     await tokenStore.fetchBalanceOf(necTokenAddress, userAddress)
     await tokenStore.fetchAllowance(necTokenAddress, userAddress, schemeAddress)
     await lockNECStore.fetchUserLocks(userAddress)
-    await lockNECStore.fetchOverview(userAddress)
   }
 
   SidePanel = () => {
@@ -233,7 +232,7 @@ class LockNEC extends React.Component {
       )
     } else if (currentTab === tabs.ALL_PERIODS) {
       return (
-        < LockDataTable />
+        < BatchesTable highlightTopRow />
       )
     }
   }

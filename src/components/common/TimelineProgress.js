@@ -31,17 +31,18 @@ const Title = styled.div`
 `
 
 const Subtitle = styled(Title)`
+  font-size: 14px;  
   color: var(--inactive-header-text);
 `
 
 const TimelineProgress = ({
- value, icon, title, subtitle, width, height, displayTooltip
+  value, icon, title, subtitle, width, height, displayTooltip
 }) => {
   let tooltip
   if (displayTooltip) {
     tooltip = <Tooltip content="This is placeholder text describing the Title in the Selector." position="right top" />
   }
-  
+
   return (
     <TimelineWrapper>
       <ProgressCircle value={value} width={width} height={height} icon={icon} />

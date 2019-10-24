@@ -25,6 +25,7 @@ export default class ProviderStore {
 
     constructor(rootStore) {
         this.rootStore = rootStore;
+        console.log('window', window)
     }
 
     setNetwork = async () => {

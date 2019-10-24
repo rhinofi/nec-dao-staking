@@ -7,6 +7,8 @@ import web3 from "./web3";
 
 // Settings
 import settings from "../settings.json";
+import Big from 'big.js/big.mjs';
+Big.PE = 200
 
 export const timeConstants = {
   inSeconds: {
@@ -134,12 +136,45 @@ export function getDurationTimeText(value) {
   }
 }
 
+export function pow10(value) {
+  const ten = new Big(10)
+  return ten.pow(value)
+}
+
+export function toAmount(value) {
+  return toFixed(fromWei(value))
+}
+
+export function toFixed(value) {
+  const numValue = new Big(value)
+  const fixed = numValue.toPrecision(4)
+  return fixed.toString()
+}
+
+export function fromRep(value) {
+  const numValue = new Big(value)
+  const repValue = numValue.div(pow10(18))
+  return roundValue(repValue.toString())
+}
+
+export function getSecondsText(value) {
+  return `${value} seconds`
+}
+
 export function getMonthsSuffix(value) {
   const months = Number(value)
   if (months === 1) {
     return 'Month'
   }
   return 'Months'
+}
+
+export function getPeriodText(value) {
+  const months = Number(value)
+  if (months === 1) {
+    return 'Period'
+  }
+  return 'Periods'
 }
 
 export function timestampToDate(timestamp) {

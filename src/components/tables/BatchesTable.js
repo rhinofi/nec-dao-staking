@@ -3,34 +3,32 @@ import { inject, observer } from "mobx-react";
 import { TableWrapper, RowWrapper, InactiveRowWrapper, Row, CellWrapper, GreyCell } from 'components/common/Table'
 import 'components/common/Table.scss'
 import * as helpers from 'utils/helpers'
-import LoadingCircle from '../common/LoadingCircle';
 
 const columns = [
     { name: 'Period #', key: 'batchId', width: '15%', align: 'left' },
-    { name: 'Your Score', key: 'userScore', width: '25%', align: 'left' },
-    { name: 'Total Score', key: 'totalScore', width: '25%', align: 'left' },
-    { name: 'Total Rep', key: 'totalRepAllocation', width: '25%', align: 'left' },
-    // { name: 'Total Rep', key: 'userRepRecieved', width: '25%', align: 'left' },
-    // { name: 'Extend', key: 'extendActionData', width: '15%', align: 'left' },
+    { name: 'You Locked', key: 'userLocked', width: '25%', align: 'right' },
+    { name: 'Total Locked', key: 'totalLocked', width: '25%', align: 'right' },
+    { name: 'Rep Received', key: 'userRep', width: '30%', align: 'right' },
 ]
 
 @inject('root')
 @observer
-class LockDataTable extends React.Component {
+class BatchesTable extends React.Component {
     generateTableRows(data) {
         const tableData = []
 
-        for (let i = 0; i < data.length; i++) {
+        Object.keys(data).forEach(key => {
 
             const row = {
-                batchId: data[i].batchId,
-                totalScore: helpers.fromWei(data[i].totalScore),
-                totalRepAllocation: helpers.fromWei(data[i].totalRepAllocation),
-                userScore: '-'
+                batchId: data[key].id,
+                userLocked: helpers.toAmount(data[key].userLocked.toString()),
+                totalLocked: helpers.toAmount(data[key].totalLocked.toString()),
+                userRep: data[key].isComplete ? '#todo' : 'In Progress'
+                // userRep: helpers.fromRep(data[key].userRep.toString())
             }
 
             tableData.push(row)
-        }
+        })
 
         tableData.reverse()
         return tableData
@@ -41,7 +39,7 @@ class LockDataTable extends React.Component {
             <TableWrapper>
                 <InactiveRowWrapper>
                     <Row>
-                        <LoadingCircle instruction="Loading..." />
+                        {/* <LoadingCircle instruction="Loading..." /> */}
                     </Row>
                 </InactiveRowWrapper>
             </TableWrapper>
@@ -53,11 +51,11 @@ class LockDataTable extends React.Component {
         const { lockNECStore, providerStore } = this.props.root
 
         const userAddress = providerStore.getDefaultAccount()
-        const lockDataLoaded = lockNECStore.isLockOverviewLoaded(userAddress)
+        const lockDataLoaded = lockNECStore.areBatchesLoaded(userAddress)
 
         let rows
         if (lockDataLoaded) {
-            const lockData = lockNECStore.getOverview(userAddress)
+            const lockData = lockNECStore.getBatches(userAddress)
             rows = this.generateTableRows(lockData)
         }
 
@@ -104,4 +102,4 @@ class LockDataTable extends React.Component {
     }
 }
 
-export default LockDataTable
+export default BatchesTable
