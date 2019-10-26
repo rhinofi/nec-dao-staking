@@ -27,6 +27,10 @@ h1 {
   font-family: var(--pt-serif);
 }
 
+input:focus {
+  outline-style: none;
+}
+
 .green-text {
   color: #54AE6F;
 }
