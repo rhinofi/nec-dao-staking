@@ -1,8 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
+import Popup from 'reactjs-popup'
 import { inject, observer } from "mobx-react";
 import * as helpers from 'utils/helpers'
-import { MaxTokensText } from './LockPanel'
+import { MaxButton } from './LockPanel'
 import InactiveButton from 'components/common/buttons/InactiveButton'
 import ActiveButton from 'components/common/buttons/ActiveButton'
 import LoadingCircle from '../LoadingCircle';
@@ -31,6 +32,11 @@ const ValidationError = styled.div`
   margin-bottom: -23px;
 `
 
+const BidAmountWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+`
 
 const BidForm = styled.div`
   display: flex;
@@ -104,10 +110,20 @@ class BidPanel extends React.Component<any, any>{
           <PanelText>
             GEN is the native DAOstack token, primarily used for prediction markets and boosting proposals.
           </PanelText>
-          <div>Bid Amount</div>
+          <BidAmountWrapper>
+            <div>Bid Amount</div>
+            <Popup
+              trigger={<MaxButton onClick={e => this.setBidAmount(userBalance)} />}
+              position="top center"
+              on="hover"
+            >
+              <div>
+                <div>Set max available amount</div>
+              </div>
+            </Popup>
+          </BidAmountWrapper>
           <BidForm className="invalid-border">
             <input type="text" name="name" placeholder="0" value={bidAmount} onChange={e => this.setBidAmount(e.target.value)} />
-            <MaxTokensText onClick={e => this.setBidAmount(userBalance)}>Max</MaxTokensText>
             <div>GEN</div>
           </BidForm>
           <ValidationError>Insufficient Balance</ValidationError>
