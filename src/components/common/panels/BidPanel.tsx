@@ -20,13 +20,24 @@ const BidWrapper = styled.div`
   color: var(--inactive-text);
 `
 
+const ValidationError = styled.div`
+  text-align: right;
+  color: var(--invalid-red);
+  font-family: Montserrat;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 15px;
+  margin-top: 8px;
+  margin-bottom: -23px;
+`
+
+
 const BidForm = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   margin-top: 18px;
   padding: 0px 20px 6px 20px;
-  border-bottom: 1px solid var(--inactive-border);
   input {
     font-size: 15px;
     line-height: 18px;
@@ -94,11 +105,12 @@ class BidPanel extends React.Component<any, any>{
             GEN is the native DAOstack token, primarily used for prediction markets and boosting proposals.
           </PanelText>
           <div>Bid Amount</div>
-          <BidForm>
+          <BidForm className="invalid-border">
             <input type="text" name="name" placeholder="0" value={bidAmount} onChange={e => this.setBidAmount(e.target.value)} />
             <MaxTokensText onClick={e => this.setBidAmount(userBalance)}>Max</MaxTokensText>
             <div>GEN</div>
           </BidForm>
+          <ValidationError>Insufficient Balance</ValidationError>
         </BidWrapper>
         {actionEnabled ?
           (<ActiveButton

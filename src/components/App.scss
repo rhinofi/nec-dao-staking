@@ -11,6 +11,7 @@
   --inactive-border: #4D5474;
   --inactive-header-text: rgba(255, 255, 255, 0.6);
   --inactive-text: rgba(255, 255, 255, 0.4);
+  --invalid-red: #DE6067;
   --logo-background: #191F32;
   --pending-panel-gray: #9094A0;
   --white-text: #FFFFFF;
@@ -42,4 +43,12 @@ input:focus {
 
 .popup-content {
   color: var(--background);
+}
+
+.invalid-border {
+  border-bottom: 1px solid var(--invalid-red);
+}
+
+.valid-border {
+  border-bottom: 1px solid var(--inactive-border);
 }
