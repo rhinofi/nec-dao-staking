@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { observer, inject } from 'mobx-react'
+import ConnectWallet from 'components/common/ConnectWallet'
 import LockPanel from 'components/common/panels/LockPanel'
 import EnableTokenPanel from 'components/common/panels/EnableTokenPanel'
 import TimelineProgress from 'components/common/TimelineProgress'
@@ -220,8 +221,11 @@ class LockNEC extends React.Component<any, State> {
     const hasAllowance = tokenStore.hasAllowance(necTokenAddress, userAddress, spenderAddress)
 
 
-    if (!staticParamsLoaded || !hasBalance || !hasAllowance) {
-      return (<LoadingCircle instruction={'Loading...'} subinstruction={''} />)
+    //TODO Update this to proper logic for handling ConnectWallet Screen
+    // if (!staticParamsLoaded || !hasBalance || !hasAllowance) {
+    if (true) {
+      return <ConnectWallet />
+      // return (<LoadingCircle instruction={'Loading...'} subinstruction={''} />)
     }
 
     const tokenApproved = tokenStore.hasMaxApproval(necTokenAddress, userAddress, spenderAddress)
