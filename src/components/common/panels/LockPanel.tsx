@@ -240,8 +240,8 @@ class LockPanel extends React.Component<any, any>{
     const userBalance = helpers.fromWei(tokenStore.getBalance(necTokanAddress, userAddress))
     const releaseableTimestamp = lockNECStore.calcReleaseableTimestamp(now, duration)
 
-    const isLockingStarted = lockNECStore.isLockingStarted
-    const isLockingEnded = lockNECStore.isLockingEnded
+    const isLockingStarted = lockNECStore.isLockingStarted()
+    const isLockingEnded = lockNECStore.isLockingEnded()
 
     const releaseableDate = helpers.timestampToDate(releaseableTimestamp)
 

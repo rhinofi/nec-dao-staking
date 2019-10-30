@@ -302,27 +302,28 @@ export default class LockNECStore {
         }
     }
 
-    calcExtendScores(lock, extend) {
-        // const { lockingBatch, duration, amount } = lock
-        // const { extendDuration } = extend
+    calcExtendScores(lock: Lock, extend) {
+        const { lockingBatch, amount } = lock
+        const { extendDuration } = extend
 
-        // const extendLockingBatch = this.getLockingBatchByTimestamp(extend.timestamp)
+        const batchIndexToLockIn = this.getLockingBatchByTimestamp(extend.timestamp)
 
-        // const scores = {}
+        const scores = lock.scores
 
         // // How many batches remain in the original lock duration at the time of this extension?
-        // const remainBatches = extendLockingBatch - lockingBatch
-        // const batchesCountFromCurrent = remainBatches + extendDuration
+        const remainBatches = batchIndexToLockIn - lockingBatch
+        const batchesCountFromCurrent = remainBatches + extendDuration
 
         // const amount = new BN(lock.amount)
         // const finalBatch = new BN(batchesCountFromCurrent)
 
-        // for (let p = 0; p < batchesCountFromCurrent; p++) {
-        //     const score = (batchesCountFromCurrent - p).mul(lock.amount);
-        //     batch.totalScore = batch.totalScore.add(score).sub(batch.scores[_lockingId]);
-        //     batch.scores[_lockingId] = score;
-        // }
-        return {}
+        for (let p = 0; p < batchesCountFromCurrent; p++) {
+            const batchId = batchIndexToLockIn + p
+            const diff = new BigNumber((batchesCountFromCurrent - p))
+            const score = diff.times(amount);
+            scores.set(batchId, score)
+        }
+        return scores
     }
 
     calcLockScores(lock): Map<number, BigNumber> {
@@ -372,6 +373,7 @@ export default class LockNECStore {
 
         try {
             const currentBlock = this.rootStore.timeStore.currentBlock
+            const sessionId = this.rootStore.dataFetcher.getCurrentSessionId()
 
             if (currentBlock < this.nextBlockToFetch - 1) {
                 throw new Error(`Current block ${currentBlock} is less than the last fetched block ${this.nextBlockToFetch}`)
@@ -422,6 +424,10 @@ export default class LockNECStore {
                     throw new Error("Trying to extend lock which doesn't exist")
                 }
 
+                const lock = locks.get(extend.id) as Lock
+
+                const scores = this.calcExtendScores(lock, extend)
+
                 const updatedLock = this.updateLockDuration(locks.get(extend.id) as Lock, extend.extendDuration)
                 locks.set(extend.id, updatedLock)
             }
@@ -438,10 +444,16 @@ export default class LockNECStore {
                 locks.set(release.id, lock)
             }
 
-            log.debug(prefix.FETCH_SUCCESS, 'User Locks', userAddress, locks)
-            this.userLocks.set(userAddress, locks)
-            this.nextBlockToFetch = currentBlock + 1
-            this.userLocksLoaded.set(userAddress, true)
+            const isDataStillValid = this.rootStore.dataFetcher.validateFetch(userAddress, sessionId)
+            if (isDataStillValid) {
+                log.debug(prefix.FETCH_SUCCESS, 'User Locks', userAddress, locks)
+                this.userLocks.set(userAddress, locks)
+                this.nextBlockToFetch = currentBlock + 1
+                this.userLocksLoaded.set(userAddress, true)
+            } else {
+                log.error(prefix.FETCH_STALE, 'User Locks', userAddress, locks)
+            }
+
         } catch (e) {
             log.error(prefix.FETCH_ERROR, 'User Locks', userAddress)
             log.error(e)
@@ -510,7 +522,7 @@ export default class LockNECStore {
 
         log.debug(prefix.FETCH_PENDING, 'Batches', user)
         try {
-
+            const sessionId = this.rootStore.dataFetcher.getCurrentSessionId()
             const lastCompletedBatch = this.getLastCompletedBatch()
             const currentBatch = this.getActiveLockingBatch()
 
@@ -570,12 +582,17 @@ export default class LockNECStore {
             //     console.log('batch', printBatch)
             // })
 
-            this.batchesLoaded = true
-            this.batches = batches
+            const isDataStillValid = this.rootStore.dataFetcher.validateFetch(user, sessionId)
+            if (isDataStillValid) {
+                this.batchesLoaded = true
+                this.batches = batches
 
-            // console.log('batches', batches)
+                log.debug(prefix.FETCH_SUCCESS, 'Batches', user)
+                // console.log('batches', batches)
 
-            log.debug(prefix.FETCH_SUCCESS, 'Batches', user)
+            } else {
+                log.error(prefix.FETCH_STALE, 'Batches', user)
+            }
         } catch (e) {
             log.error(prefix.FETCH_ERROR, 'Batches', user)
             log.error(e)
@@ -592,7 +609,6 @@ export default class LockNECStore {
         this.rootStore.txTracker.setLockActionPending(true)
         try {
             await contract.methods.lock(amount, duration, batchId, AGREEMENT_HASH).send()
-            this.fetchUserLocks(userAddress)
             this.rootStore.txTracker.setLockActionPending(false)
         } catch (e) {
             log.error(e)
@@ -609,7 +625,6 @@ export default class LockNECStore {
 
         try {
             await contract.methods.extendLocking(batchesToExtend, batchId, lockId, AGREEMENT_HASH).send()
-            await this.fetchUserLocks(userAddress)
             this.rootStore.txTracker.setExtendLockActionPending(false)
         } catch (e) {
             log.error(e)
@@ -626,7 +641,6 @@ export default class LockNECStore {
 
         try {
             await contract.methods.release(beneficiary, lockId).send()
-            await this.fetchUserLocks(userAddress)
             this.rootStore.txTracker.setReleaseActionPending(lockId, false)
         } catch (e) {
             log.error(e)

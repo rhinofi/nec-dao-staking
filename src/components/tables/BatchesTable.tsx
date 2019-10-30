@@ -7,7 +7,7 @@ import { RootStore } from 'stores/Root';
 import { Batch } from 'types';
 
 const columns = [
-    { name: 'Batch #', key: 'batchId', width: '15%', align: 'left' },
+    { name: 'Period', key: 'batchIdDisplay', width: '15%', align: 'left' },
     { name: 'You Locked', key: 'userLocked', width: '25%', align: 'right' },
     { name: 'Total Locked', key: 'totalLocked', width: '25%', align: 'right' },
     { name: 'Rep Received', key: 'userRep', width: '30%', align: 'right' },
@@ -22,6 +22,7 @@ class BatchesTable extends React.Component<any, any>{
         data.forEach((batch: Batch, key, map) => {
             const row = {
                 batchId: batch.id,
+                batchIdDisplay: batch.id + 1,
                 userLocked: helpers.tokenDisplay(batch.userLocked),
                 totalLocked: helpers.tokenDisplay(batch.totalLocked),
                 userRep: batch.userRep ? '#todo' : 'In Progress',

@@ -181,11 +181,14 @@ class ExtendLockPanel extends React.Component<any, any>{
 
     const userBalance = helpers.fromWei(tokenStore.getBalance(necTokanAddress, userAddress))
     const releaseableTimestamp = lockNECStore.calcReleaseableTimestamp(now, duration)
+    const isLockingStarted = lockNECStore.isLockingStarted()
     const isLockingEnded = lockNECStore.isLockingEnded()
 
     const isLockSelected = extendLockFormStore.isLockSelected
 
     const releaseableDate = helpers.timestampToDate(releaseableTimestamp)
+
+
 
     const values = {
       selectedLockId, hasLocks, isLockSelected, releaseableDate, buttonText, enabled, userBalance, duration, isLockingEnded

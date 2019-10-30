@@ -12,6 +12,7 @@ import * as helpers from 'utils/helpers'
 import { deployed } from 'config.json'
 import LoadingCircle from '../../common/LoadingCircle'
 import { RootStore } from 'stores/Root'
+import { tooltip } from 'strings'
 
 const BidGENWrapper = styled.div`
   display: flex;
@@ -126,15 +127,16 @@ class BidGEN extends React.Component<any, any>{
     let auctionPercentage = 0
     let auctionTimer = '...'
 
-    const currentAuctionDisplay = (currentAuction >= finalAuction ? finalAuction : currentAuction)
+    const finalAuctionDisplay = finalAuction + 1
+    const currentAuctionDisplay = (currentAuction >= finalAuction ? finalAuctionDisplay : currentAuction + 1)
 
-    let prefix = 'Next auction starts in'
-    let auctionTitle = `Current Auction: ${currentAuctionDisplay} of ${finalAuction}`
+    let prefix = 'Next starts in'
+    let auctionTitle = `Current Auction: ${currentAuctionDisplay} of ${finalAuctionDisplay}`
 
     if (!auctionsStarted) {
       auctionPercentage = 0
-      prefix = 'First auction starts in'
-      auctionTitle = "Auctions have not started"
+      prefix = 'First starts in'
+      auctionTitle = "Auctions not started"
     }
 
     if (currentAuction === finalAuction) {
@@ -200,7 +202,8 @@ class BidGEN extends React.Component<any, any>{
               subtitle={auctionTimer}
               width="28px"
               height="28px"
-              displayTooltip={false}
+              displayTooltip={true}
+              tooltipContent={tooltip.bidExplainer}
             />
           </TableHeaderWrapper>
           <GenAuctionTable

@@ -13,6 +13,7 @@ import UserLocksTable from 'components/tables/UserLocksTable'
 import LoadingCircle from '../../common/LoadingCircle'
 import { RootStore } from 'stores/Root'
 import ExtendLockPanel from 'components/common/panels/ExtendLockPanel'
+import { tooltip } from 'strings'
 
 const LockNECWrapper = styled.div`
   display: flex;
@@ -140,16 +141,19 @@ class LockNEC extends React.Component<any, State> {
     const numBatches = lockNECStore.staticParams.numLockingBatches
     const finalBatchIndex = lockNECStore.getFinalBatchIndex()
 
+    const currentBatchDisplay = currentBatch + 1
+    const finalBatchIndexDisplay = finalBatchIndex + 1
+
     let batchPercentage = 0
     let batchTimer = '...'
     let batchStatus = 0
-    let batchTitle = `Current Batch: ${currentBatch} of ${finalBatchIndex}`
+    let batchTitle = `Current Batch: ${currentBatchDisplay} of ${finalBatchIndexDisplay}`
 
     let prefix = 'Next starts in'
 
     if (!isLockingStarted) {
-      prefix = 'First batch starts in'
-      batchTitle = "Locking has not started"
+      prefix = 'First batch in'
+      batchTitle = "Locking not started"
     }
 
 
@@ -251,6 +255,7 @@ class LockNEC extends React.Component<any, State> {
               width="28px"
               height="28px"
               displayTooltip={true}
+              tooltipContent={tooltip.lockTokenExplainer}
             />
             {isLockingStarted ?
               <TableTabEnumWrapper>

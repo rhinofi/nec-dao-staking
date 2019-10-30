@@ -37,7 +37,6 @@ export default class ProviderStore {
     @observable defaultAccount = '';
     @observable isProviderSet = false;
     @observable isAccountSet = false;
-    @observable hasWrongNetworkError = false;
 
     constructor(rootStore) {
         this.rootStore = rootStore;
@@ -45,33 +44,22 @@ export default class ProviderStore {
     }
 
     setIntervals = async () => {
+        const { dataFetcher } = this.rootStore
         const userAddress = this.getDefaultAccount()
 
-        if (userAddress == null) {
-            this.hasWrongNetworkError = true
-            return
-        }
-
-        this.hasWrongNetworkError = false
-
-        await this.rootStore.timeStore.fetchCurrentTime()
-        await this.rootStore.timeStore.fetchCurrentBlock()
-
         this.resetData()
-
-        this.rootStore.fetchLockingData(userAddress)
-        this.rootStore.fetchAirdropData(userAddress)
-        this.rootStore.fetchAuctionData(userAddress)
-
-        this.rootStore.setClockUpdateInteral()
-        this.rootStore.setBlockUpdateInteral()
-        this.rootStore.setDataUpdateInterval(userAddress)
+        dataFetcher.setClockUpdateInteral()
+        await dataFetcher.fetchData(userAddress)
+        dataFetcher.setDataUpdateInterval(userAddress)
     }
 
     clearIntervals = async () => {
-        this.rootStore.clearClockUpdateInterval()
-        this.rootStore.clearBlockUpdateInterval()
-        this.rootStore.clearDataUpdateInterval()
+        const { dataFetcher } = this.rootStore
+
+        // Invalidate the current 'session'
+        dataFetcher.incrementSessionId()
+        dataFetcher.clearClockUpdateInterval()
+        dataFetcher.clearDataUpdateInterval()
     }
 
     @action setAccount = async () => {

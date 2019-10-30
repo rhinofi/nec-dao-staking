@@ -176,12 +176,10 @@ export default class AirdropStore {
         this.setRedeemPending(true)
         try {
             await contract.methods.redeem(beneficiary).send()
-            await this.fetchUserData(beneficiary)
             this.setRedeemPending(false)
             log.debug(prefix.ACTION_SUCCESS, 'redeem', beneficiary)
         } catch (e) {
             log.error(e)
-            await this.fetchUserData(beneficiary)
             this.setRedeemPending(false)
             log.debug(prefix.ACTION_ERROR, 'redeem', beneficiary)
         }

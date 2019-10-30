@@ -7,7 +7,7 @@ import { RootStore } from 'stores/Root';
 import { AuctionStatus } from 'types';
 
 const columns = [
-    { name: 'Auction #', key: 'id', width: '15%', align: 'left' },
+    { name: 'Auction #', key: 'auctionNumberDisplay', width: '15%', align: 'left' },
     { name: 'You Have Bid', key: 'userBid', width: '25%', align: 'right' },
     { name: 'Total Bid', key: 'totalBid', width: '30%', align: 'right' },
     { name: 'You Recieved', key: 'status', width: '25%', align: 'right' }
@@ -41,6 +41,7 @@ class GenAuctionTable extends React.Component<any, any>{
 
             rows.push({
                 id: i,
+                auctionNumberDisplay: i + 1,
                 userBid: userBidDisplay,
                 totalBid: totalBidDisplay,
                 status: statusDisplay

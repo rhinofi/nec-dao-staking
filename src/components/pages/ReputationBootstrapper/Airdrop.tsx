@@ -128,11 +128,11 @@ class Airdrop extends React.Component<any, any>{
       - 'Buy NEC' Button
 
       After the snapshot block, and within claim time:
-      - Display 'Claim Batch Active'
+      - Display 'Claim Period Active'
       - 'Claim REP' button IF the users balance > 0
 
       After the snapshot block, and after claim time:
-      - Display 'Claim Batch Concluded'
+      - Display 'Claim Period Concluded'
       - No button
   */
   calcDropVisuals() {
@@ -147,30 +147,30 @@ class Airdrop extends React.Component<any, any>{
     const currentBlock = timeStore.currentBlock
 
     const isSnapshotPassed = airdropStore.isAfterSnapshot()
-    const isClaimBatchStarted = airdropStore.isClaimPeriodStarted()
-    const isClaimBatchEnded = airdropStore.isClaimPeriodEnded()
-    const isClaimBatchActive = isClaimBatchStarted && !isClaimBatchEnded
+    const isClaimPeriodStarted = airdropStore.isClaimPeriodStarted()
+    const isClaimPeriodEnded = airdropStore.isClaimPeriodEnded()
+    const isClaimPeriodActive = isClaimPeriodStarted && !isClaimPeriodEnded
 
-    if (isSnapshotPassed && !isClaimBatchStarted) {
+
+    if (isSnapshotPassed && !isClaimPeriodStarted) {
       dropPercentage = 100
       dropTimer = 'Has Concluded'
       dropStatus = snapshotStatus.SNAPSHOT_CONCLUDED
     }
 
-    if (isSnapshotPassed && isClaimBatchActive) {
+    else if (isSnapshotPassed && isClaimPeriodActive) {
       dropPercentage = 100
-      dropTimer = 'Claim Batch Active'
+      dropTimer = 'Claim Period Active'
       dropStatus = snapshotStatus.CLAIM_STARTED
     }
 
-    if (isSnapshotPassed && !isClaimBatchActive) {
+    else if (isSnapshotPassed && isClaimPeriodEnded) {
       dropPercentage = 100
-      dropTimer = 'Claim Batch has Ended'
+      dropTimer = 'Claim Period has Ended'
       dropStatus = snapshotStatus.CLAIM_ENDED
     }
 
-
-    if (!isSnapshotPassed) {
+    else if (!isSnapshotPassed) {
       //This should probably be the deployment block
       const timerBlockDuration = 1728
       const blocksUntilSnapshot = airdropStore.getBlocksUntilSnapshot()
@@ -217,7 +217,11 @@ class Airdrop extends React.Component<any, any>{
     }
 
     if (status === snapshotStatus.CLAIM_ENDED && userBalance !== "0" && !hasRedeemed) {
-      return (<InactiveButton>Claiming Batch has Ended</InactiveButton>)
+      return (<InactiveButton>Claiming Period has Ended</InactiveButton>)
+    }
+
+    if (status === snapshotStatus.SNAPSHOT_CONCLUDED) {
+      return (<InactiveButton>Claiming Period has not Started</InactiveButton>)
     }
   }
 

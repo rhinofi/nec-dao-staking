@@ -4,6 +4,7 @@ import Popup from 'reactjs-popup'
 import { inject, observer } from "mobx-react";
 import * as helpers from 'utils/helpers'
 import { MaxButton } from './LockPanel'
+import { PanelText } from 'components/common'
 import InactiveButton from 'components/common/buttons/InactiveButton'
 import ActiveButton from 'components/common/buttons/ActiveButton'
 import LoadingCircle from '../LoadingCircle';
@@ -52,21 +53,6 @@ const BidForm = styled.div`
     background: var(--background);
     border: none;
   }
-`
-
-const PanelText = styled.div`
-  font-family: Montserrat;
-  font-style: normal;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 18px;
-  display: flex;
-  align-items: center;
-  text-align: center;
-  letter-spacing: 0.4px;
-  padding: 24px 0px;
-  margin-bottom: 32px;
-  border-bottom: 1px solid var(--faint-divider);
 `
 
 interface FormStatus {

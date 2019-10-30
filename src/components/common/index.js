@@ -17,6 +17,21 @@ export const Icon = styled.img`
   height: 20px;
 `
 
+export const PanelText = styled.div`
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 18px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  letter-spacing: 0.4px;
+  padding: 24px 0px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--faint-divider);
+`
+
 export const Instruction = styled.div`
   font-family: Montserrat;
   font-style: normal;

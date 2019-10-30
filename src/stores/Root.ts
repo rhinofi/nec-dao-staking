@@ -9,6 +9,7 @@ import ExtendLockFormStore from "./ExtendLockForm"
 import TokenStore from "./Token"
 import TimeStore from "./Time"
 import TxTracker from "./TxTracker"
+import DataFetcher from "./DataFetcher"
 import { deployed } from 'config.json'
 
 export class RootStore {
@@ -22,12 +23,14 @@ export class RootStore {
     public tokenStore: TokenStore
     public timeStore: TimeStore
     public txTracker: TxTracker
+    public dataFetcher: DataFetcher
 
     private dataUpdateInterval: any
     private clockUpdateInterval: any
     private blockUpdateInterval: any
 
     constructor() {
+        this.dataFetcher = new DataFetcher(this)
         this.providerStore = new ProviderStore(this)
         this.airdropStore = new AirdropStore(this)
         this.lockNECStore = new LockNECStore(this)
