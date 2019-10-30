@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { observer, inject } from 'mobx-react'
 import ConnectWallet from 'components/common/ConnectWallet'
+import ConnectMainNet from 'components/common/ConnectMainNet'
 import LockPanel from 'components/common/panels/LockPanel'
 import EnableTokenPanel from 'components/common/panels/EnableTokenPanel'
 import TimelineProgress from 'components/common/TimelineProgress'
@@ -221,10 +222,11 @@ class LockNEC extends React.Component<any, State> {
     const hasAllowance = tokenStore.hasAllowance(necTokenAddress, userAddress, spenderAddress)
 
 
-    //TODO Update this to proper logic for handling ConnectWallet Screen
+    //TODO Update this to proper logic for handling ConnectWallet and ConnectMainNet Screens
     // if (!staticParamsLoaded || !hasBalance || !hasAllowance) {
     if (true) {
-      return <ConnectWallet />
+      return <ConnectMainNet />
+      // return <ConnectWallet />
       // return (<LoadingCircle instruction={'Loading...'} subinstruction={''} />)
     }
 
