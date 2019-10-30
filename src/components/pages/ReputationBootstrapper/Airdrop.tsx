@@ -128,11 +128,11 @@ class Airdrop extends React.Component<any, any>{
       - 'Buy NEC' Button
 
       After the snapshot block, and within claim time:
-      - Display 'Claim Period Active'
+      - Display 'Claim Batch Active'
       - 'Claim REP' button IF the users balance > 0
 
       After the snapshot block, and after claim time:
-      - Display 'Claim Period Concluded'
+      - Display 'Claim Batch Concluded'
       - No button
   */
   calcDropVisuals() {
@@ -147,25 +147,25 @@ class Airdrop extends React.Component<any, any>{
     const currentBlock = timeStore.currentBlock
 
     const isSnapshotPassed = airdropStore.isAfterSnapshot()
-    const isClaimPeriodStarted = airdropStore.isClaimPeriodStarted()
-    const isClaimPeriodEnded = airdropStore.isClaimPeriodEnded()
-    const isClaimPeriodActive = isClaimPeriodStarted && !isClaimPeriodEnded
+    const isClaimBatchStarted = airdropStore.isClaimPeriodStarted()
+    const isClaimBatchEnded = airdropStore.isClaimPeriodEnded()
+    const isClaimBatchActive = isClaimBatchStarted && !isClaimBatchEnded
 
-    if (isSnapshotPassed && !isClaimPeriodStarted) {
+    if (isSnapshotPassed && !isClaimBatchStarted) {
       dropPercentage = 100
       dropTimer = 'Has Concluded'
       dropStatus = snapshotStatus.SNAPSHOT_CONCLUDED
     }
 
-    if (isSnapshotPassed && isClaimPeriodActive) {
+    if (isSnapshotPassed && isClaimBatchActive) {
       dropPercentage = 100
-      dropTimer = 'Claim Period Active'
+      dropTimer = 'Claim Batch Active'
       dropStatus = snapshotStatus.CLAIM_STARTED
     }
 
-    if (isSnapshotPassed && !isClaimPeriodActive) {
+    if (isSnapshotPassed && !isClaimBatchActive) {
       dropPercentage = 100
-      dropTimer = 'Claim Period has Ended'
+      dropTimer = 'Claim Batch has Ended'
       dropStatus = snapshotStatus.CLAIM_ENDED
     }
 
@@ -217,7 +217,7 @@ class Airdrop extends React.Component<any, any>{
     }
 
     if (status === snapshotStatus.CLAIM_ENDED && userBalance !== "0" && !hasRedeemed) {
-      return (<InactiveButton>Claiming Period has Ended</InactiveButton>)
+      return (<InactiveButton>Claiming Batch has Ended</InactiveButton>)
     }
   }
 

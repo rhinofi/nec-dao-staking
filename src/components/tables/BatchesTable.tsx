@@ -7,7 +7,7 @@ import { RootStore } from 'stores/Root';
 import { Batch } from 'types';
 
 const columns = [
-    { name: 'Period #', key: 'batchId', width: '15%', align: 'left' },
+    { name: 'Batch #', key: 'batchId', width: '15%', align: 'left' },
     { name: 'You Locked', key: 'userLocked', width: '25%', align: 'right' },
     { name: 'Total Locked', key: 'totalLocked', width: '25%', align: 'right' },
     { name: 'Rep Received', key: 'userRep', width: '30%', align: 'right' },

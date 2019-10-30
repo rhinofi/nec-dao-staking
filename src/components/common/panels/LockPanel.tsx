@@ -10,10 +10,10 @@ import { deployed } from 'config.json'
 import { ActiveLockingPeriodCell, LockingPeriodCell, LockingPeriodSelectorWrapper, LockingPeriodSelector, LockingPeriodStartCell, LockingPeriodEndCell } from 'components/common/LockingPeriodForm'
 import { RootStore } from 'stores/Root'
 
-const PanelWrapper = styled.div`
+export const PanelWrapper = styled.div`
 `
 
-const LockFormWrapper = styled.div`
+export const LockFormWrapper = styled.div`
   display: flex;
   flex-direction: column;
   margin: 0px 24px;
@@ -22,7 +22,7 @@ const LockFormWrapper = styled.div`
   height: 64px;
 `
 
-const LockAmountWrapper = styled.div`
+export const LockAmountWrapper = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -54,7 +54,7 @@ export const LockAmountForm = styled.div`
   }
 `
 
-const ReleaseableDateWrapper = styled.div`
+export const ReleaseableDateWrapper = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -62,7 +62,7 @@ const ReleaseableDateWrapper = styled.div`
   color: var(--inactive-text);
 `
 
-const ReleaseableDate = styled.div`
+export const ReleaseableDate = styled.div`
   color: var(--white-text);  
 `
 
@@ -92,22 +92,21 @@ class LockPanel extends React.Component<any, any>{
     lockFormStore.duration = i
   }
 
+
   LockingPeriod = () => {
     const { lockNECStore, lockFormStore } = this.props.root as RootStore
     const { rangeStart } = this.state
 
-    const periodsRemaining = lockNECStore.getPeriodsRemaining()
+    const activeBatch = lockNECStore.getActiveLockingBatch()
+
+    const batchesRemaining = lockNECStore.getBatchesRemaining()
     const lockDuration = lockFormStore.duration
 
     let maxLockDuration = lockNECStore.staticParams.maxLockingBatches
     let numCells = 4
 
-    if (periodsRemaining < 4) {
-      numCells = periodsRemaining
-    }
-
-    if (periodsRemaining < maxLockDuration) {
-      maxLockDuration = periodsRemaining
+    if (batchesRemaining < 4) {
+      numCells = batchesRemaining
     }
 
     const cells: any[] = []
@@ -146,9 +145,9 @@ class LockPanel extends React.Component<any, any>{
 
   Pending(values) {
     const { amount, releaseableDate, duration } = values
-    const periodText = helpers.getPeriodText(duration)
+    const batchText = helpers.getBatchText(duration)
     return (
-      <LoadingCircle instruction={`Lock ${amount} NEC`} subinstruction={`${duration} ${periodText} - Unlock on ${releaseableDate}`} />
+      <LoadingCircle instruction={`Lock ${amount} NEC`} subinstruction={`${duration} ${batchText} - Unlock on ${releaseableDate}`} />
     )
   }
 
@@ -191,7 +190,7 @@ class LockPanel extends React.Component<any, any>{
 
     const amount = helpers.toWei(lockFormStore.amount)
     const duration = lockFormStore.duration
-    const batchId = lockNECStore.getActiveLockingPeriod()
+    const batchId = lockNECStore.getActiveLockingBatch()
 
     await lockNECStore.lock(amount, duration, batchId)
     lockFormStore.resetForm()
@@ -202,7 +201,7 @@ class LockPanel extends React.Component<any, any>{
     const { buttonText, pending, enabled, userAddress } = this.props
     const necTokanAddress = deployed.NectarToken
 
-    // The release period is now + (batchTime * duration)
+    // The release batch is now + (batchTime * duration)
     const now = timeStore.currentTime
     const duration = lockFormStore.duration
     const amount = lockFormStore.amount

@@ -7,7 +7,7 @@ import { logs, errors, prefix, } from 'strings'
 import { deployed } from 'config.json'
 import BigNumber from "utils/bignumber"
 
-import { Lock, LockStaticParams, Batch } from 'types'
+import { Lock, LockStaticParams, Batch, newBatch } from 'types'
 import { RootStore } from './Root'
 type Scores = Map<number, BigNumber>
 type Locks = Map<string, Lock>
@@ -40,16 +40,7 @@ export default class LockNECStore {
     @observable batchesLoaded = false
     @observable completedBatchIndex = 0
 
-    @observable initialLoad = {
-        staticParams: false,
-        globalAuctionData: false,
-    }
-
     rootStore: RootStore
-
-    @observable asyncActions = defaultAsyncActions
-
-    @observable releaseActions = {}
 
     constructor(rootStore) {
         this.rootStore = rootStore;
@@ -67,52 +58,6 @@ export default class LockNECStore {
         this.batches = new Map<number, Batch>()
         this.batchesLoaded = false
         this.completedBatchIndex = 0
-
-        this.initialLoad = {
-            staticParams: false,
-            globalAuctionData: false,
-        }
-    }
-
-    //TODO: Do this when switching accounts in metamask
-    resetAsyncActions() {
-        this.asyncActions = defaultAsyncActions
-    }
-
-    setLockActionPending(flag) {
-        objectPath.set(this.asyncActions, `lock`, flag)
-    }
-
-    setRedeemActionPending(userAddress, lockId, flag) {
-        objectPath.set(this.asyncActions, `redeem.${userAddress}.${lockId}`, flag)
-    }
-
-    setExtendLockActionPending(lockId, flag) {
-        objectPath.set(this.asyncActions, `extendLock.${lockId.toString()}`, flag)
-    }
-
-    setReleaseActionPending(lockId, flag) {
-        const lockIdString = lockId.toString()
-        objectPath.set(this.releaseActions, `${lockIdString}`, flag)
-    }
-
-    isLockActionPending() {
-        const flag = objectPath.get(this.asyncActions, `lock`) || false
-        return flag
-    }
-
-    isRedeemActionPending(userAddress, lockId) {
-        const flag = objectPath.get(this.asyncActions, `redeem.${userAddress}.${lockId}`) || false
-        return flag
-    }
-
-    isExtendLockActionPending(lockId) {
-        return objectPath.get(this.asyncActions, `extendLock.${lockId.toString()}`) || false
-    }
-
-    isReleaseActionPending(lockId) {
-        const lockIdString = lockId.toString()
-        return objectPath.get(this.releaseActions, `${lockIdString}`) || false
     }
 
     getBatchStartTime(batchIndex: number): number {
@@ -131,16 +76,16 @@ export default class LockNECStore {
         return (startTime + (nextIndex * batchTime))
     }
 
-    getTimeUntilNextPeriod(): number {
-        const currentBatch = this.getActiveLockingPeriod()
+    getTimeUntilNextBatch(): number {
+        const currentBatch = this.getActiveLockingBatch()
         const now = this.rootStore.timeStore.currentTime
         const nextBatchStartTime = this.getBatchStartTime(currentBatch + 1)
 
         return (nextBatchStartTime - now)
     }
 
-    getFinalPeriodIndex(): number {
-        return (this.staticParams.numLockingPeriods - 1)
+    getFinalBatchIndex(): number {
+        return (this.staticParams.numLockingBatches - 1)
     }
 
     isLockingStarted(): boolean {
@@ -149,10 +94,36 @@ export default class LockNECStore {
         return (now >= startTime)
     }
 
+    calcMaxDuration(startBatch: number): number {
+        const batchesRemaining = this.getBatchesRemaining()
+        const maxLockDuration = this.staticParams.maxLockingBatches
+
+        let maxDuration = maxLockDuration
+
+        if (batchesRemaining < maxLockDuration) {
+            maxDuration = batchesRemaining
+        }
+
+        return maxDuration
+    }
+
+    calcMaxExtension(batchDuration: number): number {
+        const batchesRemaining = this.getBatchesRemaining()
+        const maxLockDuration = this.staticParams.maxLockingBatches
+
+        let maxExtension = maxLockDuration - batchDuration
+
+        if (batchesRemaining < maxLockDuration) {
+            maxExtension = batchesRemaining
+        }
+
+        return maxExtension
+    }
+
     getLockingEndTime(): number {
         const startTime = this.staticParams.startTime
         const batchTime = this.staticParams.batchTime
-        const numAuctions = this.staticParams.numLockingPeriods
+        const numAuctions = this.staticParams.numLockingBatches
 
         const endTime = startTime + (batchTime * numAuctions)
         return endTime
@@ -186,18 +157,18 @@ export default class LockNECStore {
         return this.batchesLoaded
     }
 
-    getPeriodsRemaining(): number {
+    getBatchesRemaining(): number {
         const now = this.rootStore.timeStore.currentTime
         const endTime = this.getLockingEndTime()
         const batchTime = this.staticParams.batchTime
 
         const remainingTime = endTime - now
-        const remainingPeriods = Math.trunc(remainingTime / batchTime)
+        const remainingBatches = Math.trunc(remainingTime / batchTime)
 
-        return remainingPeriods
+        return remainingBatches
     }
 
-    getLockingPeriodByTimestamp(timestamp): number {
+    getLockingBatchByTimestamp(timestamp): number {
         if (!this.areStaticParamsLoaded()) {
             throw new Error('Static properties must be loaded before fetching user locks')
         }
@@ -205,17 +176,17 @@ export default class LockNECStore {
         const startTime = this.staticParams.startTime
         const batchTime = this.staticParams.batchTime
         const timeElapsed = timestamp - startTime
-        const lockingPeriod = timeElapsed / batchTime
+        const lockingBatch = timeElapsed / batchTime
 
 
-        return Math.trunc(lockingPeriod)
+        return Math.trunc(lockingBatch)
     }
 
     loadContract() {
         return this.rootStore.providerStore.loadObject('ContinuousLocking4Reputation', deployed.ContinuousLocking4Reputation, 'ContinuousLocking4Reputation')
     }
 
-    getActiveLockingPeriod(): number {
+    getActiveLockingBatch(): number {
         if (!this.areStaticParamsLoaded()) {
             throw new Error('Static properties must be loaded before fetching user locks')
         }
@@ -224,9 +195,9 @@ export default class LockNECStore {
         const batchTime = this.staticParams.batchTime
         const currentTime = this.rootStore.timeStore.currentTime
         const timeElapsed = currentTime - startTime
-        const currentLockingPeriod = timeElapsed / batchTime
+        const currentLockingBatch = timeElapsed / batchTime
 
-        return Math.trunc(currentLockingPeriod)
+        return Math.trunc(currentLockingBatch)
     }
 
     getTimeElapsed(): number {
@@ -246,14 +217,14 @@ export default class LockNECStore {
         const contract = this.loadContract()
 
         try {
-            const numLockingPeriods = await contract.methods.batchesIndexCap().call()
+            const numLockingBatches = await contract.methods.batchesIndexCap().call()
             const batchTime = await contract.methods.batchTime().call()
             const startTime = await contract.methods.startTime().call()
             const maxLockingBatches = await contract.methods.maxLockingBatches().call()
             const agreementHash = await contract.methods.getAgreementHash().call()
 
             this.staticParams = {
-                numLockingPeriods: Number(numLockingPeriods),
+                numLockingBatches: Number(numLockingBatches),
                 batchTime: Number(batchTime),
                 startTime: Number(startTime),
                 agreementHash,
@@ -269,24 +240,24 @@ export default class LockNECStore {
     async parseLockEvent(event): Promise<Lock> {
 
         const {
-            _locker, _lockingId, _amount, _period
+            _locker, _lockingId, _amount, _batch
         } = event.returnValues
 
         const block = await this.rootStore.providerStore.getBlock(event.blockNumber)
         const batchTime = this.staticParams.batchTime
-        const periodDuration = Number(_period)
-        const timeDuration = periodDuration * batchTime
-        const lockingPeriod = this.getLockingPeriodByTimestamp(block.timestamp)
+        const batchDuration = Number(_batch)
+        const timeDuration = batchDuration * batchTime
+        const lockingBatch = this.getLockingBatchByTimestamp(block.timestamp)
         const releasable = Number(block.timestamp) + Number(timeDuration)
 
         return {
             locker: _locker,
             id: _lockingId,
             amount: _amount,
-            periodDuration,
+            batchDuration,
             timeDuration,
             lockingTime: block.timestamp,
-            lockingPeriod,
+            lockingBatch,
             scores: new Map<number, BigNumber>(),
             releasable,
             released: false
@@ -295,14 +266,14 @@ export default class LockNECStore {
 
     async parseExtendEvent(event) {
         const {
-            _locker, _lockingId, _extendPeriod
+            _locker, _lockingId, _extendBatch
         } = event.returnValues
         const block = await this.rootStore.providerStore.getBlock(event.blockNumber)
 
         return {
             locker: _locker,
             id: _lockingId,
-            extendDuration: Number(_extendPeriod),
+            extendDuration: Number(_extendBatch),
             timestamp: block.timestamp
         }
     }
@@ -320,15 +291,15 @@ export default class LockNECStore {
     }
 
     calcExtendScores(lock, extend) {
-        // const { lockingPeriod, duration, amount } = lock
+        // const { lockingBatch, duration, amount } = lock
         // const { extendDuration } = extend
 
-        // const extendLockingPeriod = this.getLockingPeriodByTimestamp(extend.timestamp)
+        // const extendLockingBatch = this.getLockingBatchByTimestamp(extend.timestamp)
 
         // const scores = {}
 
         // // How many batches remain in the original lock duration at the time of this extension?
-        // const remainBatches = extendLockingPeriod - lockingPeriod
+        // const remainBatches = extendLockingBatch - lockingBatch
         // const batchesCountFromCurrent = remainBatches + extendDuration
 
         // const amount = new BN(lock.amount)
@@ -343,8 +314,8 @@ export default class LockNECStore {
     }
 
     calcLockScores(lock): Map<number, BigNumber> {
-        const { lockingPeriod, duration, amount } = lock
-        const batchIndexToLockIn = lockingPeriod
+        const { lockingBatch, duration, amount } = lock
+        const batchIndexToLockIn = lockingBatch
         const scores = new Map<number, BigNumber>()
 
         for (let p = 0; p < duration; p++) {
@@ -356,6 +327,14 @@ export default class LockNECStore {
         return scores
     }
 
+    userHasLocks(userAddress: string): boolean {
+        const userlocks = this.userLocks.get(userAddress)
+        if (!userlocks) {
+            return false
+        }
+        return userlocks.size === 0 ? false : true
+    }
+
     getUserTokenLocks(userAddress: string): Locks {
         if (this.userLocks.has(userAddress)) {
             return this.userLocks.get(userAddress) as Locks
@@ -363,9 +342,9 @@ export default class LockNECStore {
         throw new Error("Attempting to get user locks which don't exist")
     }
 
-    updateLockDuration(lock: Lock, periodExtension: number): Lock {
-        lock.periodDuration = lock.periodDuration + periodExtension
-        lock.timeDuration = lock.timeDuration + (this.staticParams.batchTime * periodExtension)
+    updateLockDuration(lock: Lock, batchExtension: number): Lock {
+        lock.batchDuration = lock.batchDuration + batchExtension
+        lock.timeDuration = lock.timeDuration + (this.staticParams.batchTime * batchExtension)
         return lock
     }
 
@@ -462,8 +441,8 @@ export default class LockNECStore {
     }
 
     getLastCompletedBatch() {
-        const finalBatch = this.getFinalPeriodIndex()
-        const currentBatch = this.getActiveLockingPeriod()
+        const finalBatch = this.getFinalBatchIndex()
+        const currentBatch = this.getActiveLockingBatch()
 
         if (currentBatch <= 0) {
             return -1
@@ -476,21 +455,8 @@ export default class LockNECStore {
         return Number(currentBatch) - 1
     }
 
-    newBatch(id: number): Batch {
-        return {
-            id,
-            userLocked: new BigNumber(0),
-            totalLocked: new BigNumber(0),
-            userRep: new BigNumber(0),
-            totalRep: new BigNumber(0),
-            userScore: new BigNumber(0),
-            totalScore: new BigNumber(0),
-            isComplete: false
-        }
-    }
-
     /* 
-        Returns the 'amount locked' within a given locking period
+        Returns the 'amount locked' within a given locking batch
         Scores are calculated from each lock and extend lock event
     */
     async fetchBatches(user: string) {
@@ -506,13 +472,13 @@ export default class LockNECStore {
             How do we get things?
 
             User Score: 
-            Sum up the scores from all the locks, for each period
+            Sum up the scores from all the locks, for each batch
 
             Total Score: 
             Read directly from the contract
 
             User Locked: 
-            Sum up the values from all the locks, for the period it was locked in only.
+            Sum up the values from all the locks, for the batch it was locked in only.
 
             Total Locked:
             We actually can't get this without reading every event that ever happened.... We'll have to estimate it from the total score
@@ -532,6 +498,14 @@ export default class LockNECStore {
 
         log.debug(prefix.FETCH_PENDING, 'Batches', user)
         try {
+
+            const lastCompletedBatch = this.getLastCompletedBatch()
+            const currentBatch = this.getActiveLockingBatch()
+
+            for (let i = 0; i <= lastCompletedBatch + 1; i++) {
+                batches.set(i, newBatch(i))
+            }
+
             const lockEvents = await contract.getPastEvents(LOCK_EVENT, {
                 fromBlock: 0,
                 toBlock: 'latest'
@@ -540,12 +514,7 @@ export default class LockNECStore {
             for (let event of lockEvents) {
                 const lock = await this.parseLockEvent(event)
 
-                let batch = batches.get(lock.lockingPeriod)
-                if (!batch) {
-                    batches.set(lock.lockingPeriod, this.newBatch(lock.lockingPeriod))
-                    batch = batches.get(lock.lockingPeriod) as Batch
-                }
-
+                let batch = batches.get(lock.lockingBatch) as Batch
                 batch.totalLocked = batch.totalLocked.plus(lock.amount)
 
                 if (lock.locker === user) {
@@ -553,15 +522,8 @@ export default class LockNECStore {
                 }
             }
 
-            const lastCompletedBatch = this.getLastCompletedBatch()
-            const currentBatch = this.getActiveLockingPeriod()
-
             for (let i = 0; i <= lastCompletedBatch + 1; i++) {
-                let batch = batches.get(i)
-                if (!batch) {
-                    batches.set(i, this.newBatch(i))
-                    batch = batches.get(i) as Batch
-                }
+                let batch = batches.get(i) as Batch
 
                 // const totalScore = new BigNumber(await contract.methods.batches(i).call())
                 const totalRep = new BigNumber(await contract.methods.getRepRewardPerBatch(i).call())
@@ -599,7 +561,7 @@ export default class LockNECStore {
             this.batchesLoaded = true
             this.batches = batches
 
-            console.log('batches', batches)
+            // console.log('batches', batches)
 
             log.debug(prefix.FETCH_SUCCESS, 'Batches', user)
         } catch (e) {
@@ -615,31 +577,31 @@ export default class LockNECStore {
             '[Action] Lock',
             `amount: ${amount} \n duration: ${duration} \n batchId:${batchId} \n agreementHash: ${AGREEMENT_HASH}`)
 
-        this.setLockActionPending(true)
+        this.rootStore.txTracker.setLockActionPending(true)
         try {
             await contract.methods.lock(amount, duration, batchId, AGREEMENT_HASH).send()
             this.fetchUserLocks(userAddress)
-            this.setLockActionPending(false)
+            this.rootStore.txTracker.setLockActionPending(false)
         } catch (e) {
             log.error(e)
-            this.setLockActionPending(false)
+            this.rootStore.txTracker.setLockActionPending(false)
         }
 
     }
 
-    extendLock = async (lockId, periodsToExtend, batchId) => {
+    extendLock = async (lockId, batchesToExtend, batchId) => {
         const contract = this.loadContract()
         const userAddress = this.rootStore.providerStore.getDefaultAccount()
-        this.setExtendLockActionPending(lockId, true)
-        log.debug('extendLock', lockId, periodsToExtend, batchId)
+        this.rootStore.txTracker.setExtendLockActionPending(true)
+        log.error('extendLock', lockId, batchesToExtend, batchId)
 
         try {
-            await contract.methods.extendLocking(periodsToExtend, batchId, lockId, AGREEMENT_HASH).send()
+            await contract.methods.extendLocking(batchesToExtend, batchId, lockId, AGREEMENT_HASH).send()
             await this.fetchUserLocks(userAddress)
-            this.setExtendLockActionPending(lockId, false)
+            this.rootStore.txTracker.setExtendLockActionPending(false)
         } catch (e) {
             log.error(e)
-            this.setExtendLockActionPending(lockId, false)
+            this.rootStore.txTracker.setExtendLockActionPending(false)
         }
 
     }
@@ -647,16 +609,16 @@ export default class LockNECStore {
     release = async (beneficiary, lockId) => {
         const contract = this.loadContract()
         const userAddress = this.rootStore.providerStore.getDefaultAccount()
-        this.setReleaseActionPending(lockId, true)
+        this.rootStore.txTracker.setReleaseActionPending(lockId, true)
         log.debug('release', beneficiary, lockId)
 
         try {
             await contract.methods.release(beneficiary, lockId).send()
             await this.fetchUserLocks(userAddress)
-            this.setReleaseActionPending(lockId, false)
+            this.rootStore.txTracker.setReleaseActionPending(lockId, false)
         } catch (e) {
             log.error(e)
-            this.setReleaseActionPending(lockId, false)
+            this.rootStore.txTracker.setReleaseActionPending(lockId, false)
         }
 
     }

@@ -12,6 +12,7 @@ import BatchesTable from 'components/tables/BatchesTable'
 import UserLocksTable from 'components/tables/UserLocksTable'
 import LoadingCircle from '../../common/LoadingCircle'
 import { RootStore } from 'stores/Root'
+import ExtendLockPanel from 'components/common/panels/ExtendLockPanel'
 
 const LockNECWrapper = styled.div`
   display: flex;
@@ -118,47 +119,6 @@ class LockNEC extends React.Component<any, State> {
     this.setState({ currentTab: value })
   }
 
-  SidePanel = () => {
-    const { lockNECStore, tokenStore, providerStore } = this.props.root as RootStore
-    const userAddress = providerStore.getDefaultAccount()
-    const necTokenAddress = deployed.NectarToken
-    const spenderAddress = deployed.ContinuousLocking4Reputation
-
-    const tokenApproved = tokenStore.hasMaxApproval(necTokenAddress, userAddress, spenderAddress)
-    const approvePending = tokenStore.isApprovePending(necTokenAddress, userAddress, spenderAddress)
-    const lockPending = lockNECStore.isLockActionPending()
-
-    const isLockingStarted = lockNECStore.isLockingStarted()
-    const isLockingEnded = lockNECStore.isLockingEnded()
-
-    return (
-      < React.Fragment >
-        {tokenApproved === false ?
-          <EnableTokenPanel
-            instruction="Enable NEC for locking"
-            subinstruction="-"
-            buttonText="Enable NEC"
-            userAddress={userAddress}
-            tokenAddress={necTokenAddress}
-            spenderAddress={spenderAddress}
-            enabled={tokenApproved}
-            pending={approvePending}
-          />
-          :
-          <div>
-            <LockPanel
-              rangeStart={1}
-              buttonText="Lock NEC"
-              userAddress={userAddress}
-              enabled={isLockingStarted && !isLockingEnded}
-              pending={lockPending}
-            />
-          </div>
-        }
-      </React.Fragment >
-    )
-  }
-
   /*
   Remaining Time
   IF > 1 day
@@ -172,50 +132,50 @@ class LockNEC extends React.Component<any, State> {
   getTimerVisuals() {
     const { lockNECStore, timeStore } = this.props.root as RootStore
 
-    const currentPeriod = lockNECStore.getActiveLockingPeriod()
-    const finalPeriod = lockNECStore.getFinalPeriodIndex()
-    const periodLength = lockNECStore.staticParams.batchTime
+    const currentBatch = lockNECStore.getActiveLockingBatch()
+    const finalBatch = lockNECStore.getFinalBatchIndex()
+    const batchLength = lockNECStore.staticParams.batchTime
     const isLockingStarted = lockNECStore.isLockingStarted()
     const isLockingEnded = lockNECStore.isLockingEnded()
-    const numPeriods = lockNECStore.staticParams.numLockingPeriods
-    const finalPeriodIndex = lockNECStore.getFinalPeriodIndex()
+    const numBatches = lockNECStore.staticParams.numLockingBatches
+    const finalBatchIndex = lockNECStore.getFinalBatchIndex()
 
-    let periodPercentage = 0
-    let periodTimer = '...'
-    let periodStatus = 0
-    let periodTitle = `Current Period: ${currentPeriod} of ${finalPeriodIndex}`
+    let batchPercentage = 0
+    let batchTimer = '...'
+    let batchStatus = 0
+    let batchTitle = `Current Batch: ${currentBatch} of ${finalBatchIndex}`
 
     let prefix = 'Next starts in'
 
     if (!isLockingStarted) {
-      prefix = 'First period starts in'
-      periodTitle = "Locking has not started"
+      prefix = 'First batch starts in'
+      batchTitle = "Locking has not started"
     }
 
 
-    if (currentPeriod === finalPeriod && !isLockingEnded) {
-      prefix = 'Last period ends in'
+    if (currentBatch === finalBatch && !isLockingEnded) {
+      prefix = 'Last batch ends in'
     }
 
     // Locking In Progress
     if (!isLockingEnded) {
-      const timeUntilNextBatch = Number(lockNECStore.getTimeUntilNextPeriod())
-      periodPercentage = (timeUntilNextBatch / periodLength) * 100
-      periodTimer = `${prefix}, ${timeUntilNextBatch} seconds`
+      const timeUntilNextBatch = Number(lockNECStore.getTimeUntilNextBatch())
+      batchPercentage = (timeUntilNextBatch / batchLength) * 100
+      batchTimer = `${prefix}, ${timeUntilNextBatch} seconds`
     }
 
     // Locking Ended
     if (isLockingEnded) {
-      periodPercentage = 100
-      periodTimer = ''
-      periodTitle = 'Locking has ended'
+      batchPercentage = 100
+      batchTimer = ''
+      batchTitle = 'Locking has ended'
     }
 
     return {
-      periodPercentage,
-      periodTimer,
-      periodStatus,
-      periodTitle
+      batchPercentage,
+      batchTimer,
+      batchStatus,
+      batchTitle
     }
   }
 
@@ -248,44 +208,52 @@ class LockNEC extends React.Component<any, State> {
   }
 
   render() {
-    const { lockNECStore, providerStore, tokenStore, timeStore } = this.props.root as RootStore
+    const { lockNECStore, providerStore, tokenStore, timeStore, txTracker } = this.props.root as RootStore
     const { currentTab } = this.state
     const userAddress = providerStore.getDefaultAccount()
     const necTokenAddress = deployed.NectarToken
-    const schemeAddress = deployed.ContinuousLocking4Reputation
+    const spenderAddress = deployed.ContinuousLocking4Reputation
 
     // Check Loading Conditions
     const staticParamsLoaded = lockNECStore.areStaticParamsLoaded()
     const hasBalance = tokenStore.hasBalance(necTokenAddress, userAddress)
-    const hasAllowance = tokenStore.hasAllowance(necTokenAddress, userAddress, schemeAddress)
-    const userLocksLoaded = lockNECStore.isUserLockInitialLoadComplete(userAddress)
-    const userBatchesLoaded = lockNECStore.areBatchesLoaded(userAddress)
+    const hasAllowance = tokenStore.hasAllowance(necTokenAddress, userAddress, spenderAddress)
+
 
     if (!staticParamsLoaded || !hasBalance || !hasAllowance) {
       return (<LoadingCircle instruction={'Loading...'} subinstruction={''} />)
     }
 
+    const tokenApproved = tokenStore.hasMaxApproval(necTokenAddress, userAddress, spenderAddress)
+    const approvePending = tokenStore.isApprovePending(necTokenAddress, userAddress, spenderAddress)
+    const lockPending = txTracker.isLockActionPending()
+    const extendPending = txTracker.isExtendLockActionPending()
+
+    const isLockingStarted = lockNECStore.isLockingStarted()
+    const isLockingEnded = lockNECStore.isLockingEnded()
+
+    const userHasLocks = lockNECStore.userHasLocks(userAddress)
     const necBalance = tokenStore.getBalance(necTokenAddress, userAddress)
     const now = timeStore.currentTime
 
     const timerVisuals = this.getTimerVisuals()
 
-    const { periodPercentage, periodTimer, periodTitle } = timerVisuals
+    const { batchPercentage, batchTimer, batchTitle } = timerVisuals
 
     return (
       <LockNECWrapper>
         <DetailsWrapper>
           <TableHeaderWrapper>
             <TimelineProgress
-              value={periodPercentage}
-              title={periodTitle}
-              subtitle={periodTimer}
+              value={batchPercentage}
+              title={batchTitle}
+              subtitle={batchTimer}
               width="28px"
               height="28px"
               displayTooltip={true}
             />
             <TableTabEnumWrapper>
-              {this.TabButton(currentTab, TabEnum.ALL_PERIODS, "All Periods")}
+              {this.TabButton(currentTab, TabEnum.ALL_PERIODS, "All Batches")}
               {this.TabButton(currentTab, TabEnum.YOUR_LOCKS, "Your Locks")}
             </TableTabEnumWrapper>
           </TableHeaderWrapper>
@@ -296,7 +264,36 @@ class LockNEC extends React.Component<any, State> {
             <LogoAndText icon={icon} text="Nectar" />
             <TokenValue weiValue={necBalance} />
           </ActionsHeader>
-          {this.SidePanel()}
+          < React.Fragment >
+            {tokenApproved === false ?
+              <EnableTokenPanel
+                instruction="Enable NEC for locking"
+                subinstruction="-"
+                buttonText="Enable NEC"
+                userAddress={userAddress}
+                tokenAddress={necTokenAddress}
+                spenderAddress={spenderAddress}
+                enabled={tokenApproved}
+                pending={approvePending}
+              />
+              :
+              currentTab === TabEnum.ALL_PERIODS ?
+                <LockPanel
+                  buttonText="Lock NEC"
+                  userAddress={userAddress}
+                  enabled={isLockingStarted && !isLockingEnded}
+                  pending={lockPending}
+                />
+                :
+                <ExtendLockPanel
+                  buttonText="Extend Lock"
+                  userAddress={userAddress}
+                  enabled={isLockingStarted && !isLockingEnded}
+                  pending={extendPending}
+                  hasLocks={userHasLocks}
+                />
+            }
+          </React.Fragment >
         </ActionsWrapper>
       </LockNECWrapper >
     )

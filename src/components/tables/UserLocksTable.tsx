@@ -25,7 +25,8 @@ interface ActionData {
 
 class TableRow {
     constructor(
-        public startPeriod: number,
+        public lockId: string,
+        public startBatch: number,
         public amount: string,
         public duration: string,
         public releasable: string,
@@ -34,7 +35,7 @@ class TableRow {
 }
 
 const columns = [
-    { name: 'Period #', key: 'startPeriod', width: '20%', align: 'left' },
+    { name: 'Batch #', key: 'startBatch', width: '20%', align: 'left' },
     { name: 'Amount', key: 'amount', width: '20%', align: 'left' },
     { name: 'Duration', key: 'duration', width: '20%', align: 'left' },
     { name: 'Releasable', key: 'releasable', width: '20%', align: 'left' },
@@ -44,18 +45,28 @@ const columns = [
 @inject('root')
 @observer
 class UserLocksTable extends React.Component<any, any> {
+    constructor(props) {
+        super(props)
+    }
+
+    setSelectedLock(lockId: string) {
+        const { extendLockFormStore } = this.props.root as RootStore
+        extendLockFormStore.setSelectedLockId(lockId)
+    }
+
     generateTableRows(inputData: Locks, userAddress) {
         const tableData: TableRow[] = [] as TableRow[]
 
-        inputData.forEach((lock, key, map) => {
-            const durationDisplay = `${lock.periodDuration} ${helpers.getMonthsSuffix(lock.periodDuration)}`
+        inputData.forEach((lock) => {
+            const durationDisplay = `${lock.batchDuration} ${helpers.getMonthsSuffix(lock.batchDuration)}`
             const displayAmount = `${helpers.tokenDisplay(lock.amount)} NEC`
 
             // let releasableDisplay
             const releasableDisplay = helpers.timestampToDate(lock.releasable)
 
             const row: TableRow = {
-                startPeriod: lock.lockingPeriod,
+                lockId: lock.id,
+                startBatch: lock.lockingBatch,
                 amount: displayAmount,
                 duration: durationDisplay,
                 releasable: releasableDisplay,
@@ -79,9 +90,9 @@ class UserLocksTable extends React.Component<any, any> {
         lockNECStore.release(beneficiary, lockId)
     }
 
-    extend(lockId, periodsToExtend, batchId) {
+    extend(lockId, batchesToExtend, batchId) {
         const { lockNECStore } = this.props.root as RootStore as RootStore
-        lockNECStore.extendLock(lockId, periodsToExtend, batchId)
+        lockNECStore.extendLock(lockId, batchesToExtend, batchId)
     }
 
     renderNoDataTable() {
@@ -96,7 +107,7 @@ class UserLocksTable extends React.Component<any, any> {
     }
 
     generateCell(key, value) {
-        const { timeStore, lockNECStore, extendLockFormStore, providerStore } = this.props.root as RootStore
+        const { timeStore, lockNECStore, extendLockFormStore, providerStore, txTracker } = this.props.root as RootStore
         const now = timeStore.currentTime
 
         const userAddress = providerStore.getDefaultAccount()
@@ -105,19 +116,16 @@ class UserLocksTable extends React.Component<any, any> {
             const { released, releasable, releasableDisplay, beneficiary, lockId } = value
 
             const isReleasable = (now > releasable)
-            const isReleaseActionPending = lockNECStore.isReleaseActionPending(lockId)
+            const isReleaseActionPending = txTracker.isReleaseActionPending(lockId)
 
-            const isLockingOver = lockNECStore.isLockingEnded()
-            const remainingPeriods = lockNECStore.getPeriodsRemaining()
-            // If it's not expired (aka releasable), and there are >0 periods left to extend to, we can extend
+            // If it's not expired (aka releasable), and there are >0 batches left to extend to, we can extend
             const isExtendable = true
-            const isExtendActionPending = false
 
-            const periodsToExtend = extendLockFormStore.duration
-            const batchId = lockNECStore.getActiveLockingPeriod()
+            const batchesToExtend = extendLockFormStore.duration
+            const batchId = lockNECStore.getActiveLockingBatch()
 
             if (!isReleasable && isExtendable) {
-                return <TableButton onClick={() => { this.extend(lockId, periodsToExtend, batchId) }}>Release</TableButton>
+                return <TableButton onClick={() => { this.extend(lockId, batchesToExtend, batchId) }}>Release</TableButton>
             }
 
             if (released) {
@@ -139,12 +147,11 @@ class UserLocksTable extends React.Component<any, any> {
     }
 
     render() {
-        const { highlightTopRow } = this.props
-        const { lockNECStore, providerStore } = this.props.root as RootStore as RootStore
+        const { lockNECStore, providerStore, extendLockFormStore } = this.props.root as RootStore
+        const selectedLock = extendLockFormStore.selectedLockId
 
         const userAddress = providerStore.getDefaultAccount()
         const userLocksLoaded = lockNECStore.isUserLockInitialLoadComplete(userAddress)
-
 
         let rows
         let hasLocks = false
@@ -172,11 +179,11 @@ class UserLocksTable extends React.Component<any, any> {
                 {userLocksLoaded && hasLocks ?
                     <TableWrapper>
                         {rows.map((row, index) => {
-                            const highlight = !highlightTopRow || index === 0
+                            const highlight = selectedLock && selectedLock === row.lockId ? true : false
                             const Cell = highlight ? CellWrapper : GreyCell
                             const Wrapper = highlight ? RowWrapper : InactiveRowWrapper
                             return (
-                                <Wrapper key={`wrapper-${index}`} >
+                                <Wrapper key={`wrapper-${index}`} onClick={() => { this.setSelectedLock(row.lockId) }} >
                                     <Row key={`row-${index}`}>
                                         {columns.map((column, index) => (
                                             <Cell key={`cell-${index}`} width={column.width} align={column.align}>

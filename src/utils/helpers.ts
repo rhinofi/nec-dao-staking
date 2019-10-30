@@ -51,6 +51,10 @@ export function fromWei(value: string | BigNumber): string {
   return Web3.utils.fromWei(value.toString())
 }
 
+export function isNumeric(num) {
+  return !isNaN(num)
+}
+
 function dayText(value) {
   return (value === 1 ? 'Day' : 'Days')
 }
@@ -145,6 +149,40 @@ export function tokenDisplay(value: BigNumber): string {
   return roundValue(Web3.utils.fromWei(value.toString()))
 }
 
+export function isZero(value: number | string): boolean {
+  const bn = new BigNumber(value)
+  return bn.isZero()
+}
+
+export function isPositiveNumber(value: number | string): boolean {
+  const bn = new BigNumber(value)
+  return bn.isPositive()
+}
+
+export function getDecimalPlaces(value: number | string): number {
+  const bn = new BigNumber(value)
+  return bn.decimalPlaces()
+}
+
+export function isLessThan(value1: number | string, value2: number | string): boolean {
+  const bn1 = new BigNumber(value1)
+  const bn2 = new BigNumber(value2)
+  return bn1.isLessThan(bn2)
+}
+
+export function isGreaterThan(value1: number | string, value2: number | string): boolean {
+  const bn1 = new BigNumber(value1)
+  const bn2 = new BigNumber(value2)
+  return bn1.isGreaterThan(bn2)
+}
+
+export function isEmpty(value) {
+  if (value === undefined || value === null || value === '') {
+    return false
+  }
+  return true
+}
+
 export function pow10(value) {
   const ten = new BigNumber(10)
   return ten.pow(value)
@@ -178,12 +216,12 @@ export function getMonthsSuffix(value) {
   return 'Months'
 }
 
-export function getPeriodText(value) {
+export function getBatchText(value) {
   const months = Number(value)
   if (months === 1) {
-    return 'Period'
+    return 'Batch'
   }
-  return 'Periods'
+  return 'Batches'
 }
 
 export function timestampToDate(timestamp) {

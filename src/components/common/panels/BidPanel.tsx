@@ -9,6 +9,7 @@ import ActiveButton from 'components/common/buttons/ActiveButton'
 import LoadingCircle from '../LoadingCircle';
 import { deployed } from 'config.json'
 import { RootStore } from 'stores/Root';
+import BigNumber from 'utils/bignumber';
 
 const PanelWrapper = styled.div`
 `
@@ -68,19 +69,129 @@ const PanelText = styled.div`
   border-bottom: 1px solid var(--faint-divider);
 `
 
+interface FormStatus {
+  isValid: boolean;
+  errorMessage: string;
+}
+
 @inject('root')
 @observer
 class BidPanel extends React.Component<any, any>{
+  constructor(props) {
+    super(props)
+    this.state = {
+      bidForm: {
+        touched: false,
+        error: false,
+        errorMessage: ""
+      }
+    }
+  }
   setBidAmount(value) {
     const { bidFormStore } = this.props.root as RootStore
+    const { bidForm } = this.state
     bidFormStore.setBidAmount(value)
+    this.setState({
+      bidForm: {
+        ...bidForm,
+        touched: true
+      }
+    })
+
+  }
+
+  isBidAmountValid(value, maxValue, actionText: string): FormStatus {
+    /*
+    * must be a number
+    * positive numbers only
+    * <=18 decimals
+    * must be filled in
+    * must be <= to user balance
+    * must be greater than a minimum contribution value (1 token)
+    */
+
+    if (helpers.isEmpty(value)) {
+      return {
+        isValid: false,
+        errorMessage: "Please input a token value"
+      }
+    }
+
+    if (!helpers.isNumeric(value)) {
+      return {
+        isValid: false,
+        errorMessage: "Please input a valid number"
+      }
+    }
+
+    if (helpers.isZero(value)) {
+      return {
+        isValid: false,
+        errorMessage: `Cannot ${actionText} zero tokens`
+      }
+    }
+
+    if (helpers.isPositiveNumber(value)) {
+      return {
+        isValid: false,
+        errorMessage: "Please input a positive number"
+      }
+    }
+
+    if (helpers.getDecimalPlaces(value) > 18) {
+      return {
+        isValid: false,
+        errorMessage: "Input exceeds 18 decimal places"
+      }
+    }
+
+    if (helpers.isGreaterThan(value, maxValue)) {
+      return {
+        isValid: false,
+        errorMessage: "Insufficent Balance"
+      }
+    }
+
+    if (helpers.isLessThan(value, 1)) {
+      return {
+        isValid: false,
+        errorMessage: `Minimum ${actionText} is one token`
+      }
+    }
+
+    return {
+      isValid: true,
+      errorMessage: ""
+    }
   }
 
   async bid() {
-    const { bidFormStore, bidGENStore } = this.props.root as RootStore
-    if (!bidFormStore.bidAmount) {
+    const { bidFormStore, bidGENStore, tokenStore } = this.props.root as RootStore
+    const { userAddress } = this.props
+    const { bidForm } = this.state
+    const userBalance = helpers.fromWei(tokenStore.getBalance(deployed.GenToken, userAddress))
+
+    const formStatus = this.isBidAmountValid(bidFormStore.bidAmount, userBalance, 'bid')
+
+    if (!formStatus.isValid) {
+      this.setState({
+        bidForm: {
+          ...bidForm,
+          error: true,
+          errorMessage: formStatus.errorMessage
+        }
+      })
       return
+    } else {
+      this.setState({
+        bidForm: {
+          ...bidForm,
+          error: false,
+          errorMessage: ""
+        }
+      })
     }
+
     const weiValue = helpers.toWei(bidFormStore.bidAmount)
     const currentAuction = bidGENStore.getActiveAuction()
 
@@ -104,6 +215,8 @@ class BidPanel extends React.Component<any, any>{
 
   BidForm(bidAmount, buttonText, auctionsEnded, auctionsStarted, userBalance) {
     const actionEnabled = auctionsStarted && !auctionsEnded
+    const { touched, error, errorMessage } = this.state.bidForm
+
     return (
       <React.Fragment>
         <BidWrapper>
@@ -122,11 +235,17 @@ class BidPanel extends React.Component<any, any>{
               </div>
             </Popup>
           </BidAmountWrapper>
-          <BidForm className="invalid-border">
+          <BidForm className={touched && error ? "invalid-border" : ""}>
             <input type="text" name="name" placeholder="0" value={bidAmount} onChange={e => this.setBidAmount(e.target.value)} />
             <div>GEN</div>
           </BidForm>
-          <ValidationError>Insufficient Balance</ValidationError>
+          {
+            touched && error ?
+              <ValidationError>{errorMessage}</ValidationError>
+              :
+              <React.Fragment></React.Fragment>
+          }
+
         </BidWrapper>
         {actionEnabled ?
           (<ActiveButton
@@ -146,10 +265,11 @@ class BidPanel extends React.Component<any, any>{
   render() {
     const { bidGENStore, bidFormStore, tokenStore } = this.props.root as RootStore
     const { buttonText, userAddress } = this.props
+    const pending = bidGENStore.isBidActionPending()
+
     const auctionsEnded = bidGENStore.areAuctionsOver()
     const auctionsStarted = bidGENStore.haveAuctionsStarted()
     const userBalance = helpers.fromWei(tokenStore.getBalance(deployed.GenToken, userAddress))
-    const pending = bidGENStore.isBidActionPending()
     return (
       <PanelWrapper>
         {

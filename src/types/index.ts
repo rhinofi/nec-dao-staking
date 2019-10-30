@@ -5,15 +5,16 @@ export class Lock {
         public locker: string,
         public id: string,
         public amount: BigNumber,
-        public periodDuration: number,
+        public batchDuration: number,
         public timeDuration: number,
         public lockingTime: number,
-        public lockingPeriod: number,
+        public lockingBatch: number,
         public scores: Map<number, BigNumber>,
         public releasable: number,
         public released: boolean
     ) { };
 }
+
 
 export enum TxType {
     LOCK,
@@ -40,7 +41,7 @@ export class PendingTx {
         public lock: boolean,
         public bid: boolean,
         public snapshotRedeem: boolean,
-        public extendLock: Map<string, boolean>,
+        public extendLock: boolean,
         public releaseLock: Map<string, boolean>
     ) { };
 }
@@ -73,6 +74,19 @@ export class Batch {
     ) { }
 }
 
+export function newBatch(id: number): Batch {
+    return {
+        id,
+        userLocked: new BigNumber(0),
+        totalLocked: new BigNumber(0),
+        userRep: new BigNumber(0),
+        totalRep: new BigNumber(0),
+        userScore: new BigNumber(0),
+        totalScore: new BigNumber(0),
+        isComplete: false
+    }
+}
+
 export class SnapshotInfo {
     constructor(
         public balance: BigNumber,
@@ -91,7 +105,7 @@ export interface BidStaticParams {
 }
 
 export interface LockStaticParams {
-    numLockingPeriods: number;
+    numLockingBatches: number;
     batchTime: number;
     startTime: number;
     agreementHash: string;

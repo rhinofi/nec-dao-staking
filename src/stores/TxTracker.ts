@@ -1,22 +1,14 @@
-/* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 import { observable, action, computed } from 'mobx'
 import * as helpers from "utils/helpers"
 import * as log from 'loglevel'
 import { logs, errors, prefix, } from 'strings'
-import { deployed } from 'config.json'
 import BigNumber from "utils/bignumber"
 
-import { Lock, LockStaticParams, Batch, PendingTx } from 'types'
+import { Lock, PendingTx } from 'types'
 import { RootStore } from './Root'
 type Scores = Map<number, BigNumber>
 type Locks = Map<string, Lock>
-
-const objectPath = require("object-path")
-const LOCK_EVENT = 'LockToken'
-const RELEASE_EVENT = 'Release'
-const EXTEND_LOCKING_EVENT = 'ExtendLocking'
-const AGREEMENT_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
 const { BN } = helpers
 
@@ -31,7 +23,7 @@ const defaultPendingTx = new PendingTx(
     false,
     false,
     false,
-    new Map<string, boolean>(),
+    false,
     new Map<string, boolean>(),
 )
 
@@ -54,19 +46,9 @@ export default class LockNECStore {
     }
 
     // Setting a transaction causes the polling loop to check on it's status for you!
-    setLockTx(txHash: string) {
-
-    }
-
-    setExtendLockTx(txHash: string) {
-
-    }
-
-    setReleaseLockTx(txHash: string) {
-
-    }
-
-
+    setLockTx(txHash: string) { }
+    setExtendLockTx(txHash: string) { }
+    setReleaseLockTx(txHash: string) { }
 
     setLockActionPending(flag: boolean) {
         this.pendingTx.lock = flag
@@ -76,8 +58,8 @@ export default class LockNECStore {
         this.pendingTx.snapshotRedeem = flag
     }
 
-    setExtendLockActionPending(lockId: string, flag: boolean) {
-        this.pendingTx.extendLock.set(lockId, flag)
+    setExtendLockActionPending(flag: boolean) {
+        this.pendingTx.extendLock = flag
     }
 
     setReleaseActionPending(lockId: string, flag: boolean) {
@@ -92,11 +74,8 @@ export default class LockNECStore {
         return this.pendingTx.snapshotRedeem
     }
 
-    isExtendLockActionPending(lockId: string) {
-        if (this.pendingTx.extendLock.has(lockId)) {
-            return this.pendingTx.extendLock.get(lockId)
-        }
-        return false
+    isExtendLockActionPending() {
+        return this.pendingTx.extendLock
     }
 
     isReleaseActionPending(lockId: string) {

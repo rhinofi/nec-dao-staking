@@ -27,7 +27,7 @@ class ExtendLockPopup extends React.Component<any, any>{
         const { lockNECStore, extendLockFormStore } = this.props.root as RootStore
         const { rangeStart } = this.state
 
-        const periodsRemaining = lockNECStore.getPeriodsRemaining()
+        const periodsRemaining = lockNECStore.getBatchesRemaining()
         const lockDuration = extendLockFormStore.duration
 
         let maxLockDuration = lockNECStore.staticParams.maxLockingBatches

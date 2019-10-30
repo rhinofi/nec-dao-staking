@@ -22,11 +22,11 @@ export default class GraphStore {
             locks(orderDirection: asc) {
                 id
                 locker
-                period
+                batch
                 amount
                 released
                 lockTimestamp
-                periodDuration
+                batchDuration
             }
         }`;
 
@@ -40,11 +40,11 @@ export default class GraphStore {
             locks(orderDirection: asc) {
                 id
                 locker
-                period
+                batch
                 amount
                 released
                 lockTimestamp
-                periodDuration
+                batchDuration
             }
         }`;
 
@@ -58,11 +58,11 @@ export default class GraphStore {
             locks(orderDirection: asc) {
                 id
                 locker
-                period
+                batch
                 amount
                 released
                 lockTimestamp
-                periodDuration
+                batchDuration
             }
         }`;
 
