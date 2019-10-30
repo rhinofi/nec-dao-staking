@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import NECLogo from 'assets/pngs/NECwithoutText.png'
+import NECLogo from 'assets/svgs/necdao-glow.svg'
 import ActiveButton from 'components/common/buttons/ActiveButton'
 
 const ConnectWrapper = styled.div`
@@ -12,22 +12,10 @@ const ConnectWrapper = styled.div`
   height: 364px;
 `
 
-const LogoWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center
+const Logo = styled.img`
   width: 64px;
   height: 64px;
-  border-radius: 32px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: var(--logo-background);
   margin-bottom: 24px;
-`
-
-const Logo = styled.img`
-  width: 40px;
-  height: 40px;
 `
 
 const Title = styled.div`
@@ -59,9 +47,7 @@ const ButtonWrapper =styled.div`
 const ConnectWallet = ({}) => {
   return (
     <ConnectWrapper>
-      <LogoWrapper>
-        <Logo src={NECLogo} />
-      </LogoWrapper>
+      <Logo src={NECLogo} />
       <Title>
         Connect Wallet
       </Title>

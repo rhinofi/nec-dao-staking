@@ -225,8 +225,8 @@ class LockNEC extends React.Component<any, State> {
     //TODO Update this to proper logic for handling ConnectWallet and ConnectMainNet Screens
     // if (!staticParamsLoaded || !hasBalance || !hasAllowance) {
     if (true) {
-      return <ConnectMainNet />
-      // return <ConnectWallet />
+      // return <ConnectMainNet />
+      return <ConnectWallet />
       // return (<LoadingCircle instruction={'Loading...'} subinstruction={''} />)
     }
 

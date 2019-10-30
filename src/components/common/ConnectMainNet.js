@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
+import NetworkImage from 'assets/svgs/necdao-network.svg'
 
 const ConnectWrapper = styled.div`
   display: flex;
@@ -32,6 +33,11 @@ const SubTitle = styled.div`
   margin-bottom: 32px;
 `
 
+const Logo = styled.img`
+  width: 159px;
+  height: 127px;
+`
+
 const ConnectMainNet = ({}) => {
   return (
     <ConnectWrapper>
@@ -41,6 +47,7 @@ const ConnectMainNet = ({}) => {
       <SubTitle>
         Please connect to the Ethereum Main Network
       </SubTitle>
+      <Logo src={NetworkImage} />
     </ConnectWrapper> 
   )
 }
