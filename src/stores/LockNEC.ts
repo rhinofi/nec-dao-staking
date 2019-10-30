@@ -94,9 +94,17 @@ export default class LockNECStore {
         return (now >= startTime)
     }
 
+    isReleaseable(timestamp: number, lock: Lock): boolean {
+        return timestamp > lock.releasable && !lock.released
+    }
+
     calcMaxDuration(startBatch: number): number {
         const batchesRemaining = this.getBatchesRemaining()
         const maxLockDuration = this.staticParams.maxLockingBatches
+
+        if (batchesRemaining <= 0) {
+            return 0
+        }
 
         let maxDuration = maxLockDuration
 
@@ -109,6 +117,11 @@ export default class LockNECStore {
 
     calcMaxExtension(batchDuration: number): number {
         const batchesRemaining = this.getBatchesRemaining()
+
+        if (batchesRemaining <= 0) {
+            return 0
+        }
+
         const maxLockDuration = this.staticParams.maxLockingBatches
 
         let maxExtension = maxLockDuration - batchDuration
@@ -116,7 +129,6 @@ export default class LockNECStore {
         if (batchesRemaining < maxLockDuration) {
             maxExtension = batchesRemaining
         }
-
         return maxExtension
     }
 
@@ -240,12 +252,12 @@ export default class LockNECStore {
     async parseLockEvent(event): Promise<Lock> {
 
         const {
-            _locker, _lockingId, _amount, _batch
+            _locker, _lockingId, _amount, _period
         } = event.returnValues
 
         const block = await this.rootStore.providerStore.getBlock(event.blockNumber)
         const batchTime = this.staticParams.batchTime
-        const batchDuration = Number(_batch)
+        const batchDuration = Number(_period)
         const timeDuration = batchDuration * batchTime
         const lockingBatch = this.getLockingBatchByTimestamp(block.timestamp)
         const releasable = Number(block.timestamp) + Number(timeDuration)
@@ -266,14 +278,14 @@ export default class LockNECStore {
 
     async parseExtendEvent(event) {
         const {
-            _locker, _lockingId, _extendBatch
+            _locker, _lockingId, _extendPeriod
         } = event.returnValues
         const block = await this.rootStore.providerStore.getBlock(event.blockNumber)
 
         return {
             locker: _locker,
             id: _lockingId,
-            extendDuration: Number(_extendBatch),
+            extendDuration: Number(_extendPeriod),
             timestamp: block.timestamp
         }
     }

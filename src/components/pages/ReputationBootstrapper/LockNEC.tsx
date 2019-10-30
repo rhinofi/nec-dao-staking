@@ -252,10 +252,13 @@ class LockNEC extends React.Component<any, State> {
               height="28px"
               displayTooltip={true}
             />
-            <TableTabEnumWrapper>
-              {this.TabButton(currentTab, TabEnum.ALL_PERIODS, "All Batches")}
-              {this.TabButton(currentTab, TabEnum.YOUR_LOCKS, "Your Locks")}
-            </TableTabEnumWrapper>
+            {isLockingStarted ?
+              <TableTabEnumWrapper>
+                {this.TabButton(currentTab, TabEnum.ALL_PERIODS, "All Batches")}
+                {this.TabButton(currentTab, TabEnum.YOUR_LOCKS, "Your Locks")}
+              </TableTabEnumWrapper>
+              : <React.Fragment></React.Fragment>
+            }
           </TableHeaderWrapper>
           {this.renderTable(currentTab)}
         </DetailsWrapper>

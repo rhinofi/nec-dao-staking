@@ -9,6 +9,8 @@ import LoadingCircle from '../LoadingCircle'
 import { deployed } from 'config.json'
 import { ActiveLockingPeriodCell, LockingPeriodCell, LockingPeriodSelectorWrapper, LockingPeriodSelector, LockingPeriodStartCell, LockingPeriodEndCell } from 'components/common/LockingPeriodForm'
 import { RootStore } from 'stores/Root'
+import PanelExplainer from './PanelExplainer'
+import { tooltip } from 'strings'
 
 export const PanelWrapper = styled.div`
 `
@@ -66,6 +68,18 @@ export const ReleaseableDate = styled.div`
   color: var(--white-text);  
 `
 
+interface RenderData {
+  amount;
+  releaseableDate;
+  buttonText;
+  enabled;
+  userBalance;
+  duration;
+  pending;
+  isLockingEnded;
+  isLockingStarted;
+}
+
 @inject('root')
 @observer
 class LockPanel extends React.Component<any, any>{
@@ -93,7 +107,7 @@ class LockPanel extends React.Component<any, any>{
   }
 
 
-  LockingPeriod = () => {
+  renderDurationSelector = () => {
     const { lockNECStore, lockFormStore } = this.props.root as RootStore
     const { rangeStart } = this.state
 
@@ -143,18 +157,35 @@ class LockPanel extends React.Component<any, any>{
     )
   }
 
-  Pending(values) {
-    const { amount, releaseableDate, duration } = values
+  renderPending(renderData: RenderData) {
+    const { amount, releaseableDate, duration } = renderData
     const batchText = helpers.getBatchText(duration)
     return (
       <LoadingCircle instruction={`Lock ${amount} NEC`} subinstruction={`${duration} ${batchText} - Unlock on ${releaseableDate}`} />
     )
   }
 
-  LockForm(values) {
-    const { amount, releaseableDate, buttonText, enabled, userBalance } = values
+  renderLockingNotStarted() {
+    return <PanelExplainer text={tooltip.lockingNotStarted} tooltip={tooltip.lockTokenExplainer} />
+  }
+
+  renderLockingEnded() {
+    return <PanelExplainer text={tooltip.lockingEndedLockInstruction} tooltip={tooltip.lockingEndedLockExplainer} />
+  }
+
+  renderLockForm(renderData: RenderData) {
+    const { amount, releaseableDate, buttonText, enabled, userBalance, isLockingEnded, isLockingStarted } = renderData
+
+    if (!isLockingStarted) {
+      return this.renderLockingNotStarted()
+    }
+
+    if (isLockingEnded) {
+      return this.renderLockingEnded()
+    }
+
     return (<React.Fragment>
-      {this.LockingPeriod()}
+      {this.renderDurationSelector()}
       <LockFormWrapper>
         <LockAmountWrapper>
           <div>Lock Amount</div>
@@ -209,17 +240,20 @@ class LockPanel extends React.Component<any, any>{
     const userBalance = helpers.fromWei(tokenStore.getBalance(necTokanAddress, userAddress))
     const releaseableTimestamp = lockNECStore.calcReleaseableTimestamp(now, duration)
 
+    const isLockingStarted = lockNECStore.isLockingStarted
+    const isLockingEnded = lockNECStore.isLockingEnded
+
     const releaseableDate = helpers.timestampToDate(releaseableTimestamp)
 
-    const values = {
-      amount, releaseableDate, buttonText, enabled, userBalance, duration
+    const renderData: RenderData = {
+      amount, releaseableDate, buttonText, enabled, userBalance, duration, isLockingStarted, isLockingEnded, pending
     }
 
     return (
       <PanelWrapper>
         {pending ?
-          this.Pending(values) :
-          this.LockForm(values)
+          this.renderPending(renderData) :
+          this.renderLockForm(renderData)
         }
       </PanelWrapper >
     )

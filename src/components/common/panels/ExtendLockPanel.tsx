@@ -7,7 +7,8 @@ import LoadingCircle from '../LoadingCircle'
 import { deployed } from 'config.json'
 import { ActiveLockingPeriodCell, LockingPeriodCell, LockingPeriodSelectorWrapper, LockingPeriodSelector, LockingPeriodStartCell, LockingPeriodEndCell } from 'components/common/LockingPeriodForm'
 import { RootStore } from 'stores/Root'
-import { PanelWrapper, LockFormWrapper, LockAmountWrapper, LockAmountForm, ReleaseableDateWrapper, ReleaseableDate } from './LockPanel'
+import PanelExplainer from './PanelExplainer'
+import { PanelWrapper, LockFormWrapper, ReleaseableDateWrapper, ReleaseableDate } from './LockPanel'
 import Tooltip from '../Tooltip'
 import { Lock } from 'types'
 import { tooltip } from 'strings'
@@ -41,19 +42,23 @@ class ExtendLockPanel extends React.Component<any, any>{
   }
 
   renderDurationSelector = () => {
-    const { lockNECStore, extendLockFormStore } = this.props.root as RootStore
+    const { lockNECStore, extendLockFormStore, timeStore } = this.props.root as RootStore
     const { userAddress } = this.props
 
     let numCells = 4
-    const { selectedLockId, duration, rangeStart, isLockSelected } = extendLockFormStore
+    const { selectedLockId, duration, rangeStart } = extendLockFormStore
+    const now = timeStore.currentTime
 
     const selectedLock = lockNECStore.getUserTokenLocks(userAddress).get(selectedLockId) as Lock
     const maxExtension = lockNECStore.calcMaxExtension(selectedLock.batchDuration)
 
+    const isReleaseable = lockNECStore.isReleaseable(now, selectedLock)
+
+    console.log(selectedLock)
+    console.log(maxExtension)
+
     if (maxExtension <= 0) {
-      return <LockingPeriodSelectorWrapper>
-        {`This lock is already at maximum duration`}
-      </LockingPeriodSelectorWrapper>
+      return this.renderLockAtMaxDuration()
     }
 
     if (maxExtension < 4) {
@@ -105,38 +110,28 @@ class ExtendLockPanel extends React.Component<any, any>{
     )
   }
 
+  renderLockAtMaxDuration() {
+    return <PanelExplainer text={tooltip.noUserLocks} tooltip={tooltip.lockTokenExplainer} />
+  }
+
   renderNoLocks() {
-    return (
-      <React.Fragment>
-        <LockFormWrapper>
-          <LockAmountWrapper>
-            {tooltip.noUserLocks}
-            <Tooltip title='' content={tooltip.lockTokenExplainer} position="left center"></Tooltip>
-          </LockAmountWrapper>
-          <LockAmountForm>
-          </LockAmountForm>
-        </LockFormWrapper>
-      </React.Fragment>
-    )
+    return <PanelExplainer text={tooltip.noUserLocks} tooltip={tooltip.lockTokenExplainer} />
   }
 
   renderNoLockSelected() {
-    return (
-      <React.Fragment>
-        <LockFormWrapper>
-          <LockAmountWrapper>
-            {tooltip.extendLockInstruction}
-            <Tooltip title='' content={tooltip.extendLockExplainer} position="left center"></Tooltip>
-          </LockAmountWrapper>
-          <LockAmountForm>
-          </LockAmountForm>
-        </LockFormWrapper>
-      </React.Fragment>
-    )
+    return <PanelExplainer text={tooltip.extendLockInstruction} tooltip={tooltip.extendLockExplainer} />
+  }
+
+  renderLockingEnded() {
+    return <PanelExplainer text={tooltip.lockingEndedLockInstruction} tooltip={tooltip.lockingEndedLockExplainer_tab2} />
   }
 
   LockForm(values) {
-    const { hasLocks, isLockSelected, releaseableDate, buttonText, enabled } = values
+    const { hasLocks, isLockSelected, releaseableDate, buttonText, enabled, isLockingEnded } = values
+
+    if (isLockingEnded) {
+      return this.renderLockingEnded()
+    }
 
     if (!hasLocks) {
       return this.renderNoLocks()
@@ -186,13 +181,14 @@ class ExtendLockPanel extends React.Component<any, any>{
 
     const userBalance = helpers.fromWei(tokenStore.getBalance(necTokanAddress, userAddress))
     const releaseableTimestamp = lockNECStore.calcReleaseableTimestamp(now, duration)
+    const isLockingEnded = lockNECStore.isLockingEnded()
 
     const isLockSelected = extendLockFormStore.isLockSelected
 
     const releaseableDate = helpers.timestampToDate(releaseableTimestamp)
 
     const values = {
-      selectedLockId, hasLocks, isLockSelected, releaseableDate, buttonText, enabled, userBalance, duration
+      selectedLockId, hasLocks, isLockSelected, releaseableDate, buttonText, enabled, userBalance, duration, isLockingEnded
     }
 
     return (

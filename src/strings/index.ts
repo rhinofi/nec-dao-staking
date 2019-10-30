@@ -13,6 +13,13 @@ export const tooltip = {
     noUserLocks: `Looks like you haven't locked any tokens yet! Go to the \'All Batches\' tab to create a new token lock`,
     extendLockInstruction: `Select one of your locks in the table to extend it.`,
     extendLockExplainer: `You can extend a token lock beyond it's original duration to continue receiving Reptuation. Note that the total time locked still cannot exceed the maximum locking duration of 12 months.`,
+    lockingNotStarted: `Token locking has not started.`,
+    lockingEndedLockInstruction: `All Token locking periods have ended.`,
+    lockingEndedLockExplainer: `Tokens can no longer be locked for reputation. You can release tokens from existing locks on the 'Your Locks' tab.`,
+    lockingEndedLockExplainer_tab2: `Tokens can no longer be locked for reputation. You can release tokens from your locks via the table.`,
+    lockingEndedExtendExplainer: `Tokens can no longer be locked for reputation. You can release tokens from existing locks on the 'Your Locks' tab.`,
+    lockingNotStartedInstruction: `Once you have token locks, you can view & extend them here.`,
+    lockAtMaximumDurationInstruction: `This lock is already at maximum duration.`
 }
 
 export const logs = {

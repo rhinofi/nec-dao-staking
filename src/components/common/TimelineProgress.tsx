@@ -43,6 +43,7 @@ type Props = {
   width;
   height;
   displayTooltip: boolean;
+  tooltipContent?: string;
 }
 
 type State = {
@@ -51,11 +52,11 @@ type State = {
 
 class TimelineProgress extends React.Component<Props, State> {
   render() {
-    const { value, icon, title, subtitle, width, height, displayTooltip } = this.props
+    const { value, icon, title, subtitle, width, height, displayTooltip, tooltipContent } = this.props
 
     let tooltip
     if (displayTooltip) {
-      tooltip = <Tooltip title={''} content="This is placeholder text describing the Title in the Selector." position="right top" />
+      tooltip = <Tooltip title={''} content={tooltipContent} position="right top" />
     }
 
     return (

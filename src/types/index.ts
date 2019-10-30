@@ -15,7 +15,6 @@ export class Lock {
     ) { };
 }
 
-
 export enum TxType {
     LOCK,
     EXTEND_LOCK,
