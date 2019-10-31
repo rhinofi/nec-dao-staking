@@ -99,21 +99,18 @@ class UserLocksTable extends React.Component<any, any> {
         return (
             <TableWrapper>
                 <InactiveRowWrapper>
-                    <Row>
-                    </Row>
+                    <LoadingCircle instruction="Loading..." />
                 </InactiveRowWrapper>
             </TableWrapper>
         )
     }
 
     generateCell(key, value) {
-        const { timeStore, lockNECStore, extendLockFormStore, providerStore, txTracker } = this.props.root as RootStore
+        const { timeStore, txTracker } = this.props.root as RootStore
         const now = timeStore.currentTime
 
-        const userAddress = providerStore.getDefaultAccount()
-
         if (key === 'actionData') {
-            const { released, releasable, releasableDisplay, beneficiary, lockId } = value
+            const { released, releasable, beneficiary, lockId } = value
 
             const isReleasable = (now > releasable)
             const isReleaseActionPending = txTracker.isReleaseActionPending(lockId)
@@ -121,11 +118,8 @@ class UserLocksTable extends React.Component<any, any> {
             // If it's not expired (aka releasable), and there are >0 batches left to extend to, we can extend
             const isExtendable = true
 
-            const batchesToExtend = extendLockFormStore.duration
-            const batchId = lockNECStore.getActiveLockingBatch()
-
             if (!isReleasable && isExtendable) {
-                return <DisabledText>Extend</DisabledText>
+                return <TableButton>Extend</TableButton>
             }
 
             if (released) {

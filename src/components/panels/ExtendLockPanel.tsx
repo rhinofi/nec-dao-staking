@@ -20,6 +20,14 @@ interface Props {
   pending: boolean;
 }
 
+interface FormState {
+  existingDuration: number;
+  duration: number;
+  rangeStart: number;
+  numCells: number;
+  maxDuration: number;
+}
+
 @inject('root')
 @observer
 class ExtendLockPanel extends React.Component<any, any>{
@@ -41,16 +49,47 @@ class ExtendLockPanel extends React.Component<any, any>{
     extendLockFormStore.duration = value
   }
 
-  renderDurationSelector = (renderData: RenderData) => {
-    const { isReleaseable, maxExtension, rangeStart, duration, isReleased } = renderData
-    let numCells = 4
+  decrementRange = (formState: FormState) => {
+    const { lockFormStore } = this.props.root as RootStore
+    lockFormStore.rangeStart = formState.rangeStart - 1 > 1 ? formState.rangeStart - 1 : 1
+  }
 
-    if (maxExtension < 4) {
-      numCells = maxExtension
+  incrementRange = (formState: FormState) => {
+    const { lockFormStore } = this.props.root as RootStore
+    lockFormStore.rangeStart = formState.rangeStart + 1 <= formState.maxDuration - formState.numCells + 1 ? formState.rangeStart + 1 : formState.rangeStart
+  }
+
+  cellsToRender(formState: FormState): number {
+    const { maxDuration, numCells } = formState
+    return maxDuration >= numCells ? numCells : maxDuration
+  }
+
+  calcMaxDuration(formState: FormState) {
+    const { existingDuration, maxDuration } = formState
+    return Math.max(0, maxDuration - existingDuration)
+  }
+
+
+  renderDurationSelector = (renderData: RenderData) => {
+    const { lockNECStore, extendLockFormStore } = this.props.root as RootStore
+    const { rangeStart, duration } = extendLockFormStore
+
+    const lock = renderData.selectedLock as Lock
+
+    let formState: FormState = {
+      existingDuration: lock.batchDuration,
+      duration: duration,
+      rangeStart: rangeStart,
+      numCells: 5,
+      maxDuration: lockNECStore.staticParams.maxLockingBatches,
     }
 
+    formState.maxDuration = this.calcMaxDuration(formState)
+    const cellsToRender = this.cellsToRender(formState)
+    const maxIndex = rangeStart + cellsToRender
+
     const cells: any[] = []
-    for (let i = rangeStart; i <= rangeStart + numCells; i += 1) {
+    for (let i = rangeStart; i < maxIndex; i += 1) {
       if (i === duration) {
         cells.push(<ActiveLockingPeriodCell key={`cell-${i}`}>{i}</ActiveLockingPeriodCell>)
       } else {
@@ -70,14 +109,14 @@ class ExtendLockPanel extends React.Component<any, any>{
 
         <LockingPeriodSelector>
           <LockingPeriodStartCell onClick={() => {
-            this.setRangeStart(rangeStart > 1 ? rangeStart - 1 : 1)
+            this.decrementRange(formState)
           }}
           >
             {'<'}
           </LockingPeriodStartCell>
           {cells}
           <LockingPeriodEndCell
-            onClick={() => { this.setRangeStart(rangeStart + numCells < maxExtension ? rangeStart + 1 : rangeStart) }}
+            onClick={() => { this.incrementRange(formState) }}
           >
             {'>'}
           </LockingPeriodEndCell>

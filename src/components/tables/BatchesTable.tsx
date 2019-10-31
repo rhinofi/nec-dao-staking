@@ -5,6 +5,7 @@ import 'components/common/Table.scss'
 import * as helpers from 'utils/helpers'
 import { RootStore } from 'stores/Root';
 import { Batch } from 'types';
+import LoadingCircle from 'components/common/LoadingCircle';
 
 const columns = [
     { name: 'Period', key: 'batchIdDisplay', width: '10%', align: 'left' },
@@ -44,9 +45,7 @@ class BatchesTable extends React.Component<any, any>{
         return (
             <TableWrapper>
                 <InactiveRowWrapper>
-                    <Row>
-                        {/* <LoadingCircle instruction="Loading..." /> */}
-                    </Row>
+                    <LoadingCircle instruction="Loading..." />
                 </InactiveRowWrapper>
             </TableWrapper>
         )

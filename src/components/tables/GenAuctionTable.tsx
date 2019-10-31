@@ -5,6 +5,7 @@ import 'components/common/Table.scss'
 import * as helpers from 'utils/helpers'
 import { RootStore } from 'stores/Root';
 import { AuctionStatus } from 'types';
+import LoadingCircle from 'components/common/LoadingCircle';
 
 const columns = [
     { name: 'Auction #', key: 'auctionNumberDisplay', width: '15%', align: 'left' },
@@ -54,8 +55,7 @@ class GenAuctionTable extends React.Component<any, any>{
         return (
             <TableWrapper>
                 <InactiveRowWrapper>
-                    <Row>
-                    </Row>
+                    <LoadingCircle instruction="Loading..." />
                 </InactiveRowWrapper>
             </TableWrapper>
         )

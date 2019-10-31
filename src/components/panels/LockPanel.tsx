@@ -11,6 +11,7 @@ import { ActiveLockingPeriodCell, LockingPeriodCell, LockingPeriodSelectorWrappe
 import { RootStore } from 'stores/Root'
 import PanelExplainer from './PanelExplainer'
 import { tooltip } from 'strings'
+import Tooltip from 'components/common/Tooltip'
 
 export const PanelWrapper = styled.div`
 `
@@ -121,12 +122,6 @@ class LockPanel extends React.Component<any, any>{
 
   incrementRange = (formState: FormState) => {
     const { lockFormStore } = this.props.root as RootStore
-    const temp = {
-      newRangeStart: formState.rangeStart + 1,
-      maxRangeStart: formState.maxDuration - formState.numCells + 1,
-      newLessThanMax: (formState.rangeStart + 1 <= formState.maxDuration - formState.numCells - 1),
-    }
-    console.log(temp)
     lockFormStore.rangeStart = formState.rangeStart + 1 <= formState.maxDuration - formState.numCells + 1 ? formState.rangeStart + 1 : formState.rangeStart
   }
 
@@ -174,7 +169,7 @@ class LockPanel extends React.Component<any, any>{
 
     return (
       <LockingPeriodSelectorWrapper>
-        <div>Lock Duration (Months)</div>
+        <div>New Lock Duration (Months) <Tooltip title={''} content={tooltip.lockTokenExplainer} position="center left" /></div>
         <LockingPeriodSelector>
           <LockingPeriodStartCell onClick={() => {
             this.decrementRange(formState)
