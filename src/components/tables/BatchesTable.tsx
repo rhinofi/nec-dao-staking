@@ -9,28 +9,31 @@ import { Batch } from 'types';
 const columns = [
     { name: 'Period', key: 'batchIdDisplay', width: '10%', align: 'left' },
     { name: 'You Locked', key: 'userLocked', width: '25%', align: 'right' },
-    { name: 'Total Distributed', key: 'totalRep', width: '30%', align: 'right' },
+    { name: 'Total Reputation', key: 'totalRep', width: '30%', align: 'right' },
     { name: 'You Received', key: 'userRep', width: '25%', align: 'right' },
 ]
 
 @inject('root')
 @observer
 class BatchesTable extends React.Component<any, any>{
-    generateTableRows(data) {
+    generateTableRows(data, maxIndexToDisplay) {
         const tableData: any[] = []
 
         data.forEach((batch: Batch, key, map) => {
-            const row = {
-                batchId: batch.id,
-                batchIdDisplay: batch.id + 1,
-                userLocked: helpers.tokenDisplay(batch.userLocked),
-                totalRep: helpers.tokenDisplay(batch.totalRep),
-                userRep: batch.userRep ? helpers.tokenDisplay(batch.userRep) : 'In Progress',
-                // userRep: helpers.fromRep(data[key].userRep.toString())
-                isComplete: batch.isComplete
-            }
 
-            tableData.push(row)
+            if (key <= maxIndexToDisplay) {
+                const row = {
+                    batchId: batch.id,
+                    batchIdDisplay: batch.id + 1,
+                    userLocked: helpers.tokenDisplay(batch.userLocked),
+                    totalRep: helpers.tokenDisplay(batch.totalRep),
+                    userRep: key === maxIndexToDisplay ? 'In Progress' : helpers.tokenDisplay(batch.userRep),
+                    // userRep: helpers.fromRep(data[key].userRep.toString())
+                    isComplete: batch.isComplete
+                }
+
+                tableData.push(row)
+            }
         })
 
         tableData.reverse()
@@ -55,11 +58,12 @@ class BatchesTable extends React.Component<any, any>{
 
         const userAddress = providerStore.getDefaultAccount()
         const lockDataLoaded = lockNECStore.areBatchesLoaded(userAddress)
+        const maxIndexToDisplay = Math.min(lockNECStore.getFinalBatchIndex(), lockNECStore.getActiveLockingBatch())
 
         let rows
         if (lockDataLoaded) {
             const lockData = lockNECStore.getBatches(userAddress)
-            rows = this.generateTableRows(lockData)
+            rows = this.generateTableRows(lockData, maxIndexToDisplay)
         }
 
         return (

@@ -278,9 +278,9 @@ export function getMonthsSuffix(value) {
 export function getBatchText(value) {
   const months = Number(value)
   if (months === 1) {
-    return 'Batch'
+    return 'Period'
   }
-  return 'Batches'
+  return 'Periods'
 }
 
 export function timestampToDate(timestamp) {

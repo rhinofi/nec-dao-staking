@@ -16,7 +16,7 @@ import { tooltip } from 'strings'
 interface Props {
   buttonText: string;
   userAddress: string;
-  enabled: boolean;
+  lockingEnabled: boolean;
   pending: boolean;
 }
 
@@ -41,25 +41,9 @@ class ExtendLockPanel extends React.Component<any, any>{
     extendLockFormStore.duration = value
   }
 
-  renderDurationSelector = () => {
-    const { lockNECStore, extendLockFormStore, timeStore } = this.props.root as RootStore
-    const { userAddress } = this.props
-
+  renderDurationSelector = (renderData: RenderData) => {
+    const { isReleaseable, maxExtension, rangeStart, duration, isReleased } = renderData
     let numCells = 4
-    const { selectedLockId, duration, rangeStart } = extendLockFormStore
-    const now = timeStore.currentTime
-
-    const selectedLock = lockNECStore.getUserTokenLocks(userAddress).get(selectedLockId) as Lock
-    const maxExtension = lockNECStore.calcMaxExtension(selectedLock.batchDuration)
-
-    const isReleaseable = lockNECStore.isReleaseable(now, selectedLock)
-
-    console.log(selectedLock)
-    console.log(maxExtension)
-
-    if (maxExtension <= 0) {
-      return this.renderLockAtMaxDuration()
-    }
 
     if (maxExtension < 4) {
       numCells = maxExtension
@@ -102,8 +86,8 @@ class ExtendLockPanel extends React.Component<any, any>{
     )
   }
 
-  renderPending(values) {
-    const { selectedLockId, releaseableDate, duration } = values
+  renderPending(renderData: RenderData) {
+    const { selectedLockId, releaseableDate, duration } = renderData
     const batchText = helpers.getBatchText(duration)
     return (
       <LoadingCircle instruction={`Extend Lock #${selectedLockId}`} subinstruction={`${duration} ${batchText} - Unlock on ${releaseableDate}`} />
@@ -111,7 +95,7 @@ class ExtendLockPanel extends React.Component<any, any>{
   }
 
   renderLockAtMaxDuration() {
-    return <PanelExplainer text={tooltip.noUserLocks} tooltip={tooltip.lockTokenExplainer} />
+    return <PanelExplainer text={tooltip.lockAtMaxDuration} tooltip={tooltip.lockAtMaxDurationTooltip} />
   }
 
   renderNoLocks() {
@@ -126,8 +110,18 @@ class ExtendLockPanel extends React.Component<any, any>{
     return <PanelExplainer text={tooltip.lockingEndedLockInstruction} tooltip={tooltip.lockingEndedLockExplainer_tab2} />
   }
 
-  LockForm(values) {
-    const { hasLocks, isLockSelected, releaseableDate, buttonText, enabled, isLockingEnded } = values
+  renderAlreadyExpired() {
+    return <PanelExplainer text={tooltip.lockAlreadyExpired} tooltip={tooltip.lockAlreadyExpiredTooltip} />
+  }
+
+  renderAlreadyReleased() {
+    return <PanelExplainer text={tooltip.lockAlreadyReleased} tooltip={tooltip.lockAlreadyReleasedTooltip} />
+  }
+
+  LockForm(renderData: RenderData) {
+    const { hasLocks, isLockSelected, releaseableDate, buttonText, isLockingStarted, isLockingEnded, isReleaseable, maxExtension, isReleased } = renderData
+
+    const lockingEnabled = isLockingStarted && !isLockingEnded && !isReleaseable && maxExtension > 0
 
     if (isLockingEnded) {
       return this.renderLockingEnded()
@@ -141,9 +135,21 @@ class ExtendLockPanel extends React.Component<any, any>{
       return this.renderNoLockSelected()
     }
 
+    if (isReleased) {
+      return this.renderAlreadyReleased()
+    }
+
+    if (isReleaseable) {
+      return this.renderAlreadyExpired()
+    }
+
+    if (maxExtension <= 0) {
+      return this.renderLockAtMaxDuration()
+    }
+
     return (
       <React.Fragment>
-        {this.renderDurationSelector()}
+        {this.renderDurationSelector(renderData)}
         <LockFormWrapper>
         </LockFormWrapper>
         <ReleaseableDateWrapper>
@@ -151,7 +157,7 @@ class ExtendLockPanel extends React.Component<any, any>{
           <ReleaseableDate>{releaseableDate}</ReleaseableDate>
         </ReleaseableDateWrapper>
         {
-          enabled ? <ActiveButton onClick={() => { this.extendLock() }}>{buttonText}</ActiveButton> :
+          lockingEnabled ? <ActiveButton onClick={() => { this.extendLock() }}>{buttonText}</ActiveButton> :
             <InactiveButton>{buttonText}</InactiveButton>
         }
       </React.Fragment >)
@@ -169,8 +175,8 @@ class ExtendLockPanel extends React.Component<any, any>{
 
   render() {
     const { lockNECStore, extendLockFormStore, timeStore, tokenStore } = this.props.root as RootStore
-    const { buttonText, pending, enabled, userAddress, hasLocks } = this.props
-    const necTokanAddress = deployed.NectarToken
+    const { buttonText, pending, userAddress, hasLocks } = this.props
+    const necTokenAddress = deployed.NectarToken
 
     // The release batch is now + (batchTime * duration)
     const now = timeStore.currentTime
@@ -179,30 +185,65 @@ class ExtendLockPanel extends React.Component<any, any>{
     // Also, if the user HAS no locks - we need to disable this form.
     // We need to set the default lockID appropriately - to one the user owns.
 
-    const userBalance = helpers.fromWei(tokenStore.getBalance(necTokanAddress, userAddress))
+    const userBalance = helpers.fromWei(tokenStore.getBalance(necTokenAddress, userAddress))
     const releaseableTimestamp = lockNECStore.calcReleaseableTimestamp(now, duration)
     const isLockingStarted = lockNECStore.isLockingStarted()
     const isLockingEnded = lockNECStore.isLockingEnded()
-
     const isLockSelected = extendLockFormStore.isLockSelected
-
     const releaseableDate = helpers.timestampToDate(releaseableTimestamp)
 
 
+    let renderData: RenderData = {
+      selectedLockId,
+      isLockSelected,
+      isLockingStarted,
+      isLockingEnded,
+      hasLocks,
+      buttonText,
+      duration,
+      releaseableTimestamp,
+      releaseableDate,
+      userBalance,
+      rangeStart,
+      maxExtension: 0,
+      isReleaseable: false,
+      isReleased: false,
+    }
 
-    const values = {
-      selectedLockId, hasLocks, isLockSelected, releaseableDate, buttonText, enabled, userBalance, duration, isLockingEnded
+    if (isLockSelected) {
+      renderData.selectedLock = lockNECStore.getUserTokenLocks(userAddress).get(selectedLockId) as Lock
+      renderData.maxExtension = lockNECStore.calcMaxExtension(renderData.selectedLock.batchDuration)
+      renderData.isReleaseable = lockNECStore.isReleaseable(now, renderData.selectedLock)
+      renderData.isReleased = renderData.selectedLock.released
     }
 
     return (
       <PanelWrapper>
         {pending ?
-          this.renderPending(values) :
-          this.LockForm(values)
+          this.renderPending(renderData) :
+          this.LockForm(renderData)
         }
       </PanelWrapper >
     )
   }
+}
+
+interface RenderData {
+  selectedLock?: Lock;
+  selectedLockId: string;
+  maxExtension: number;
+  isLockSelected: boolean;
+  isLockingStarted: boolean;
+  isLockingEnded: boolean;
+  hasLocks: boolean;
+  buttonText: string;
+  duration: number;
+  releaseableTimestamp: number;
+  userBalance: string;
+  releaseableDate: string;
+  isReleaseable: boolean;
+  rangeStart: number;
+  isReleased: boolean;
 }
 
 export default ExtendLockPanel

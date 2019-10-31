@@ -21,7 +21,13 @@ export const tooltip = {
     lockingEndedExtendExplainer: `Tokens can no longer be locked for reputation. You can release tokens from existing locks on the 'Your Locks' tab.`,
     lockingNotStartedInstruction: `Once you have token locks, you can view & extend them here.`,
     lockAtMaximumDurationInstruction: `This lock is already at maximum duration.`,
-    bidExplainer: `You can bid GEN in a series of auctions to receive Reputation.`
+    bidExplainer: `You can bid GEN in a series of auctions to receive Reputation.`,
+    lockAtMaxDuration: `The selected lock is already at the maximum duration.`,
+    lockAtMaxDurationTooltip: `Locks cannot be extended past the maximum duration of 12 months.`,
+    lockAlreadyExpired: `The selected lock has already past its releaseable date and cannot be extended.`,
+    lockAlreadyExpiredTooltip: `You can release the tokens from this lock with the corresponding 'Release' button in the table.`,
+    lockAlreadyReleased: `The selected lock has already been released and cannot be extended.`,
+    lockAlreadyReleasedTooltip: `You can create a new lock on the 'All Periods' tab.`,
 }
 
 export const logs = {

@@ -482,7 +482,6 @@ export default class LockNECStore {
     addUserTotalsFromLocks(locks: Locks, batches: Batches): Batches {
         locks.forEach(lock => {
             const lockBatchId = lock.lockingBatch
-            console.log('lock-scores', lockBatchId, lock.scores)
             const batch = batches.get(lockBatchId) as Batch
             batch.userLocked = batch.userLocked.plus(lock.amount)
             batches.set(lockBatchId, batch)
@@ -493,8 +492,6 @@ export default class LockNECStore {
                 batches.set(key, batch)
             })
         });
-
-        console.log('post-user-calc batches', batches)
         return batches
     }
 
@@ -518,13 +515,8 @@ export default class LockNECStore {
             const finalBatch = this.getFinalBatchIndex()
             const currentBatch = this.getActiveLockingBatch()
 
-            let lastIndex = finalBatch
-            if (currentBatch < finalBatch) {
-                lastIndex = currentBatch
-            }
-
             // Initialize
-            for (let i = 0; i <= lastIndex; i++) {
+            for (let i = 0; i <= finalBatch; i++) {
                 batches.set(i, newBatch(i))
             }
 
@@ -532,13 +524,17 @@ export default class LockNECStore {
 
             const ZERO = new BigNumber(0)
 
-            for (let i = 0; i <= lastIndex; i++) {
+            for (let i = 0; i <= finalBatch; i++) {
                 let batch = batches.get(i) as Batch
 
-                // const totalScore = new BigNumber(await contract.methods.batches(i).call())
-                const totalRep = new BigNumber(await contract.methods.getRepRewardPerBatch(i).call())
-                const totalScore = new BigNumber(await contract.methods.batches(i).call())
-                console.log('totalScore', i, totalScore.toString())
+                let totalRep = ZERO
+                let totalScore = ZERO
+                if (i < currentBatch + this.staticParams.maxLockingBatches) {
+                    // const totalScore = new BigNumber(await contract.methods.batches(i).call())
+                    totalRep = new BigNumber(await contract.methods.getRepRewardPerBatch(i).call())
+                    totalScore = new BigNumber(await contract.methods.batches(i).call())
+                    // console.log('totalScore', i, totalScore.toString())
+                }
 
                 const userLocked = batch.userLocked
                 const userScore = batch.userScore

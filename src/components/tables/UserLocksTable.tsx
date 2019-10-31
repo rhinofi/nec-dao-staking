@@ -125,7 +125,7 @@ class UserLocksTable extends React.Component<any, any> {
             const batchId = lockNECStore.getActiveLockingBatch()
 
             if (!isReleasable && isExtendable) {
-                return <TableButton onClick={() => { this.extend(lockId, batchesToExtend, batchId) }}>Release</TableButton>
+                return <DisabledText>Extend</DisabledText>
             }
 
             if (released) {

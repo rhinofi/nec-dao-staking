@@ -121,7 +121,13 @@ class LockPanel extends React.Component<any, any>{
 
   incrementRange = (formState: FormState) => {
     const { lockFormStore } = this.props.root as RootStore
-    lockFormStore.rangeStart = formState.rangeStart + 1 < formState.maxDuration - formState.numCells ? formState.rangeStart + 1 : formState.rangeStart
+    const temp = {
+      newRangeStart: formState.rangeStart + 1,
+      maxRangeStart: formState.maxDuration - formState.numCells + 1,
+      newLessThanMax: (formState.rangeStart + 1 <= formState.maxDuration - formState.numCells - 1),
+    }
+    console.log(temp)
+    lockFormStore.rangeStart = formState.rangeStart + 1 <= formState.maxDuration - formState.numCells + 1 ? formState.rangeStart + 1 : formState.rangeStart
   }
 
   cellsToRender(formState: FormState): number {
