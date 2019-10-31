@@ -9,6 +9,7 @@ import BigNumber from "utils/bignumber"
 
 import { Lock, LockStaticParams, Batch, newBatch } from 'types'
 import { RootStore } from './Root'
+import { ProviderState } from './Provider'
 type Scores = Map<number, BigNumber>
 type Locks = Map<string, Lock>
 
@@ -20,11 +21,9 @@ const AGREEMENT_HASH = '0x000000000000000000000000000000000000000000000000000000
 
 const { BN } = helpers
 
-const defaultAsyncActions = {
-    lock: false,
-    extendLock: {},
-    redeem: {},
-    release: {}
+interface UserBatchTotals {
+    locked: BigNumber;
+    score: BigNumber;
 }
 
 export default class LockNECStore {
@@ -479,6 +478,39 @@ export default class LockNECStore {
         return Number(currentBatch) - 1
     }
 
+    calcUserTotalsFromLocks(locks: Locks): Map<number, UserBatchTotals> {
+        const batches = new Map<number, UserBatchTotals>()
+
+        locks.forEach(lock => {
+            const lockBatchId = lock.lockingBatch
+            if (batches.has(lockBatchId)) {
+                const current = batches.get(lockBatchId) as UserBatchTotals
+                current.locked = current.locked.plus(lock.amount)
+                batches.set(lockBatchId, current)
+            } else {
+                batches.set(lockBatchId, {
+                    locked: lock.amount,
+                    score: new BigNumber(0)
+                })
+            }
+
+            lock.scores.forEach((score, key) => {
+                if (batches.has(key)) {
+                    const current = batches.get(key) as UserBatchTotals
+                    current.score = current.score.plus(score)
+                    batches.set(lockBatchId, current)
+                } else {
+                    batches.set(lockBatchId, {
+                        locked: new BigNumber(0),
+                        score: score
+                    })
+                }
+            })
+        });
+
+        return batches
+    }
+
     /* 
         Returns the 'amount locked' within a given locking batch
         Scores are calculated from each lock and extend lock event
@@ -487,79 +519,59 @@ export default class LockNECStore {
         const contract = this.loadContract()
         const batches = new Map<number, Batch>()
 
-        const currentBlock = this.rootStore.timeStore.currentBlock
-        const nextBlockToFetch = this.nextBlockToFetch
-
-        /*  We want to only get data up to the most recent user locks fetched
-            We also _require_ that that is already fetched, becuase we're dependent on those score calcuations
-
-            How do we get things?
-
-            User Score: 
-            Sum up the scores from all the locks, for each batch
-
-            Total Score: 
-            Read directly from the contract
-
-            User Locked: 
-            Sum up the values from all the locks, for the batch it was locked in only.
-
-            Total Locked:
-            We actually can't get this without reading every event that ever happened.... We'll have to estimate it from the total score
-
-            User REP:
-            Run a local calculation from the total REP * score / total score
-
-            Total REP:
-            Not sure on the calculation here.... I think it's a read
-
-            Is Complete;
-            A simple time calcuation.
-            We set the 'completedBatchIndex' to the latest one that's complete so we don't fetch old data again.
-            Hopefully - we can do the initial load in the background for a while, however, this being the first page shown doesn't bode well for that!
-
-        */
+        const locks = this.getUserTokenLocks(user)
 
         log.debug(prefix.FETCH_PENDING, 'Batches', user)
         try {
+            if (!locks) {
+                throw new Error('User locks must be loaded')
+            }
+
             const sessionId = this.rootStore.dataFetcher.getCurrentSessionId()
-            const lastCompletedBatch = this.getLastCompletedBatch()
+            const finalBatch = this.getFinalBatchIndex()
             const currentBatch = this.getActiveLockingBatch()
 
-            for (let i = 0; i <= lastCompletedBatch + 1; i++) {
+            let lastIndex = finalBatch
+            if (currentBatch < finalBatch) {
+                lastIndex = currentBatch
+            }
+
+            // Initialize
+            for (let i = 0; i <= lastIndex; i++) {
                 batches.set(i, newBatch(i))
             }
 
-            const lockEvents = await contract.getPastEvents(LOCK_EVENT, {
-                fromBlock: 0,
-                toBlock: 'latest'
-            })
 
-            for (let event of lockEvents) {
-                const lock = await this.parseLockEvent(event)
 
-                let batch = batches.get(lock.lockingBatch) as Batch
-                batch.totalLocked = batch.totalLocked.plus(lock.amount)
+            const userTotals = this.calcUserTotalsFromLocks(locks)
 
-                if (lock.locker === user) {
-                    batch.userLocked = batch.userLocked.plus(lock.amount)
-                }
-            }
+            const ZERO = new BigNumber(0)
 
-            for (let i = 0; i <= lastCompletedBatch + 1; i++) {
+            for (let i = 0; i <= finalBatch; i++) {
                 let batch = batches.get(i) as Batch
 
                 // const totalScore = new BigNumber(await contract.methods.batches(i).call())
                 const totalRep = new BigNumber(await contract.methods.getRepRewardPerBatch(i).call())
+                const totalScore = new BigNumber(await contract.methods.batches(i).call())
+                console.log('totalScore', i, totalScore.toString())
+                const userTotal = userTotals.get(i) as UserBatchTotals || { locked: ZERO, score: ZERO }
 
-                let userPortion = new BigNumber(0)
-                if (!batch.totalLocked.eq(new BigNumber(0))) {
-                    userPortion = batch.userLocked.div(batch.totalLocked)
+                const userLocked = userTotal.locked
+                const userScore = userTotal.score
+
+                let userPortion = ZERO
+
+                if (!userScore.eq(ZERO) && !totalScore.eq(ZERO)) {
+                    userPortion = userScore.div(totalScore)
                 }
+
                 const userRep = userPortion.times(totalRep)
 
+                batch.userLocked = userLocked
+                batch.userScore = userScore
                 batch.totalRep = totalRep
                 batch.userRep = userRep
+                batch.totalScore = totalScore
 
                 if (i < currentBatch) {
                     batch.isComplete = true
@@ -568,27 +580,13 @@ export default class LockNECStore {
                 batches.set(i, batch)
             }
 
-            // Object.keys(batches).forEach(key => {
-            //     const batchId = batches[key].id
-            //     const userLocked = batches[key].userLocked.toString()
-            //     const totalLocked = batches[key].totalLocked.toString()
-            //     const totalRep = batches[key].totalRep.toString()
-            //     const userRep = batches[key].userRep.toString()
-
-            //     const printBatch = {
-            //         batchId, userLocked, totalLocked, totalRep, userRep
-            //     }
-
-            //     console.log('batch', printBatch)
-            // })
-
             const isDataStillValid = this.rootStore.dataFetcher.validateFetch(user, sessionId)
             if (isDataStillValid) {
                 this.batchesLoaded = true
                 this.batches = batches
 
                 log.debug(prefix.FETCH_SUCCESS, 'Batches', user)
-                // console.log('batches', batches)
+                console.log('batches', batches)
 
             } else {
                 log.error(prefix.FETCH_STALE, 'Batches', user)
@@ -648,5 +646,4 @@ export default class LockNECStore {
         }
 
     }
-
 }

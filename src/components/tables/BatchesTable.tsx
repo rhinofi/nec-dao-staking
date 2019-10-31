@@ -9,8 +9,8 @@ import { Batch } from 'types';
 const columns = [
     { name: 'Period', key: 'batchIdDisplay', width: '15%', align: 'left' },
     { name: 'You Locked', key: 'userLocked', width: '25%', align: 'right' },
-    { name: 'Total Locked', key: 'totalLocked', width: '25%', align: 'right' },
-    { name: 'Rep Received', key: 'userRep', width: '30%', align: 'right' },
+    { name: 'Total Distributed', key: 'totalRep', width: '25%', align: 'right' },
+    { name: 'You Received', key: 'userRep', width: '30%', align: 'right' },
 ]
 
 @inject('root')
@@ -24,8 +24,8 @@ class BatchesTable extends React.Component<any, any>{
                 batchId: batch.id,
                 batchIdDisplay: batch.id + 1,
                 userLocked: helpers.tokenDisplay(batch.userLocked),
-                totalLocked: helpers.tokenDisplay(batch.totalLocked),
-                userRep: batch.userRep ? '#todo' : 'In Progress',
+                totalRep: helpers.tokenDisplay(batch.totalRep),
+                userRep: batch.userRep ? helpers.tokenDisplay(batch.userRep) : 'In Progress',
                 // userRep: helpers.fromRep(data[key].userRep.toString())
                 isComplete: batch.isComplete
             }

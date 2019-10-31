@@ -12,11 +12,20 @@ export const BN = require('bn.js');
 
 export const timeConstants = {
   inSeconds: {
+    MONTH: 2592000,
     DAY: 86400,
     HOUR: 3600,
     MINUTE: 60,
     SECOND: 1
   }
+}
+
+export enum TimeMode {
+  SECONDS,
+  MINUTES_SECONDS,
+  HOURS_MINUTES,
+  DAYS_HOURS,
+  MONTHS_DAYS
 }
 
 const { toBN, isAddress } = Web3.utils;
@@ -53,6 +62,56 @@ export function fromWei(value: string | BigNumber): string {
 
 export function isNumeric(num) {
   return !isNaN(num)
+}
+
+function getTimeModeByDuration(seconds: number): TimeMode {
+  const { MONTH, DAY, HOUR, MINUTE, SECOND } = timeConstants.inSeconds
+  let timeMode = TimeMode.SECONDS
+  if (seconds > SECOND) {
+    timeMode = TimeMode.SECONDS
+  }
+
+  if (seconds > MINUTE) {
+    timeMode = TimeMode.MINUTES_SECONDS
+  }
+
+  if (seconds > HOUR) {
+    timeMode = TimeMode.HOURS_MINUTES
+  }
+
+  if (seconds > DAY) {
+    timeMode = TimeMode.DAYS_HOURS
+  }
+
+  if (seconds > MONTH) {
+    timeMode = TimeMode.MONTHS_DAYS
+  }
+  return timeMode
+}
+export function formatTimeRemaining(seconds: number) {
+  const { MONTH, DAY, HOUR, MINUTE, SECOND } = timeConstants.inSeconds
+  const timeMode = getTimeModeByDuration(seconds)
+
+  if (timeMode === TimeMode.SECONDS) {
+    return `${seconds} ${secondText(seconds)}`
+  }
+
+  if (timeMode === TimeMode.MINUTES_SECONDS) {
+    const minutesValue = Math.trunc(seconds / MINUTE)
+    const secondsValue = seconds - (minutesValue * MINUTE)
+    return `${minutesValue} ${minuteText(minutesValue)}, ${secondsValue} ${secondText(secondsValue)}`
+  }
+
+  if (timeMode === TimeMode.HOURS_MINUTES) {
+    const hoursValue = Math.trunc(seconds / HOUR)
+    const minutesValue = Math.trunc((seconds - (hoursValue * HOUR)) / MINUTE)
+    return `${hoursValue} ${hourText(hoursValue)}, ${minutesValue} ${minuteText(minutesValue)}`
+  }
+
+}
+
+function monthText(value) {
+  return (value === 1 ? 'Month' : 'Months')
 }
 
 function dayText(value) {

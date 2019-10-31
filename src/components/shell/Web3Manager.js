@@ -2,8 +2,6 @@ import React, { useEffect } from 'react'
 import { useWeb3Context } from 'web3-react'
 import { observer, inject } from "mobx-react"
 import { activeNetworkId } from 'config.json'
-import ConnectWallet from 'components/common/ConnectWallet'
-import ConnectMainNet from 'components/common/ConnectMainNet'
 
 // This component must be a child of <App> to have access to the appropriate context
 const Web3Manager = inject('root')(observer((props) => {
@@ -15,36 +13,27 @@ const Web3Manager = inject('root')(observer((props) => {
     }, [])
 
     if (!context.active && !context.error) {
-        // loading
-        console.log('loading')
-        // Return Loading Thing
-        return <React.Fragment><p>{context.account}</p></React.Fragment>
+        //loading
+        props.root.providerStore.setState(0)
+        return <React.Fragment>{props.children}</React.Fragment>
     } else if (context.error) {
         //error
         console.log('error')
+        props.root.providerStore.setState(1)
         // Return Error Thing
-        return <React.Fragment><ConnectWallet /></React.Fragment>
+        return <React.Fragment>{props.children}</React.Fragment>
     } else {
         // success
         console.log('success')
         console.log('context', context)
 
-        /* This is triggered if the account changes too */
-        console.log('context.networkId', context.networkId)
-
-        // Return Window OR wrong network
-        if (context.networkId === activeNetworkId) {
-            props.root.providerStore.setWeb3WebClient(context.library, true)
-            return <React.Fragment><p>{context.account}</p>{props.children}</React.Fragment>
-        } else {
-            props.root.providerStore.setWeb3WebClient(context.library, false)
-            return <React.Fragment>
-                <p>{context.account}</p>
-                <p>{context.networkId + ` ` + activeNetworkId}</p>
-                <ConnectMainNet />
-            </React.Fragment>
-        }
-
+        props.root.providerStore.setState(2)
+        props.root.providerStore.setWeb3WebClient(context, context.library, true)
+        return <React.Fragment>
+            <p>{context.account}</p>
+            <p>{context.networkId + ` ` + activeNetworkId}</p>
+            {props.children}
+        </React.Fragment>
     }
 }))
 

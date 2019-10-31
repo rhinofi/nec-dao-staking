@@ -1,6 +1,9 @@
 import { observable, action, computed } from 'mobx'
 import Promise from "bluebird";
 import log from 'loglevel';
+import Web3 from 'web3';
+import { RootStore } from './Root';
+import { activeNetworkId } from 'config.json'
 
 const errors = {
     setAccount: 'Set Account Failed',
@@ -32,11 +35,21 @@ const schema = {
 
 const objects = {}
 
+export enum ProviderState {
+    LOADING,
+    ERROR,
+    SUCCESS
+}
+
 export default class ProviderStore {
-    @observable web3 = null;
+    @observable web3!: Web3;
+    @observable context: any
     @observable defaultAccount = '';
     @observable isProviderSet = false;
     @observable isAccountSet = false;
+    @observable state: ProviderState = ProviderState.LOADING
+
+    rootStore: RootStore
 
     constructor(rootStore) {
         this.rootStore = rootStore;
@@ -69,10 +82,6 @@ export default class ProviderStore {
 
     }
 
-    getDefaultAccount = () => {
-        return this.defaultAccount
-    }
-
     resetData = () => {
         const { lockNECStore, bidGENStore, airdropStore } = this.rootStore
         lockNECStore.resetData()
@@ -83,7 +92,8 @@ export default class ProviderStore {
     /*  Set a new web3 provider - for now, we only allow injected clients.
         Set the accounts, and reset all polling intervals for fetching data.
     */
-    @action setWeb3WebClient = async (provider, setIntervals) => {
+    @action setWeb3WebClient = async (context, provider, setIntervals) => {
+        this.context = context
         this.web3 = provider
         await this.setAccount()
         this.clearIntervals()
@@ -94,11 +104,19 @@ export default class ProviderStore {
         }
     }
 
+    getState(): ProviderState {
+        return this.state
+    }
+
+    setState(value: ProviderState) {
+        this.state = value
+    }
+
     getAccounts = () => {
         return promisify(this.web3.eth.getAccounts)();
     }
 
-    loadObject = (type, address, label = null) => {
+    loadObject = (type, address, label?) => {
         const object = new this.web3.eth.Contract(schema[type].abi, address, { from: this.getDefaultAccount() });
         if (label) {
             objects[label] = object;
@@ -106,12 +124,8 @@ export default class ProviderStore {
         return object;
     }
 
-    getDefaultAccount = () => {
-        return this.web3.eth.defaultAccount;
-    }
-
-    getCurrentProviderName = () => {
-        return this.web3.currentProvider.name;
+    getDefaultAccount = (): string => {
+        return this.web3.eth.defaultAccount as string;
     }
 
     getDefaultAccountByIndex = index => {
@@ -135,10 +149,6 @@ export default class ProviderStore {
         console.log(`Address ${account} loaded`);
     }
 
-    getNetwork = () => {
-        return promisify(this.web3.version.getNetwork)();
-    }
-
     getGasPrice = () => {
         return promisify(this.web3.eth.getGasPrice)();
     }
@@ -159,8 +169,8 @@ export default class ProviderStore {
         return promisify(this.web3.eth.getTransactionCount)(address, "pending");
     }
 
-    getNode = () => {
-        return promisify(this.web3.version.getNode)();
+    providerHasCorrectNetwork() {
+        return this.context.networkId === activeNetworkId
     }
 
     getBlock = block => {

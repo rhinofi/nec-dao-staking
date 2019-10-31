@@ -72,8 +72,8 @@ export default class DataFetcher {
         await tokenStore.fetchAllowance(necTokenAddress, userAddress, lockSchemeAddress)
 
         if (lockNECStore.isLockingStarted()) {
-            await lockNECStore.fetchBatches(userAddress)
             await lockNECStore.fetchUserLocks(userAddress)
+            await lockNECStore.fetchBatches(userAddress)
         }
     }
 

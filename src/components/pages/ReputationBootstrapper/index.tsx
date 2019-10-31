@@ -8,6 +8,9 @@ import LockNEC from './LockNEC'
 import Airdrop from './Airdrop'
 import BidGEN from './BidGEN'
 import { RootStore } from 'stores/Root';
+import ConnectWallet from 'components/common/ConnectWallet'
+import ConnectMainNet from 'components/common/ConnectMainNet'
+import { ProviderState } from 'stores/Provider';
 
 const check = {
   defaultAccount: '[Check] Default Account'
@@ -32,28 +35,52 @@ const SectionWrapper = styled.div`
 @inject('root')
 @observer
 class ReputationBoostrapper extends React.Component<any, any> {
-  render() {
+
+  renderWidgetWindow() {
+    return (
+      <Switch>
+        <Route exact path="/lock-nec">
+          <LockNEC />
+        </Route>
+        <Route exact path="/airdrop">
+          <Airdrop />
+        </Route>
+        <Route exact path="/bid-gen">
+          <BidGEN />
+        </Route>
+        <Route exact path="/">
+          <LockNEC />
+        </Route>
+      </Switch>
+    )
+  }
+
+  renderContents() {
     const { providerStore } = this.props.root as RootStore
 
-    if (!providerStore.web3) {
-      return <div>Loading Provider...</div>
+    if (providerStore.getState() === ProviderState.LOADING) {
+      return <ConnectWallet />
     }
 
+    if (providerStore.getState() === ProviderState.ERROR) {
+      return <ConnectWallet />
+    }
+
+    if (providerStore.getState() === ProviderState.SUCCESS) {
+      if (providerStore.providerHasCorrectNetwork()) {
+        return this.renderWidgetWindow()
+      } else {
+        return <ConnectMainNet />
+      }
+    }
+  }
+
+  render() {
     return (
       <RootWrapper>
         <Selector height="196px" />
         <SectionWrapper>
-          <Switch>
-            <Route exact path="/lock-nec">
-              <LockNEC />
-            </Route>
-            <Route exact path="/airdrop">
-              <Airdrop />
-            </Route>
-            <Route exact path="/bid-gen">
-              <BidGEN />
-            </Route>
-          </Switch>
+          {this.renderContents()}
         </SectionWrapper>
       </RootWrapper>
     )
