@@ -481,6 +481,9 @@ export default class LockNECStore {
     calcUserTotalsFromLocks(locks: Locks): Map<number, UserBatchTotals> {
         const batches = new Map<number, UserBatchTotals>()
 
+        let locked = {}
+        let scores = {}
+
         locks.forEach(lock => {
             const lockBatchId = lock.lockingBatch
             if (batches.has(lockBatchId)) {
@@ -541,13 +544,11 @@ export default class LockNECStore {
                 batches.set(i, newBatch(i))
             }
 
-
-
             const userTotals = this.calcUserTotalsFromLocks(locks)
 
             const ZERO = new BigNumber(0)
 
-            for (let i = 0; i <= finalBatch; i++) {
+            for (let i = 0; i <= lastIndex; i++) {
                 let batch = batches.get(i) as Batch
 
                 // const totalScore = new BigNumber(await contract.methods.batches(i).call())

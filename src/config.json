@@ -7,5 +7,14 @@
         "NectarToken": "0x05a047c9bd8f36b0d9f8ad146176eba821b3a3ae",
         "GenToken": "0x543Ff227F64Aa17eA132Bf9886cAb5DB55DCAddf"
     },
-    "activeNetworkId": 4
+    "activeNetworkId": 4,
+    "lockNEC": {
+        "totalRep": "850000"
+    },
+    "bidGEN": {
+        "totalRep": "50000"
+    },
+    "airdrop": {
+        "totalRep": "100000"
+    }
 }

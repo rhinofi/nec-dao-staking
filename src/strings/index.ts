@@ -10,7 +10,7 @@ export const prefix = {
 
 export const tooltip = {
     airdropBlocknumber: `The airdrop Repuatation is distributed based on the Nectar token balances at this block.`,
-    lockTokenExplainer: `You can lock Nectar tokens to recieve Reputation in the NectarDAO. The longer you lock the tokens for, the more Reputation you will recieve.`,
+    lockTokenExplainer: `You can lock Nectar tokens to recieve Reputation in the NectarDAO. The longer you lock your tokens for, the more Reputation you will recieve.`,
     noUserLocks: `Looks like you haven't locked any tokens yet! Go to the \'All Batches\' tab to create a new token lock`,
     extendLockInstruction: `Select one of your locks in the table to extend it.`,
     extendLockExplainer: `You can extend a token lock beyond it's original duration to continue receiving Reptuation. Note that the total time locked still cannot exceed the maximum locking duration of 12 months.`,

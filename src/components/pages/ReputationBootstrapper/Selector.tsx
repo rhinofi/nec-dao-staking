@@ -7,7 +7,7 @@ import EthFinexLogo from 'assets/pngs/NECwithoutText.png'
 import GENLogo from 'assets/svgs/GEN-logo.svg'
 import StarIcon from 'assets/svgs/star.svg'
 import styled from 'styled-components'
-
+import { lockNEC, bidGEN, airdrop } from 'config.json'
 const HeaderWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -89,8 +89,24 @@ const InactiveButton = styled(ActiveButton)`
   color: var(--inactive-header-text);
 `
 
-const Selector = ({ height }) => {
+const getCurrentSchemeTotalRep = (pathname) => {
+  switch (pathname) {
+    case '/lock-nec':
+      return lockNEC.totalRep
+    case '/bid-gen':
+      return bidGEN.totalRep
+    case '/airdrop':
+      return airdrop.totalRep
+    case '/':
+      return lockNEC.totalRep
+  }
+}
+
+const Selector = withRouter((props) => {
+  const { height } = props
   const [selected, setSelected] = React.useState(0)
+
+  const currentSchemeTotalRep = getCurrentSchemeTotalRep(props.location.pathname)
 
   const Button = withRouter(
     ({
@@ -143,10 +159,10 @@ const Selector = ({ height }) => {
         <StarWrapper>
           <Star src={StarIcon} />
         </StarWrapper>
-        <TotalRepText>{`Total Rewardable Reputation (Voting Power) - 1000000 REP`}</TotalRepText>
+        <TotalRepText>{`Total Rewardable Reputation (Voting Power) - ${currentSchemeTotalRep} REP`}</TotalRepText>
       </TotalRepWrapper>
     </HeaderWrapper>
   )
-}
+})
 
 export default Selector
