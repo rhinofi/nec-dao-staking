@@ -258,7 +258,7 @@ class Airdrop extends React.Component<any, any>{
     }
 
     const necBalanceDisplay = helpers.tokenDisplay(necBalance)
-    const repBalanceDisplay = helpers.tokenDisplay(userData.rep)
+    const repDisplay = helpers.tokenDisplay(userData.rep)
 
     return (
       <AirdropWrapper>
@@ -273,7 +273,7 @@ class Airdrop extends React.Component<any, any>{
         />
         <Divider width="80%" margin="20px 0px 20px 0px" />
         <InfoLine title="Nectar Balance" info={necBalanceDisplay} hasTooltip={false} />
-        <InfoLine title="Receive Voting Power" info={repBalanceDisplay} hasTooltip={false} />
+        <InfoLine title="Receive Voting Power" info={repDisplay} hasTooltip={false} />
         <Divider width="80%" margin="20px 0px 20px 0px" />
         <InfoLine title="Airdrop Blocknumber" info={snapshotBlock} hasTooltip={true} />
         <InfoLine title="Current Blocknumber" info={currentBlock} hasTooltip={false} />

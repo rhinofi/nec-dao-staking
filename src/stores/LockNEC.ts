@@ -12,6 +12,7 @@ import { RootStore } from './Root'
 import { ProviderState } from './Provider'
 type Scores = Map<number, BigNumber>
 type Locks = Map<string, Lock>
+type Batches = Map<number, Batch>
 
 const objectPath = require("object-path")
 const LOCK_EVENT = 'LockToken'
@@ -325,14 +326,14 @@ export default class LockNECStore {
         return scores
     }
 
-    calcLockScores(lock): Map<number, BigNumber> {
-        const { lockingBatch, duration, amount } = lock
+    calcLockScores(lock: Lock): Map<number, BigNumber> {
+        const { lockingBatch, batchDuration, amount } = lock
         const batchIndexToLockIn = lockingBatch
         const scores = new Map<number, BigNumber>()
 
-        for (let p = 0; p < duration; p++) {
+        for (let p = 0; p < batchDuration; p++) {
             const batchId = batchIndexToLockIn + p
-            const diff = new BigNumber((duration - p))
+            const diff = new BigNumber((batchDuration - p))
             const score = (diff).times(amount);
             scores.set(batchId, score)
         }
@@ -478,39 +479,22 @@ export default class LockNECStore {
         return Number(currentBatch) - 1
     }
 
-    calcUserTotalsFromLocks(locks: Locks): Map<number, UserBatchTotals> {
-        const batches = new Map<number, UserBatchTotals>()
-
-        let locked = {}
-        let scores = {}
-
+    addUserTotalsFromLocks(locks: Locks, batches: Batches): Batches {
         locks.forEach(lock => {
             const lockBatchId = lock.lockingBatch
-            if (batches.has(lockBatchId)) {
-                const current = batches.get(lockBatchId) as UserBatchTotals
-                current.locked = current.locked.plus(lock.amount)
-                batches.set(lockBatchId, current)
-            } else {
-                batches.set(lockBatchId, {
-                    locked: lock.amount,
-                    score: new BigNumber(0)
-                })
-            }
+            console.log('lock-scores', lockBatchId, lock.scores)
+            const batch = batches.get(lockBatchId) as Batch
+            batch.userLocked = batch.userLocked.plus(lock.amount)
+            batches.set(lockBatchId, batch)
 
             lock.scores.forEach((score, key) => {
-                if (batches.has(key)) {
-                    const current = batches.get(key) as UserBatchTotals
-                    current.score = current.score.plus(score)
-                    batches.set(lockBatchId, current)
-                } else {
-                    batches.set(lockBatchId, {
-                        locked: new BigNumber(0),
-                        score: score
-                    })
-                }
+                const batch = batches.get(key) as Batch
+                batch.userScore = batch.userScore.plus(score)
+                batches.set(key, batch)
             })
         });
 
+        console.log('post-user-calc batches', batches)
         return batches
     }
 
@@ -520,7 +504,7 @@ export default class LockNECStore {
     */
     async fetchBatches(user: string) {
         const contract = this.loadContract()
-        const batches = new Map<number, Batch>()
+        let batches = new Map<number, Batch>()
 
         const locks = this.getUserTokenLocks(user)
 
@@ -544,7 +528,7 @@ export default class LockNECStore {
                 batches.set(i, newBatch(i))
             }
 
-            const userTotals = this.calcUserTotalsFromLocks(locks)
+            batches = this.addUserTotalsFromLocks(locks, batches)
 
             const ZERO = new BigNumber(0)
 
@@ -555,10 +539,9 @@ export default class LockNECStore {
                 const totalRep = new BigNumber(await contract.methods.getRepRewardPerBatch(i).call())
                 const totalScore = new BigNumber(await contract.methods.batches(i).call())
                 console.log('totalScore', i, totalScore.toString())
-                const userTotal = userTotals.get(i) as UserBatchTotals || { locked: ZERO, score: ZERO }
 
-                const userLocked = userTotal.locked
-                const userScore = userTotal.score
+                const userLocked = batch.userLocked
+                const userScore = batch.userScore
 
                 let userPortion = ZERO
 

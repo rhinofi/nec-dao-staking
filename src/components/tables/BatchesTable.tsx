@@ -7,10 +7,10 @@ import { RootStore } from 'stores/Root';
 import { Batch } from 'types';
 
 const columns = [
-    { name: 'Period', key: 'batchIdDisplay', width: '15%', align: 'left' },
+    { name: 'Period', key: 'batchIdDisplay', width: '10%', align: 'left' },
     { name: 'You Locked', key: 'userLocked', width: '25%', align: 'right' },
-    { name: 'Total Distributed', key: 'totalRep', width: '25%', align: 'right' },
-    { name: 'You Received', key: 'userRep', width: '30%', align: 'right' },
+    { name: 'Total Distributed', key: 'totalRep', width: '30%', align: 'right' },
+    { name: 'You Received', key: 'userRep', width: '25%', align: 'right' },
 ]
 
 @inject('root')

@@ -1,7 +1,7 @@
 import React from 'react'
 import { PanelText } from 'components/common'
 import { PanelWrapper, LockFormWrapper, LockAmountWrapper, LockAmountForm, ReleaseableDateWrapper, ReleaseableDate } from './LockPanel'
-import Tooltip from '../Tooltip'
+import Tooltip from '../common/Tooltip'
 
 interface Props {
     text: string

@@ -115,9 +115,9 @@ export default class DataFetcher {
         if (currentBlock > this.lastFetchAttempt) {
             this.lastFetchAttempt = currentBlock
             try {
-                await this.fetchLockingData(userAddress)
                 await this.fetchAirdropData(userAddress)
                 await this.fetchAuctionData(userAddress)
+                await this.fetchLockingData(userAddress)
                 this.lastFetchSuccess = currentBlock
             } catch (e) {
                 //refetch this block

@@ -7,7 +7,7 @@ import LoadingCircle from '../common/LoadingCircle';
 import TableButton from 'components/common/buttons/TableButton'
 import DisabledText from 'components/common/DisabledText'
 import Popup from "reactjs-popup";
-import ExtendLockPopup from '../common/panels/ExtendLockPopup';
+import ExtendLockPopup from '../panels/ExtendLockPopup';
 import 'components/common/Modal.scss'
 
 import BigNumber from "utils/bignumber"

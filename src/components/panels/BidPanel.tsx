@@ -7,7 +7,7 @@ import { MaxButton } from './LockPanel'
 import { PanelText } from 'components/common'
 import InactiveButton from 'components/common/buttons/InactiveButton'
 import ActiveButton from 'components/common/buttons/ActiveButton'
-import LoadingCircle from '../LoadingCircle';
+import LoadingCircle from '../common/LoadingCircle';
 import { deployed } from 'config.json'
 import { RootStore } from 'stores/Root';
 import BigNumber from 'utils/bignumber';

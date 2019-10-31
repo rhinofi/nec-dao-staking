@@ -5,7 +5,7 @@ import { observer, inject } from 'mobx-react'
 import ActiveButton from 'components/common/buttons/ActiveButton'
 import InactiveButton from 'components/common/buttons/InactiveButton'
 import * as helpers from 'utils/helpers'
-import LoadingCircle from '../LoadingCircle'
+import LoadingCircle from '../common/LoadingCircle'
 import { deployed } from 'config.json'
 import { ActiveLockingPeriodCell, LockingPeriodCell, LockingPeriodSelectorWrapper, LockingPeriodSelector, LockingPeriodStartCell, LockingPeriodEndCell } from 'components/common/LockingPeriodForm'
 import { RootStore } from 'stores/Root'
@@ -80,6 +80,14 @@ interface RenderData {
   isLockingStarted;
 }
 
+interface FormState {
+  amount: string;
+  duration: number;
+  rangeStart: number;
+  numCells: number;
+  maxDuration: number;
+}
+
 @inject('root')
 @observer
 class LockPanel extends React.Component<any, any>{
@@ -106,26 +114,48 @@ class LockPanel extends React.Component<any, any>{
     lockFormStore.duration = i
   }
 
+  decrementRange = (formState: FormState) => {
+    const { lockFormStore } = this.props.root as RootStore
+    lockFormStore.rangeStart = formState.rangeStart - 1 > 1 ? formState.rangeStart - 1 : 1
+  }
+
+  incrementRange = (formState: FormState) => {
+    const { lockFormStore } = this.props.root as RootStore
+    lockFormStore.rangeStart = formState.rangeStart + 1 < formState.maxDuration - formState.numCells ? formState.rangeStart + 1 : formState.rangeStart
+  }
+
+  cellsToRender(formState: FormState): number {
+    const { maxDuration, numCells } = formState
+    return maxDuration >= numCells ? numCells : maxDuration
+  }
+
+  calcMaxDuration() {
+    const { lockNECStore } = this.props.root as RootStore
+    const batchesRemaining = lockNECStore.getBatchesRemaining()
+    const maxDuration = lockNECStore.staticParams.maxLockingBatches
+
+    return Math.max(0, batchesRemaining < maxDuration ? batchesRemaining : maxDuration)
+  }
 
   renderDurationSelector = () => {
     const { lockNECStore, lockFormStore } = this.props.root as RootStore
-    const { rangeStart } = this.state
+    const { rangeStart, duration, amount } = lockFormStore
 
-    const activeBatch = lockNECStore.getActiveLockingBatch()
-
-    const batchesRemaining = lockNECStore.getBatchesRemaining()
-    const lockDuration = lockFormStore.duration
-
-    let maxLockDuration = lockNECStore.staticParams.maxLockingBatches
-    let numCells = 4
-
-    if (batchesRemaining < 4) {
-      numCells = batchesRemaining
+    let formState: FormState = {
+      amount: amount,
+      duration: duration,
+      rangeStart: rangeStart,
+      numCells: 5,
+      maxDuration: lockNECStore.staticParams.maxLockingBatches,
     }
 
+    formState.maxDuration = this.calcMaxDuration()
+    const cellsToRender = this.cellsToRender(formState)
+    const maxIndex = rangeStart + cellsToRender
+
     const cells: any[] = []
-    for (let i = rangeStart; i <= rangeStart + numCells; i += 1) {
-      if (i === lockDuration) {
+    for (let i = rangeStart; i < maxIndex; i += 1) {
+      if (i === duration) {
         cells.push(<ActiveLockingPeriodCell key={`cell-${i}`}>{i}</ActiveLockingPeriodCell>)
       } else {
         cells.push(
@@ -141,14 +171,14 @@ class LockPanel extends React.Component<any, any>{
         <div>Lock Duration (Months)</div>
         <LockingPeriodSelector>
           <LockingPeriodStartCell onClick={() => {
-            this.setRangeStart(rangeStart > 1 ? rangeStart - 1 : 1)
+            this.decrementRange(formState)
           }}
           >
             {'<'}
           </LockingPeriodStartCell>
           {cells}
           <LockingPeriodEndCell
-            onClick={() => { this.setRangeStart(rangeStart + numCells < maxLockDuration ? rangeStart + 1 : rangeStart) }}
+            onClick={() => { this.incrementRange(formState) }}
           >
             {'>'}
           </LockingPeriodEndCell>
