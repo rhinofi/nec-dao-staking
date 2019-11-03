@@ -157,7 +157,7 @@ export default class TokenStore {
     }
 
     @action fetchSymbol = async (tokenAddress) => {
-        log.debug('[Fetch] Symbol', tokenAddress)
+        log.debug('[Fetch] Symbol', { tokenAddress })
         const token = this.loadContract(tokenAddress)
         const symbol = await token.methods.symbol().call()
         this.symbols.set(tokenAddress, symbol)
@@ -165,20 +165,21 @@ export default class TokenStore {
     }
 
     @action fetchBalanceOf = async (tokenAddress, account) => {
-        log.debug('[Fetch] Balance Of', tokenAddress, account)
+        log.debug('[Fetch] Balance Of', { tokenAddress, account })
         const token = this.loadContract(tokenAddress)
         const balance = await token.methods.balanceOf(account).call()
         this.setBalanceProperty(tokenAddress, account, balance)
-        log.debug('[Complete] Balance Of', tokenAddress, account, balance)
+        log.debug('[Complete] Balance Of', { tokenAddress, account, balance })
     }
 
     @action fetchAllowance = async (tokenAddress, account, spender) => {
-        log.debug('[Fetch] Allowance', tokenAddress, account, spender)
+        log.debug('[Fetch] Allowance',
+            { tokenAddress, account, spender })
         const token = this.loadContract(tokenAddress)
 
         try {
             const allowance = new BigNumber(await token.methods.allowance(account, spender).call())
-            log.debug('[Complete] Allowance', tokenAddress, account, spender, allowance)
+            log.debug('[Complete] Allowance', { tokenAddress, account, spender, allowance })
 
             this.setAllowanceProperty(tokenAddress, account, spender, allowance)
         } catch (e) {

@@ -6,7 +6,6 @@ import * as log from 'loglevel'
 import { logs, errors, prefix, } from 'strings'
 import { deployed } from 'config.json'
 import BigNumber from "utils/bignumber"
-
 import { Lock, LockStaticParams, Batch, newBatch } from 'types'
 import { RootStore } from './Root'
 import { ProviderState } from './Provider'
@@ -21,24 +20,20 @@ const EXTEND_LOCKING_EVENT = 'ExtendLocking'
 const AGREEMENT_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
 const { BN } = helpers
-
-interface UserBatchTotals {
-    locked: BigNumber;
-    score: BigNumber;
-}
+log.setDefaultLevel("warn")
 
 export default class LockNECStore {
     // Static Parameters
     @observable staticParams!: LockStaticParams
-    @observable staticParamsLoaded = false
+    @observable staticParamsLoaded!: boolean
     // Dynamic Data
-    @observable userLocks = new Map<string, Locks>()
-    @observable userLocksLoaded = new Map<string, boolean>()
-    @observable nextBlockToFetch = 0
+    @observable userLocks!: Map<string, Locks>
+    @observable userLocksLoaded!: Map<string, boolean>
+    @observable nextBlockToFetch!: number
 
-    @observable batches = new Map<number, Batch>()
-    @observable batchesLoaded
-    @observable completedBatchIndex
+    @observable batches!: Map<number, Batch>
+    @observable batchesLoaded!: boolean
+    @observable completedBatchIndex!: number
 
     rootStore: RootStore
 
@@ -162,7 +157,7 @@ export default class LockNECStore {
         return this.staticParamsLoaded
     }
 
-    isUserLockInitialLoadComplete(userAddress) {
+    areUserLocksLoaded(userAddress) {
         return this.userLocksLoaded.get(userAddress) || false
     }
 
@@ -372,6 +367,8 @@ export default class LockNECStore {
         const contract = this.loadContract()
         log.debug(prefix.FETCH_PENDING, 'User Locks', userAddress)
 
+
+
         try {
             const currentBlock = this.rootStore.timeStore.currentBlock
             const sessionId = this.rootStore.dataFetcher.getCurrentSessionId()
@@ -445,12 +442,19 @@ export default class LockNECStore {
                 locks.set(release.id, lock)
             }
 
+
+
             const isDataStillValid = this.rootStore.dataFetcher.validateFetch(userAddress, sessionId)
             if (isDataStillValid) {
-                log.debug(prefix.FETCH_SUCCESS, 'User Locks', userAddress, locks)
                 this.userLocks.set(userAddress, locks)
                 this.nextBlockToFetch = currentBlock + 1
                 this.userLocksLoaded.set(userAddress, true)
+                log.debug(prefix.FETCH_SUCCESS, 'User Locks',
+                    {
+                        userAddress,
+                        locks,
+                        locksLoaded: this.areUserLocksLoaded(userAddress)
+                    })
             } else {
                 log.error(prefix.FETCH_STALE, 'User Locks', userAddress, locks)
             }
@@ -504,13 +508,15 @@ export default class LockNECStore {
         const contract = this.loadContract()
         let batches = new Map<number, Batch>()
 
-        const locks = this.getUserTokenLocks(user)
+
 
         log.debug(prefix.FETCH_PENDING, 'Batches', user)
         try {
-            if (!locks) {
+            if (!this.areUserLocksLoaded(user)) {
                 throw new Error('User locks must be loaded')
             }
+
+            const locks = this.getUserTokenLocks(user)
 
             const sessionId = this.rootStore.dataFetcher.getCurrentSessionId()
             const finalBatch = this.getFinalBatchIndex()
@@ -582,8 +588,12 @@ export default class LockNECStore {
         const contract = this.loadContract()
         const userAddress = this.rootStore.providerStore.getDefaultAccount()
         log.error(
-            '[Action] Lock',
-            `amount: ${amount} \n duration: ${duration} \n batchId:${batchId} \n agreementHash: ${AGREEMENT_HASH}`)
+            '[Action] Lock', {
+            amount: amount,
+            duration: duration,
+            batchId: batchId,
+            agreementHash: AGREEMENT_HASH
+        })
 
         this.rootStore.txTracker.setLockActionPending(true)
         try {

@@ -2,13 +2,14 @@
 import { observable, action, computed } from 'mobx'
 import { deployed } from 'config.json'
 import { RootStore } from './Root';
+import * as log from 'loglevel';
 
 export default class DataFetcher {
-    private dataUpdateInterval: any
-    private clockUpdateInterval: any
-    @observable lastFetchSuccess = -1
-    @observable lastFetchAttempt = -1
-    @observable fetchId = 0
+    dataUpdateInterval: any
+    clockUpdateInterval: any
+    @observable isFetching = false
+    @observable blockFetchSuccess = -1
+    @observable blockFetchAttempt = -1
     @observable sessionId = 0
 
     rootStore: RootStore
@@ -23,13 +24,6 @@ export default class DataFetcher {
         }
     }
 
-    clearDataUpdateInterval = () => {
-        if (this.dataUpdateInterval) {
-            clearInterval(this.dataUpdateInterval)
-        }
-
-    }
-
     setClockUpdateInteral = () => {
         this.clockUpdateInterval = setInterval(() => {
             this.rootStore.timeStore.fetchCurrentTime();
@@ -39,10 +33,6 @@ export default class DataFetcher {
 
     incrementSessionId() {
         this.sessionId = this.sessionId + 1
-    }
-
-    getCurrentFetchId() {
-        return this.fetchId
     }
 
     getCurrentSessionId() {
@@ -107,28 +97,58 @@ export default class DataFetcher {
         await airdropStore.fetchUserData(userAddress)
     }
 
-    fetchData = async (userAddress) => {
-        const { timeStore } = this.rootStore
-        timeStore.fetchCurrentBlock();
-        const currentBlock = timeStore.currentBlock
+    @action fetchData = async (userAddress) => {
+        if (!this.isFetching) return;
+        if (!this.validateFetch(userAddress, this.sessionId)) return;
 
-        if (currentBlock > this.lastFetchAttempt) {
-            this.lastFetchAttempt = currentBlock
-            try {
-                await this.fetchAirdropData(userAddress)
-                await this.fetchAuctionData(userAddress)
-                await this.fetchLockingData(userAddress)
-                this.lastFetchSuccess = currentBlock
-            } catch (e) {
-                //refetch this block
-                this.lastFetchAttempt = -1
+        try {
+            const { timeStore } = this.rootStore
+            await timeStore.fetchCurrentBlock();
+            const currentBlock = timeStore.currentBlock
+
+            if (currentBlock > this.blockFetchAttempt) {
+                this.blockFetchAttempt = currentBlock
+                this.fetchAirdropData(userAddress)
+                this.fetchAuctionData(userAddress)
+                this.fetchLockingData(userAddress)
+                this.blockFetchSuccess = currentBlock
             }
+        } catch (e) {
+            log.error('Error fetching user data', { e, userAddress })
+
+        } finally {
+            setTimeout(() => this.fetchData(userAddress), 1000);
         }
     }
 
-    setDataUpdateInterval = async (userAddress) => {
-        this.dataUpdateInterval = setInterval(async () => {
-            this.fetchData(userAddress)
-        }, 1000);
+    @action stopFetching = () => {
+        this.isFetching = false
     }
+
+    @action startFetching = () => {
+        this.isFetching = true
+    }
+
+    @action resetCache = () => {
+        const { lockNECStore, bidGENStore, airdropStore } = this.rootStore
+        lockNECStore.resetData()
+        bidGENStore.resetData()
+        airdropStore.resetData()
+    }
+
+    @action setUser(userAddress: string) {
+        // Stop fetching data
+        this.stopFetching()
+        // Change the sessionID
+        this.incrementSessionId()
+        // Reset cached data
+        this.blockFetchAttempt = -1
+        this.blockFetchSuccess = -1
+        this.resetCache()
+
+        // Re-enable fetching and fetch for new user
+        this.startFetching()
+        this.fetchData(userAddress)
+    }
+
 }

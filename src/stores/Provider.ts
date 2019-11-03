@@ -60,19 +60,14 @@ export default class ProviderStore {
         const { dataFetcher } = this.rootStore
         const userAddress = this.getDefaultAccount()
 
-        this.resetData()
         dataFetcher.setClockUpdateInteral()
-        await dataFetcher.fetchData(userAddress)
-        dataFetcher.setDataUpdateInterval(userAddress)
+        dataFetcher.setUser(userAddress)
     }
 
-    clearIntervals = async () => {
+    stopFetching = async () => {
+        console.log('No longer fetch data as we don\'t have a valid provider')
         const { dataFetcher } = this.rootStore
-
-        // Invalidate the current 'session'
-        dataFetcher.incrementSessionId()
-        dataFetcher.clearClockUpdateInterval()
-        dataFetcher.clearDataUpdateInterval()
+        dataFetcher.stopFetching()
     }
 
     @action setAccount = async () => {
@@ -82,13 +77,6 @@ export default class ProviderStore {
 
     }
 
-    resetData = () => {
-        const { lockNECStore, bidGENStore, airdropStore } = this.rootStore
-        lockNECStore.resetData()
-        bidGENStore.resetData()
-        airdropStore.resetData()
-    }
-
     /*  Set a new web3 provider - for now, we only allow injected clients.
         Set the accounts, and reset all polling intervals for fetching data.
     */
@@ -96,11 +84,12 @@ export default class ProviderStore {
         this.context = context
         this.web3 = provider
         await this.setAccount()
-        this.clearIntervals()
         this.isProviderSet = true
 
         if (setIntervals) {
             await this.setIntervals()
+        } else {
+            await this.stopFetching()
         }
     }
 

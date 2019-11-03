@@ -6,12 +6,10 @@ import * as helpers from 'utils/helpers'
 import LoadingCircle from '../common/LoadingCircle';
 import TableButton from 'components/common/buttons/TableButton'
 import DisabledText from 'components/common/DisabledText'
-import Popup from "reactjs-popup";
-import ExtendLockPopup from '../panels/ExtendLockPopup';
 import 'components/common/Modal.scss'
 
 import BigNumber from "utils/bignumber"
-import { Lock, LockStaticParams } from 'types'
+import { Lock } from 'types'
 import { RootStore } from 'stores/Root';
 type Scores = Map<number, BigNumber>
 type Locks = Map<string, Lock>
@@ -95,11 +93,20 @@ class UserLocksTable extends React.Component<any, any> {
         lockNECStore.extendLock(lockId, batchesToExtend, batchId)
     }
 
-    renderNoDataTable() {
+    renderTableDataLoading() {
         return (
             <TableWrapper>
                 <InactiveRowWrapper>
                     <LoadingCircle instruction="Loading..." />
+                </InactiveRowWrapper>
+            </TableWrapper>
+        )
+    }
+
+    renderNoDataTable() {
+        return (
+            <TableWrapper>
+                <InactiveRowWrapper>
                 </InactiveRowWrapper>
             </TableWrapper>
         )
@@ -145,10 +152,11 @@ class UserLocksTable extends React.Component<any, any> {
         const selectedLock = extendLockFormStore.selectedLockId
 
         const userAddress = providerStore.getDefaultAccount()
-        const userLocksLoaded = lockNECStore.isUserLockInitialLoadComplete(userAddress)
+        const userLocksLoaded = lockNECStore.areUserLocksLoaded(userAddress)
 
         let rows
         let hasLocks = false
+
 
         if (userLocksLoaded) {
             const userLocks = lockNECStore.getUserTokenLocks(userAddress)

@@ -120,16 +120,6 @@ class LockNEC extends React.Component<any, State> {
     this.setState({ currentTab: value })
   }
 
-  /*
-  Remaining Time
-  IF > 1 day
-    x days, y hours
-  IF < 1 day && > 1 hour
-    y hours, z minutes
-  IF < 1 hour && > 1 min
-    y minutes, z minutes
-  IF < 1 min && > 0 seconds
-  */
   getTimerVisuals() {
     const { lockNECStore, timeStore } = this.props.root as RootStore
 
@@ -226,10 +216,7 @@ class LockNEC extends React.Component<any, State> {
 
     //TODO Update this to proper logic for handling ConnectWallet and ConnectMainNet Screens
     if (!staticParamsLoaded || !hasBalance || !hasAllowance) {
-      // if (true) {
-      // return <ConnectMainNet />
-      // return <ConnectWallet />
-      return (<LoadingCircle instruction={'Loading...'} subinstruction={''} />)
+      return <LoadingCircle instruction={'Loading...'} subinstruction={''} />
     }
 
     const tokenApproved = tokenStore.hasMaxApproval(necTokenAddress, userAddress, spenderAddress)
