@@ -269,7 +269,8 @@ class Airdrop extends React.Component<any, any>{
           subtitle={dropTimer}
           width="50px"
           height="50px"
-          displayTooltip={false}
+          displayTooltip={true}
+          tooltipContent={tooltip.airdropExplainer}
         />
         <Divider width="80%" margin="20px 0px 20px 0px" />
         <InfoLine title="Nectar Balance" info={necBalanceDisplay} hasTooltip={false} />

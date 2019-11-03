@@ -28,7 +28,7 @@ class BatchesTable extends React.Component<any, any>{
                     batchIdDisplay: batch.id + 1,
                     userLocked: helpers.tokenDisplay(batch.userLocked),
                     totalRep: helpers.tokenDisplay(batch.totalRep),
-                    userRep: key === maxIndexToDisplay ? 'In Progress' : helpers.tokenDisplay(batch.userRep),
+                    userRep: key === maxIndexToDisplay && !batch.isComplete ? 'In Progress' : helpers.tokenDisplay(batch.userRep),
                     // userRep: helpers.fromRep(data[key].userRep.toString())
                     isComplete: batch.isComplete
                 }

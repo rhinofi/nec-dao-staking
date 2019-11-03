@@ -37,13 +37,14 @@ export default class LockNECStore {
     @observable nextBlockToFetch = 0
 
     @observable batches = new Map<number, Batch>()
-    @observable batchesLoaded = false
-    @observable completedBatchIndex = 0
+    @observable batchesLoaded
+    @observable completedBatchIndex
 
     rootStore: RootStore
 
     constructor(rootStore) {
         this.rootStore = rootStore;
+        this.resetData()
     }
 
     resetData() {

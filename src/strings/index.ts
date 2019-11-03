@@ -10,6 +10,7 @@ export const prefix = {
 
 export const tooltip = {
     airdropBlocknumber: `Reputation is distributed based on the Nectar token balances at this block.`,
+    airdropExplainer: `Reputation is distributed based on the Nectar token balances at the given block number.`,
     lockTokenExplainer: `You can lock Nectar tokens to receive Reputation in the NectarDAO. The longer you lock your tokens for, the more Reputation you will receive.`,
     noUserLocks: `Looks like you haven't locked any tokens yet! Go to the \'All Batches\' tab to create a new token lock`,
     extendLockInstruction: `Select one of your locks in the table to extend it.`,
