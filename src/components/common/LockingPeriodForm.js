@@ -4,7 +4,7 @@ export const LockingPeriodSelectorWrapper = styled.div`
   display: flex;
   flex-direction: column;
   color: var(--inactive-text);
-  margin: 24px;
+  margin: 20px 24px 23px;
 `
 
 export const LockingPeriodSelector = styled.div`

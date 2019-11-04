@@ -3,13 +3,14 @@ import styled from 'styled-components'
 export const PanelWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
-  height: 80%;
+  justify-content: flex-end;
+  height: 299px;
 `
 export const CircleAndTextContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-bottom: ${props => props.marginBottom ? props.marginBottom : "none"};
 `
 
 export const Icon = styled.img`
@@ -85,6 +86,7 @@ export const Button = styled.div`
   line-height: 18px;
   color: var(--white-text);
   cursor: pointer;
+  margin-bottom: ${props => props.marginBottom ? props.marginBottom : "none"};
 `
 
 export const DisableButton = styled(Button)`
