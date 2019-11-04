@@ -98,31 +98,17 @@ export default class LockNECStore {
         return timestamp > lock.releasable && !lock.released
     }
 
-    calcMaxDuration(startBatch: number): number {
-        const batchesRemaining = this.getBatchesRemaining()
-        const maxLockDuration = this.staticParams.maxLockingBatches
-
-        if (batchesRemaining <= 0) {
-            return 0
-        }
-
-        let maxDuration = maxLockDuration
-
-        if (batchesRemaining < maxLockDuration) {
-            maxDuration = batchesRemaining
-        }
-
-        return maxDuration
+    calcMaxDuration(): number {
+        return this.calcMaxExtension(0)
     }
 
     calcMaxExtension(batchDuration: number): number {
         const batchesRemaining = this.getBatchesRemaining()
+        const maxLockDuration = this.staticParams.maxLockingBatches
 
         if (batchesRemaining <= 0) {
             return 0
         }
-
-        const maxLockDuration = this.staticParams.maxLockingBatches
 
         let maxExtension = maxLockDuration - batchDuration
 
