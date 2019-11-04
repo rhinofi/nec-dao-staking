@@ -80,13 +80,13 @@ export default class ProviderStore {
     /*  Set a new web3 provider - for now, we only allow injected clients.
         Set the accounts, and reset all polling intervals for fetching data.
     */
-    @action setWeb3WebClient = async (context, provider, setIntervals) => {
+    @action setWeb3WebClient = async (context, provider, correctNetwork) => {
         this.context = context
         this.web3 = provider
         await this.setAccount()
         this.isProviderSet = true
 
-        if (setIntervals) {
+        if (correctNetwork) {
             await this.setIntervals()
         } else {
             await this.stopFetching()

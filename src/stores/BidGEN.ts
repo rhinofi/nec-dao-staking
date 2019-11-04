@@ -6,18 +6,15 @@ import BigNumber from 'bignumber.js'
 import * as log from 'loglevel'
 import { BidStaticParams, Auction, AuctionStatus } from 'types'
 import { RootStore } from './Root'
+import BaseAsync from './BaseAsync'
 import { logs, errors, prefix } from 'strings'
+import { AuctionStaticParamsFetch } from 'services/fetch-actions/auction/AuctionStaticParamsFetch'
+import { AuctionDataFetch } from 'services/fetch-actions/auction/AuctionDataFetch'
+import { StatusEnum } from 'services/fetch-actions/BaseFetch'
 
-const objectPath = require("object-path")
-
-const BID_EVENT = 'Bid'
 const AGREEMENT_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
-interface BidEvent {
-    bidder: string;
-    auctionId: number,
-    amount: BigNumber
-}
+const objectPath = require("object-path")
 
 const defaultAsyncActions = {
     bid: false,
@@ -27,7 +24,7 @@ const defaultAsyncActions = {
 type Bids = Map<string, BigNumber>
 type AuctionData = Map<number, Auction>
 
-export default class BidGENStore {
+export default class BidGENStore extends BaseAsync {
     // Static Parameters
     @observable staticParams!: BidStaticParams
     @observable staticParamsLoaded = false
@@ -40,10 +37,9 @@ export default class BidGENStore {
 
     @observable asyncActions = defaultAsyncActions
 
-    private rootStore: RootStore
-
-    constructor(rootStore) {
-        this.rootStore = rootStore;
+    constructor(rootStore: RootStore) {
+        super(rootStore)
+        this.resetData()
     }
 
     resetData() {
@@ -132,7 +128,7 @@ export default class BidGENStore {
 
     haveAuctionsStarted(): boolean {
         if (!this.areStaticParamsLoaded()) {
-            throw new Error(errors.staticParamsNotLoaded)
+            return false
         }
 
         const now = this.rootStore.timeStore.currentTime
@@ -207,152 +203,35 @@ export default class BidGENStore {
         return timeUntilNextAuction
     }
 
+
     fetchStaticParams = async () => {
         const contract = this.loadContract()
 
-        log.debug(prefix.FETCH_PENDING, 'BidGEN Static Params')
+        const action = new AuctionStaticParamsFetch(contract, this.rootStore)
+        const result = await action.fetch()
 
-        try {
-            const auctionsStartTime = await contract.methods.auctionsStartTime().call()
-            const auctionsEndTime = await contract.methods.auctionsEndTime().call()
-            const auctionLength = await contract.methods.auctionPeriod().call()
-            const numAuctions = await contract.methods.numberOfAuctions().call()
-            const redeemEnableTime = await contract.methods.redeemEnableTime().call()
-            const auctionRepReward = await contract.methods.auctionReputationReward().call()
-
-            this.staticParams = {
-                auctionsStartTime: Number(auctionsStartTime),
-                auctionsEndTime: Number(auctionsEndTime),
-                auctionLength: Number(auctionLength),
-                numAuctions: Number(numAuctions),
-                redeemEnableTime: Number(redeemEnableTime),
-                auctionRepReward: new BigNumber(auctionRepReward)
-            }
-
+        if (result.status === StatusEnum.SUCCESS) {
+            this.staticParams = result.data as BidStaticParams
             this.staticParamsLoaded = true
-            log.debug(prefix.FETCH_SUCCESS, 'BidGEN Static Params')
-
-        } catch (e) {
-            log.debug(prefix.FETCH_ERROR, 'BidGEN Static Params')
-            log.error(e)
         }
-    }
-
-    newAuction(): Auction {
-        return new Auction(
-            new BigNumber(0),
-            new Map<string, BigNumber>(),
-            AuctionStatus.NOT_STARTED,
-            new Map<string, BigNumber>()
-        )
-    }
-
-    parseBidEvent(event): BidEvent {
-        const { _bidder, _auctionId, _amount } = event.returnValues
-
-        return {
-            bidder: _bidder,
-            auctionId: Number(_auctionId),
-            amount: new BigNumber(_amount)
-        }
-    }
-
-    calcAuctionReward(auction: Auction, user: string): BigNumber {
-        const userBid = auction.bids[user] as BigNumber
-        const totalBid = auction.totalBid
-        const totalReward = this.staticParams.auctionRepReward
-
-        const repRelation = userBid.times(totalReward)
-        const reward = repRelation.div(totalBid)
-        return reward
     }
 
     @action fetchAuctionData = async () => {
+        const contract = this.loadContract()
+
         if (!this.areStaticParamsLoaded()) {
             await this.fetchStaticParams()
         }
 
-        log.debug(prefix.FETCH_PENDING, 'auctionData')
+        const action = new AuctionDataFetch(contract, this.rootStore, {
+            account: this.rootStore.providerStore.getDefaultAccount()
+        })
+        const result = await action.fetch()
 
-        const contract = this.loadContract()
-        const userAddress = this.rootStore.providerStore.getDefaultAccount()
-
-        try {
-            const finalAuction = this.getFinalAuctionIndex()
-            let currentAuction = this.getActiveAuction()
-            const auctionsEnded = this.areAuctionsOver()
-
-            if (currentAuction > finalAuction) {
-                currentAuction = finalAuction
-            }
-
-            const bidEvents = await contract.getPastEvents(BID_EVENT, {
-                fromBlock: 0,
-                toBlock: 'latest'
-            })
-
-            const auctions = new Map<number, Auction>()
-
-            if (currentAuction < 0) {
-                this.auctionDataLoaded = false
-                this.auctionData = auctions
-            }
-
-            for (let auctionId = 0; auctionId <= currentAuction; auctionId += 1) {
-                const auction = this.newAuction()
-
-                if (auctionId < currentAuction) {
-                    auction.status = AuctionStatus.COMPLETE
-                } else if (auctionId === finalAuction && auctionsEnded) {
-                    auction.status = AuctionStatus.COMPLETE
-                }
-                else if (auctionId === currentAuction) {
-                    auction.status = AuctionStatus.IN_PROGRESS
-                } else {
-                    auction.status = AuctionStatus.NOT_STARTED
-                }
-
-                auctions.set(auctionId, auction)
-            }
-
-            for (const event of bidEvents) {
-                const bid = this.parseBidEvent(event)
-
-                if (!auctions.has(bid.auctionId)) {
-                    throw new Error(`Auction ID ${bid.auctionId} in Event isn't valid`)
-                }
-                const auction = auctions.get(bid.auctionId) as Auction
-
-                if (!auction.bids[bid.bidder]) {
-                    auction.bids[bid.bidder] = new BigNumber(0)
-                }
-
-                const currentBid = auction.bids[bid.bidder]
-                const amountToAdd = bid.amount
-
-                auction.bids[bid.bidder] = (currentBid.plus(amountToAdd))
-
-                const currentTotalBid = auction.totalBid
-                auction.totalBid = (currentTotalBid.plus(amountToAdd))
-
-                auctions.set(bid.auctionId, auction)
-            }
-
-            auctions.forEach((auction, key, map) => {
-                if (auction.status === AuctionStatus.COMPLETE && auction.bids[userAddress]) {
-                    const repReward = this.calcAuctionReward(auction, userAddress)
-                    auction.rep[userAddress] = repReward
-                    auctions.set(key, auction)
-                }
-            })
-
-            this.auctionData = auctions
-            this.auctionCount = Number(currentAuction) + 1
-            this.auctionDataLoaded = true
-            log.debug(prefix.FETCH_SUCCESS, 'auctionData')
-        } catch (e) {
-            log.debug(prefix.FETCH_ERROR, 'auctionData')
-            log.error(e)
+        if (result.status === StatusEnum.SUCCESS) {
+            this.auctionData = result.data.auctionData
+            this.auctionCount = result.data.auctionCount
+            this.auctionDataLoaded = result.data.auctionDataLoaded
         }
     }
 

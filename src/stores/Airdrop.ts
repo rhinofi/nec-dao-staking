@@ -7,9 +7,13 @@ import { AirdropStaticParams, SnapshotInfo } from 'types'
 import { RootStore } from './Root';
 import { logs, errors, prefix } from 'strings'
 import BigNumber from "utils/bignumber"
+import BaseAsync from './BaseAsync';
+import { AirdropStaticParamsFetch } from 'services/fetch-actions/airdrop/AirdropStaticParamsFetch';
+import { StatusEnum } from 'services/fetch-actions/BaseFetch';
+import { AirdropUserDataFetch } from 'services/fetch-actions/airdrop/AirdropUserDataFetch';
 const REDEEM_EVENT = 'Redeem'
 
-export default class AirdropStore {
+export default class AirdropStore extends BaseAsync {
     @observable staticParams!: AirdropStaticParams
     @observable staticParamsLoaded = false
 
@@ -18,10 +22,9 @@ export default class AirdropStore {
 
     @observable redeemAction = false
 
-    rootStore: RootStore
-
-    constructor(rootStore) {
-        this.rootStore = rootStore;
+    constructor(rootStore: RootStore) {
+        super(rootStore)
+        this.resetData()
     }
 
     resetData() {
@@ -111,61 +114,34 @@ export default class AirdropStore {
     fetchStaticParams = async () => {
         const contract = this.loadNecRepAllocationContract()
 
-        try {
-            const snapshotBlock = Number(await contract.methods.blockReference().call())
-            const snapshotTotalSupplyAt = new BigNumber(await contract.methods.totalTokenSupplyAt().call())
-            const claimStartTime = Number(await contract.methods.claimingStartTime().call())
-            const claimEndTime = Number(await contract.methods.claimingEndTime().call())
-            const totalRepReward = new BigNumber(await contract.methods.reputationReward().call())
-            const token = await contract.methods.token().call()
+        const action = new AirdropStaticParamsFetch(contract, this.rootStore)
+        const result = await action.fetch()
 
-            this.staticParams = {
-                snapshotBlock,
-                snapshotTotalSupplyAt,
-                claimStartTime,
-                claimEndTime,
-                totalRepReward,
-                token
-            }
-
+        if (result.status === StatusEnum.SUCCESS) {
+            this.staticParams = result.data
             this.staticParamsLoaded = true
-        } catch (e) {
-            log.error(e)
         }
     }
 
     @action fetchUserData = async (userAddress: string) => {
         if (!this.areStaticParamsLoaded()) {
-            throw new Error(errors.staticParamsNotLoaded)
+            await this.fetchStaticParams()
         }
 
         const contract = this.loadRepFromTokenContract()
         const necRepAllocationContract = this.loadNecRepAllocationContract()
         const tokenContract = this.loadMiniMeTokenContract(this.staticParams.token)
 
-        log.debug(prefix.FETCH_PENDING, 'User Airdrop Data', userAddress)
-        try {
-            const redeemEvents = await contract.getPastEvents(REDEEM_EVENT, {
-                filter: { _beneficiary: userAddress },
-                fromBlock: 0,
-                toBlock: 'latest'
-            })
-            const snapshotBalance = await tokenContract.methods.balanceOfAt(userAddress, this.staticParams.snapshotBlock).call()
-            const snapshotRep = await necRepAllocationContract.methods.balanceOf(userAddress).call()
-            const hasRedeemed = (redeemEvents && (redeemEvents.length >= 1))
+        const action = new AirdropUserDataFetch(contract, this.rootStore, {
+            account: userAddress,
+            necRepAllocationContract,
+            tokenContract
+        })
+        const result = await action.fetch()
 
-            const data: SnapshotInfo = new SnapshotInfo(snapshotBalance, snapshotRep, hasRedeemed)
-            //TODO: filter events for user redemption
-            //TODO: calculate REP from (user balance / total supply) * totalREP
-            log.debug('[Fetched] User Airdrop Data', userAddress, data)
-
-            this.userData.set(userAddress, data)
+        if (result.status === StatusEnum.SUCCESS) {
+            this.userData.set(userAddress, result.data)
             this.userDataLoaded.set(userAddress, true)
-            log.debug(prefix.FETCH_SUCCESS, 'User Airdrop Data', userAddress)
-        }
-        catch (e) {
-            log.error(e)
-            log.debug(prefix.FETCH_ERROR, 'User Airdrop Data', userAddress)
         }
     }
 

@@ -28,7 +28,13 @@ const Web3Manager = inject('root')(observer((props) => {
         console.log('context', context)
 
         props.root.providerStore.setState(2)
-        props.root.providerStore.setWeb3WebClient(context, context.library, true)
+        if (context.networkId === activeNetworkId) {
+            props.root.providerStore.setWeb3WebClient(context, context.library, true)
+        }
+        else {
+            props.root.providerStore.setWeb3WebClient(context, context.library, false)
+        }
+
         return <React.Fragment>
             <p>{context.account}</p>
             <p>{context.networkId + ` ` + activeNetworkId}</p>
