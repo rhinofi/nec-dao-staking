@@ -1,5 +1,4 @@
 // Libraries
-import React from "react";
 import jazzicon from "jazzicon";
 
 // Utils
@@ -9,6 +8,10 @@ import Web3 from "web3";
 import BigNumber from "utils/bignumber"
 export const BN = require('bn.js');
 
+export interface FormStatus {
+  isValid: boolean;
+  errorMessage: string;
+}
 
 export const timeConstants = {
   inSeconds: {
@@ -237,9 +240,9 @@ export function isGreaterThan(value1: number | string, value2: number | string):
 
 export function isEmpty(value) {
   if (value === undefined || value === null || value === '') {
-    return false
+    return true
   }
-  return true
+  return false
 }
 
 export function pow10(value) {
@@ -353,4 +356,70 @@ export const methodSig = method => {
 
 export const generateIcon = (address) => {
   return jazzicon(28, address.substr(0, 10));
+}
+
+/*
+ * must be a number
+ * positive numbers only
+ * <=18 decimals
+ * must be filled in
+ * must be <= to user balance
+ * must be greater than a minimum contribution value (1 token)
+ */
+
+export const isValidTokenAmount = (value, maxValue, actionText: string): FormStatus => {
+
+  if (isEmpty(value)) {
+    return {
+      isValid: false,
+      errorMessage: "Please input a token value"
+    }
+  }
+
+  if (!isNumeric(value)) {
+    return {
+      isValid: false,
+      errorMessage: "Please input a valid number"
+    }
+  }
+
+  if (isZero(value)) {
+    return {
+      isValid: false,
+      errorMessage: `Cannot ${actionText} zero tokens`
+    }
+  }
+
+  if (!isPositiveNumber(value)) {
+    return {
+      isValid: false,
+      errorMessage: "Please input a positive number"
+    }
+  }
+
+  if (getDecimalPlaces(value) > 18) {
+    return {
+      isValid: false,
+      errorMessage: "Input exceeds 18 decimal places"
+    }
+  }
+
+  if (isGreaterThan(value, maxValue)) {
+    return {
+      isValid: false,
+      errorMessage: "Insufficent Balance"
+    }
+  }
+
+  if (isLessThan(value, 1)) {
+    return {
+      isValid: false,
+      errorMessage: `Minimum ${actionText} is one token`
+    }
+  }
+
+  return {
+    isValid: true,
+    errorMessage: ""
+  }
 }
