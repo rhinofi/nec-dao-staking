@@ -51,6 +51,10 @@ export class BaseFetch {
         } catch (e) {
             log.error(prefix.FETCH_ERROR, this.fetchText, this.params)
             log.error(e)
+            return {
+                status: StatusEnum.ERROR,
+                data: {}
+            }
         }
 
         if (!this.checkValidation(sessionId, userAddress)) {
