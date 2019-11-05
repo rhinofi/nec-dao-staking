@@ -41,11 +41,15 @@ class BatchesTable extends React.Component<any, any>{
         return tableData
     }
 
-    renderNoDataTable() {
+    renderNoDataTable(isLoading: boolean) {
         return (
             <TableWrapper>
                 <InactiveRowWrapper>
-                    <LoadingCircle instruction="Loading..." />
+                    {isLoading ?
+                        <LoadingCircle instruction="Loading..." />
+                        :
+                        <React.Fragment></React.Fragment>
+                    }
                 </InactiveRowWrapper>
             </TableWrapper>
         )
@@ -57,6 +61,7 @@ class BatchesTable extends React.Component<any, any>{
 
         const userAddress = providerStore.getDefaultAccount()
         const lockDataLoaded = lockNECStore.areBatchesLoaded(userAddress)
+        const isLockingStarted = lockNECStore.isLockingStarted()
         const maxIndexToDisplay = Math.min(lockNECStore.getFinalBatchIndex(), lockNECStore.getActiveLockingBatch())
 
         let rows
@@ -98,7 +103,7 @@ class BatchesTable extends React.Component<any, any>{
                             })}
                         </div>
                         :
-                        this.renderNoDataTable()
+                        this.renderNoDataTable(isLockingStarted)
                     }
                 </TableWrapper>
             </React.Fragment>

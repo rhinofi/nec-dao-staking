@@ -103,10 +103,15 @@ class UserLocksTable extends React.Component<any, any> {
         )
     }
 
-    renderNoDataTable() {
+    renderNoDataTable(isLoading: boolean) {
         return (
             <TableWrapper>
                 <InactiveRowWrapper>
+                    {isLoading ?
+                        <LoadingCircle instruction="Loading..." />
+                        :
+                        <React.Fragment></React.Fragment>
+                    }
                 </InactiveRowWrapper>
             </TableWrapper>
         )
@@ -198,7 +203,7 @@ class UserLocksTable extends React.Component<any, any> {
                         })}
                     </TableWrapper>
                     :
-                    this.renderNoDataTable()
+                    this.renderNoDataTable(hasLocks)
                 }
             </React.Fragment>
         )

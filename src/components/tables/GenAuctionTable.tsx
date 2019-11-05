@@ -51,11 +51,15 @@ class GenAuctionTable extends React.Component<any, any>{
         return rows.reverse()
     }
 
-    renderNoDataTable() {
+    renderNoDataTable(auctionsStarted: boolean) {
         return (
             <TableWrapper>
                 <InactiveRowWrapper>
-                    <LoadingCircle instruction="Loading..." />
+                    {auctionsStarted ?
+                        <LoadingCircle instruction="Loading..." />
+                        :
+                        <React.Fragment></React.Fragment>
+                    }
                 </InactiveRowWrapper>
             </TableWrapper>
         )
@@ -109,7 +113,7 @@ class GenAuctionTable extends React.Component<any, any>{
                         })}
                     </TableWrapper>
                     :
-                    this.renderNoDataTable()
+                    this.renderNoDataTable(auctionsStarted)
                 }
             </React.Fragment>
         )
