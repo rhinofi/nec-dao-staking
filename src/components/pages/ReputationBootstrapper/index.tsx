@@ -12,9 +12,7 @@ import ConnectMainNet from 'components/common/ConnectMainNet'
 import { ProviderState } from 'stores/Provider';
 
 const RootWrapper = styled.div`
-  width:100%;
-  max-width: 932px;
-  min-width: 932px;
+  width: 932px;
   margin: 0px auto;
   padding: 64px;
 `

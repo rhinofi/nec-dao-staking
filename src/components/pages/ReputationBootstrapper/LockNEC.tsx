@@ -24,7 +24,7 @@ const LockNECWrapper = styled.div`
 `
 
 const DetailsWrapper = styled.div`
-  width: 80%;
+  min-width: 605px;
   height: 364px;
   border-right: 1px solid var(--border);
 `
@@ -69,7 +69,7 @@ const InactiveTableTabButton = styled(TableTabButton)`
 `
 
 const ActionsWrapper = styled.div`
-  width: 425px;
+  max-width: 324px;
   font-family: Montserrat;
   font-style: normal;
   font-weight: 500;
