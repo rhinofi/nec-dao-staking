@@ -13,14 +13,14 @@ const TooltipIndicator = styled.div`
   border: 1px solid var(--inactive-border);
 `
 
-const Tooltip = ({title, content, position}) => {
+const Tooltip = ({ title, content, position }) => {
   return (
     <Popup
       trigger={<TooltipIndicator>i</TooltipIndicator>}
       position={position}
       on="hover"
     >
-      <div className="testing" style={{border: "none"}}>
+      <div className="testing" style={{ border: "none" }}>
         <div>{title}</div>
         <div>{content}</div>
       </div>

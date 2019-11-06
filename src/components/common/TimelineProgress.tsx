@@ -56,7 +56,7 @@ class TimelineProgress extends React.Component<Props, State> {
 
     let tooltip
     if (displayTooltip) {
-      tooltip = <Tooltip title={''} content={tooltipContent} position="right top" />
+      tooltip = <Tooltip title='' content={tooltipContent} position="right top" />
     }
 
     return (
