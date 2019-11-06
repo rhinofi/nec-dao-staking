@@ -1,10 +1,9 @@
 import { observable, action, computed } from 'mobx'
 import { RootStore } from './Root'
 
-export default class LockFormStore {
-    @observable amount = ''
+export default class BidFormStore {
+    @observable bidAmount = ''
     @observable duration = 1
-    @observable rangeStart = 1
     @observable tokenInput = {
         touched: false,
         error: false,
@@ -16,6 +15,10 @@ export default class LockFormStore {
     constructor(rootStore) {
         this.rootStore = rootStore;
         this.resetForm()
+    }
+
+    @action setBidAmount(value: string) {
+        this.bidAmount = value
     }
 
     @action setInputTouched(flag: boolean) {
@@ -31,9 +34,8 @@ export default class LockFormStore {
     }
 
     @action resetForm = () => {
-        this.amount = ''
+        this.bidAmount = ''
         this.duration = 1
-        this.rangeStart = 1
         this.tokenInput = {
             touched: false,
             error: false,

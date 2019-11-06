@@ -1,19 +1,16 @@
 import React from 'react'
 import styled from 'styled-components'
 import Popup from 'reactjs-popup'
+import { observable } from "mobx"
 import { inject, observer } from "mobx-react";
 import * as helpers from 'utils/helpers'
-import { MaxButton } from './LockPanel'
 import { PanelText } from 'components/common'
 import InactiveButton from 'components/common/buttons/InactiveButton'
 import ActiveButton from 'components/common/buttons/ActiveButton'
-import LoadingCircle from '../common/LoadingCircle';
+import LoadingCircle from '../common/LoadingCircle'
 import { deployed } from 'config.json'
-import { RootStore } from 'stores/Root';
-import BigNumber from 'utils/bignumber';
-
-const PanelWrapper = styled.div`
-`
+import { RootStore } from 'stores/Root'
+import { PanelWrapper, AmountLabelWrapper, ValidationError, MaxButton, AmountForm } from 'components/common/Panel'
 
 const BidWrapper = styled.div`
   display: flex;
@@ -23,185 +20,79 @@ const BidWrapper = styled.div`
   color: var(--inactive-text);
 `
 
-const ValidationError = styled.div`
-  text-align: right;
-  color: var(--invalid-red);
-  font-family: Montserrat;
-  font-weight: 600;
-  font-size: 12px;
-  line-height: 15px;
-  margin-top: 8px;
-  margin-bottom: -23px;
-`
-
-const BidAmountWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-`
-
-const BidForm = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  margin-top: 18px;
-  padding: 0px 20px 6px 20px;
-  input {
-    font-size: 15px;
-    line-height: 18px;
-    color: var(--white-text);
-    background: var(--background);
-    border: none;
-  }
-`
-
-interface FormStatus {
-  isValid: boolean;
-  errorMessage: string;
+interface RenderData {
+  userAddress: string,
+  bidAmount: string,
+  buttonText: string,
+  auctionsEnded: boolean,
+  auctionsStarted: boolean,
+  userBalance: string,
 }
 
 @inject('root')
 @observer
 class BidPanel extends React.Component<any, any>{
-  constructor(props) {
-    super(props)
-    this.state = {
-      bidForm: {
-        touched: false,
-        error: false,
-        errorMessage: ""
-      }
-    }
-  }
+  renderData = {} as RenderData
+
   setBidAmount(value) {
     const { bidFormStore } = this.props.root as RootStore
-    const { bidForm } = this.state
     bidFormStore.setBidAmount(value)
-    this.setState({
-      bidForm: {
-        ...bidForm,
-        touched: true
-      }
-    })
-
+    bidFormStore.setInputTouched(true)
+    this.setFormError()
   }
 
-  isBidAmountValid(value, maxValue, actionText: string): FormStatus {
-    /*
-    * must be a number
-    * positive numbers only
-    * <=18 decimals
-    * must be filled in
-    * must be <= to user balance
-    * must be greater than a minimum contribution value (1 token)
-    */
+  setFormError() {
+    const { bidFormStore } = this.props.root as RootStore
+    const { userBalance } = this.renderData
+    const bidAmount = bidFormStore.bidAmount
+    const checkValidity = helpers.isValidTokenAmount(bidAmount, userBalance, 'bid')
 
-    if (helpers.isEmpty(value)) {
-      return {
-        isValid: false,
-        errorMessage: "Please input a token value"
-      }
-    }
-
-    if (!helpers.isNumeric(value)) {
-      return {
-        isValid: false,
-        errorMessage: "Please input a valid number"
-      }
-    }
-
-    if (helpers.isZero(value)) {
-      return {
-        isValid: false,
-        errorMessage: `Cannot ${actionText} zero tokens`
-      }
-    }
-
-    if (helpers.isPositiveNumber(value)) {
-      return {
-        isValid: false,
-        errorMessage: "Please input a positive number"
-      }
-    }
-
-    if (helpers.getDecimalPlaces(value) > 18) {
-      return {
-        isValid: false,
-        errorMessage: "Input exceeds 18 decimal places"
-      }
-    }
-
-    if (helpers.isGreaterThan(value, maxValue)) {
-      return {
-        isValid: false,
-        errorMessage: "Insufficent Balance"
-      }
-    }
-
-    if (helpers.isLessThan(value, 1)) {
-      return {
-        isValid: false,
-        errorMessage: `Minimum ${actionText} is one token`
-      }
-    }
-
-    return {
-      isValid: true,
-      errorMessage: ""
-    }
+    bidFormStore.setErrorStatus(!checkValidity.isValid)
+    bidFormStore.setErrorMessage(checkValidity.errorMessage)
+    return checkValidity.isValid
   }
 
   async bid() {
-    const { bidFormStore, bidGENStore, tokenStore } = this.props.root as RootStore
-    const { userAddress } = this.props
-    const { bidForm } = this.state
-    const userBalance = helpers.fromWei(tokenStore.getBalance(deployed.GenToken, userAddress))
+    const { bidFormStore, bidGENStore } = this.props.root as RootStore
+    const isValid = this.setFormError()
 
-    const formStatus = this.isBidAmountValid(bidFormStore.bidAmount, userBalance, 'bid')
+    if (isValid) {
+      const weiValue = helpers.toWei(bidFormStore.bidAmount)
+      const currentAuction = bidGENStore.getActiveAuction()
 
-    if (!formStatus.isValid) {
-      this.setState({
-        bidForm: {
-          ...bidForm,
-          error: true,
-          errorMessage: formStatus.errorMessage
-        }
-      })
-      return
-    } else {
-      this.setState({
-        bidForm: {
-          ...bidForm,
-          error: false,
-          errorMessage: ""
-        }
-      })
+      await bidGENStore.bid(weiValue, currentAuction)
+      bidFormStore.resetForm()
     }
-
-    const weiValue = helpers.toWei(bidFormStore.bidAmount)
-    const currentAuction = bidGENStore.getActiveAuction()
-
-    await bidGENStore.bid(weiValue, currentAuction)
-    bidFormStore.resetForm()
   }
 
   Pending() {
-    const { bidGENStore, bidFormStore } = this.props.root as RootStore
+    const { bidGENStore } = this.props.root as RootStore
+    const { bidAmount } = this.renderData
     const currentAuction = bidGENStore.getActiveAuction()
     const timeUntilNextAuction = bidGENStore.getTimeUntilNextAuction()
     const timeText = helpers.getSecondsText(timeUntilNextAuction)
-    const amount = bidFormStore.bidAmount
 
     return (
       <React.Fragment>
-        <LoadingCircle instruction={`Bid ${amount} GEN`} subinstruction={`Auction ${currentAuction} - Ends in ${timeText}`} />
+        <LoadingCircle instruction={`Bid ${bidAmount} GEN`} subinstruction={`Auction ${currentAuction} - Ends in ${timeText}`} />
       </React.Fragment >
     )
   }
 
-  BidForm(bidAmount, buttonText, auctionsEnded, auctionsStarted, userBalance) {
+  BidForm() {
+    const { bidFormStore } = this.props.root as RootStore
+    const { buttonText, auctionsEnded, auctionsStarted, userBalance } = this.renderData
     const actionEnabled = auctionsStarted && !auctionsEnded
-    const { touched, error, errorMessage } = this.state.bidForm
+    const bidAmount = bidFormStore.bidAmount
+    const { touched, error, errorMessage } = bidFormStore.tokenInput
+
+    console.log({
+      bidAmount,
+      userBalance,
+      touched,
+      error,
+      errorMessage
+    })
 
     return (
       <React.Fragment>
@@ -209,7 +100,7 @@ class BidPanel extends React.Component<any, any>{
           <PanelText>
             GEN is the native DAOstack token, primarily used for prediction markets and boosting proposals.
           </PanelText>
-          <BidAmountWrapper>
+          <AmountLabelWrapper>
             <div>Bid Amount</div>
             <Popup
               trigger={<MaxButton onClick={e => this.setBidAmount(userBalance)} />}
@@ -220,11 +111,11 @@ class BidPanel extends React.Component<any, any>{
                 <div>Set max available amount</div>
               </div>
             </Popup>
-          </BidAmountWrapper>
-          <BidForm className={touched && error ? "invalid-border" : ""}>
+          </AmountLabelWrapper>
+          <AmountForm className={touched && error ? "invalid-border" : ""}>
             <input type="text" name="name" placeholder="0" value={bidAmount} onChange={e => this.setBidAmount(e.target.value)} />
             <div>GEN</div>
-          </BidForm>
+          </AmountForm>
           {
             touched && error ?
               <ValidationError>{errorMessage}</ValidationError>
@@ -256,12 +147,22 @@ class BidPanel extends React.Component<any, any>{
     const auctionsEnded = bidGENStore.areAuctionsOver()
     const auctionsStarted = bidGENStore.haveAuctionsStarted()
     const userBalance = helpers.fromWei(tokenStore.getBalance(deployed.GenToken, userAddress))
+    const bidAmount = bidFormStore.bidAmount
+
+    this.renderData = {
+      userAddress,
+      bidAmount,
+      buttonText,
+      auctionsEnded,
+      auctionsStarted,
+      userBalance
+    }
     return (
       <PanelWrapper>
         {
           pending ?
             this.Pending() :
-            this.BidForm(bidFormStore.bidAmount, buttonText, auctionsEnded, auctionsStarted, userBalance)
+            this.BidForm()
         }
       </PanelWrapper>
     )

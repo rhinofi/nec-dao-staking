@@ -1,6 +1,7 @@
 import React from 'react'
 import { PanelText } from 'components/common'
-import { PanelWrapper, LockFormWrapper, LockAmountWrapper, LockAmountForm, ReleaseableDateWrapper, ReleaseableDate } from './LockPanel'
+import { LockFormWrapper } from './LockPanel'
+import { PanelWrapper, AmountLabelWrapper } from 'components/common/Panel'
 import Tooltip from '../common/Tooltip'
 
 interface Props {
@@ -14,7 +15,7 @@ class PanelExplainer extends React.Component<Props, any>{
         return (
             <React.Fragment>
                 <LockFormWrapper>
-                    <LockAmountWrapper>
+                    <AmountLabelWrapper>
                         <PanelText>
                             {text}
                             {tooltip ?
@@ -23,7 +24,7 @@ class PanelExplainer extends React.Component<Props, any>{
                                 <React.Fragment></React.Fragment>
                             }
                         </PanelText>
-                    </LockAmountWrapper>
+                    </AmountLabelWrapper>
                 </LockFormWrapper>
             </React.Fragment>
         )

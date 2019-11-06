@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import Popup from 'reactjs-popup'
 import { observer, inject } from 'mobx-react'
+import { observable } from "mobx"
 import ActiveButton from 'components/common/buttons/ActiveButton'
 import InactiveButton from 'components/common/buttons/InactiveButton'
 import * as helpers from 'utils/helpers'
@@ -12,9 +13,8 @@ import { RootStore } from 'stores/Root'
 import PanelExplainer from './PanelExplainer'
 import { tooltip } from 'strings'
 import Tooltip from 'components/common/Tooltip'
-
-export const PanelWrapper = styled.div`
-`
+import { PanelWrapper, ValidationError, AmountForm, AmountLabelWrapper, MaxButton } from 'components/common/Panel'
+import { Root } from 'react-dom'
 
 export const LockFormWrapper = styled.div`
   display: flex;
@@ -23,38 +23,6 @@ export const LockFormWrapper = styled.div`
   font-weight: 600;
   color: var(--inactive-text);
   height: 64px;
-`
-
-export const LockAmountWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-`
-
-export const MaxButton = styled.div`
-  background: rgba(101, 102, 251, 0.5);
-  width: 12px;
-  height: 12px;
-  border-radius: 7px;
-  margin-top: 3px;
-  cursor: pointer;
-`
-
-export const LockAmountForm = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  margin-top: 18px;
-  padding: 0px 20px 6px 20px;
-  border-bottom: 1px solid var(--inactive-border);
-  input {
-    border: ${props => props.border || '1px solid #ccc'};
-    font-size: 15px;
-    line-height: 18px;
-    color: var(--white-text);
-    background: var(--background);
-    border: none;
-  }
 `
 
 export const ReleaseableDateWrapper = styled.div`
@@ -92,14 +60,7 @@ interface FormState {
 @inject('root')
 @observer
 class LockPanel extends React.Component<any, any>{
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      rangeStart: props.rangeStart,
-      releaseableDate: '12.04.2019'
-    }
-  }
+  renderData = {} as RenderData
 
   setRangeStart(value) {
     this.setState({ rangeStart: value })
@@ -108,6 +69,8 @@ class LockPanel extends React.Component<any, any>{
   setLockAmount(value) {
     const { lockFormStore } = this.props.root as RootStore
     lockFormStore.amount = value
+    lockFormStore.setInputTouched(true)
+    this.setFormError()
   }
 
   changeLockDuration(i) {
@@ -136,6 +99,17 @@ class LockPanel extends React.Component<any, any>{
     const maxDuration = lockNECStore.staticParams.maxLockingBatches
 
     return Math.max(0, batchesRemaining < maxDuration ? batchesRemaining : maxDuration)
+  }
+
+  setFormError() {
+    const { lockFormStore } = this.props.root as RootStore
+    const { userBalance } = this.renderData
+    const amount = lockFormStore.amount
+    const checkValidity = helpers.isValidTokenAmount(amount, userBalance, 'lock')
+
+    lockFormStore.setErrorStatus(!checkValidity.isValid)
+    lockFormStore.setErrorMessage(checkValidity.errorMessage)
+    return checkValidity.isValid
   }
 
   renderDurationSelector = () => {
@@ -169,7 +143,7 @@ class LockPanel extends React.Component<any, any>{
 
     return (
       <LockingPeriodSelectorWrapper>
-        <div>New Lock Duration (Months) <Tooltip title={''} content={tooltip.lockTokenExplainer} position="center left" /></div>
+        <div>Lock Duration (Months) <Tooltip title={''} content={tooltip.lockTokenExplainer} position="center left" /></div>
         <LockingPeriodSelector>
           <LockingPeriodStartCell onClick={() => {
             this.decrementRange(formState)
@@ -188,8 +162,8 @@ class LockPanel extends React.Component<any, any>{
     )
   }
 
-  renderPending(renderData: RenderData) {
-    const { amount, releaseableDate, duration } = renderData
+  renderPending() {
+    const { amount, releaseableDate, duration } = this.renderData
     const batchText = helpers.getBatchText(duration)
     return (
       <LoadingCircle instruction={`Lock ${amount} NEC`} subinstruction={`${duration} ${batchText} - Unlock on ${releaseableDate}`} />
@@ -204,8 +178,10 @@ class LockPanel extends React.Component<any, any>{
     return <PanelExplainer text={tooltip.lockingEndedLockInstruction} tooltip={tooltip.lockingEndedLockExplainer} />
   }
 
-  renderLockForm(renderData: RenderData) {
-    const { amount, releaseableDate, buttonText, enabled, userBalance, isLockingEnded, isLockingStarted } = renderData
+  renderLockForm() {
+    const { lockFormStore } = this.props.root as RootStore
+    const { amount, releaseableDate, buttonText, enabled, userBalance, isLockingEnded, isLockingStarted } = this.renderData
+    const { touched, error, errorMessage } = lockFormStore.tokenInput
 
     if (!isLockingStarted) {
       return this.renderLockingNotStarted()
@@ -218,7 +194,7 @@ class LockPanel extends React.Component<any, any>{
     return (<React.Fragment>
       {this.renderDurationSelector()}
       <LockFormWrapper>
-        <LockAmountWrapper>
+        <AmountLabelWrapper>
           <div>Lock Amount</div>
           <Popup
             trigger={<MaxButton onClick={e => this.setLockAmount(userBalance)} />}
@@ -229,12 +205,18 @@ class LockPanel extends React.Component<any, any>{
               <div>Set max available amount</div>
             </div>
           </Popup>
-        </LockAmountWrapper>
-        <LockAmountForm>
+        </AmountLabelWrapper>
+        <AmountForm>
           <input type="text" name="name" placeholder="0" value={amount} onChange={e => this.setLockAmount(e.target.value)} />
           <div>NEC</div>
-        </LockAmountForm>
+        </AmountForm>
       </LockFormWrapper>
+      {
+        touched && error ?
+          <ValidationError>{errorMessage}</ValidationError>
+          :
+          <React.Fragment></React.Fragment>
+      }
       <ReleaseableDateWrapper>
         <div>Releasable</div>
         <ReleaseableDate>{releaseableDate}</ReleaseableDate>
@@ -249,13 +231,16 @@ class LockPanel extends React.Component<any, any>{
 
   async lockHandler() {
     const { lockNECStore, lockFormStore } = this.props.root as RootStore
+    const isValid = this.setFormError()
 
-    const amount = helpers.toWei(lockFormStore.amount)
-    const duration = lockFormStore.duration
-    const batchId = lockNECStore.getActiveLockingBatch()
+    if (isValid) {
+      const amount = helpers.toWei(lockFormStore.amount)
+      const duration = lockFormStore.duration
+      const batchId = lockNECStore.getActiveLockingBatch()
 
-    await lockNECStore.lock(amount, duration, batchId)
-    lockFormStore.resetForm()
+      await lockNECStore.lock(amount, duration, batchId)
+      lockFormStore.resetForm()
+    }
   }
 
   render() {
@@ -276,15 +261,15 @@ class LockPanel extends React.Component<any, any>{
 
     const releaseableDate = helpers.timestampToDate(releaseableTimestamp)
 
-    const renderData: RenderData = {
+    this.renderData = {
       amount, releaseableDate, buttonText, enabled, userBalance, duration, isLockingStarted, isLockingEnded, pending
     }
 
     return (
       <PanelWrapper>
         {pending ?
-          this.renderPending(renderData) :
-          this.renderLockForm(renderData)
+          this.renderPending() :
+          this.renderLockForm()
         }
       </PanelWrapper >
     )
