@@ -1,7 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
 import Popup from 'reactjs-popup'
-import { observable } from "mobx"
 import { inject, observer } from "mobx-react";
 import * as helpers from 'utils/helpers'
 import { PanelText } from 'components/common'
@@ -74,7 +73,7 @@ class BidPanel extends React.Component<any, any>{
 
     return (
       <React.Fragment>
-        <LoadingCircle instruction={`Bid ${bidAmount} GEN`} subinstruction={`Auction ${currentAuction} - Ends in ${timeText}`} />
+        <LoadingCircle instruction={`Bid ${bidAmount} GEN`} subinstruction={`Auction ${currentAuction + 1} - Ends in ${timeText}`} />
       </React.Fragment >
     )
   }

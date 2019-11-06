@@ -1,4 +1,4 @@
-import { observable, action, computed } from 'mobx'
+import { observable, action } from 'mobx'
 import { RootStore } from './Root'
 
 export default class LockFormStore {

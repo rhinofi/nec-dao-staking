@@ -1,9 +1,9 @@
 {
     "deployed": {
-        "NectarRepAllocation": "0x61Aa31eAB86aF92E0dE07E22D4d75bD76493FA8c",
-        "ContinuousLocking4Reputation": "0x9FD47619B96e658711436E8eE731a4193b1aEA2E",
-        "Auction4Reputation": "0xb92B05Bbb0Fd0B7C997ba8C5570EC22B499EdcCC",
-        "ReputationFromToken": "0xF1F0CCF47041dC329751f33698AA38F4900F81A5",
+        "NectarRepAllocation": "0x31C4921237FD21860FE02e41B9af54393b8Be22D",
+        "ContinuousLocking4Reputation": "0x3338341d99e50fc3FB75c9076f808aF8ba61727F",
+        "Auction4Reputation": "0x3172059a35Cac391Bae571a55350a0f59E0a153C",
+        "ReputationFromToken": "0x661b275BE0Bf480Ec3106CF996755B893Abac6e0",
         "NectarToken": "0x05a047c9bd8f36b0d9f8ad146176eba821b3a3ae",
         "GenToken": "0x543Ff227F64Aa17eA132Bf9886cAb5DB55DCAddf"
     },
@@ -12,7 +12,7 @@
         "totalRep": "850000"
     },
     "bidGEN": {
-        "totalRep": "50000"
+        "totalRep": "500000"
     },
     "airdrop": {
         "totalRep": "100000"

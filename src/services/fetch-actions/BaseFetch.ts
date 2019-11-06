@@ -1,5 +1,5 @@
 import * as log from 'loglevel'
-import { logs, errors, prefix } from 'strings'
+import { prefix } from 'strings'
 import { RootStore } from 'stores/Root';
 
 export enum StatusEnum {

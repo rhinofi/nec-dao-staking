@@ -11,7 +11,6 @@ import InactiveButton from 'components/common/buttons/InactiveButton'
 import LoadingCircle from '../../common/LoadingCircle'
 import Tooltip from 'components/common/Tooltip'
 import { RootStore } from 'stores/Root'
-import { SnapshotInfo } from 'types'
 import BigNumber from 'utils/bignumber'
 import { tooltip } from 'strings'
 
@@ -78,7 +77,7 @@ interface InfoLineProps {
 }
 
 const InfoLine = (props: InfoLineProps) => {
-  const { title, info, hasTooltip, tooltipText } = props
+  const { title, info, hasTooltip } = props
   return (
     < InfoWrapper >
       <InfoTitle>
@@ -269,7 +268,7 @@ class Airdrop extends React.Component<any, any>{
           subtitle={dropTimer}
           width="50px"
           height="50px"
-          displayTooltip={true}
+          displayTooltip={false}
           tooltipContent={tooltip.airdropExplainer}
         />
         <Divider width="80%" margin="20px 0px 20px 0px" />

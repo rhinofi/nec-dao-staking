@@ -14,13 +14,6 @@ import Tooltip from '../common/Tooltip'
 import { Lock } from 'types'
 import { tooltip } from 'strings'
 
-interface Props {
-  buttonText: string;
-  userAddress: string;
-  lockingEnabled: boolean;
-  pending: boolean;
-}
-
 interface FormState {
   existingDuration: number;
   duration: number;

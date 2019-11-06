@@ -1,5 +1,4 @@
 import React from 'react'
-import { observer, inject } from 'mobx-react'
 import { withRouter } from 'react-router-dom'
 import LogoAndText from 'components/common/LogoAndText'
 import Tooltip from 'components/common/Tooltip'

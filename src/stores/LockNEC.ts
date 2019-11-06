@@ -1,14 +1,12 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
-import { observable, action, computed } from 'mobx'
+import { observable, action } from 'mobx'
 import * as helpers from "utils/helpers"
 import * as log from 'loglevel'
-import { logs, errors, prefix, } from 'strings'
 import { deployed } from 'config.json'
 import BigNumber from "utils/bignumber"
-import { Lock, LockStaticParams, Batch, newBatch } from 'types'
+import { Lock, LockStaticParams, Batch } from 'types'
 import { RootStore } from './Root'
-import { ProviderState } from './Provider'
 import { LockingStaticParamsFetch } from 'services/fetch-actions/locking/LockingStaticParamsFetch'
 import { StatusEnum } from 'services/fetch-actions/BaseFetch'
 import { UserLocksFetch } from 'services/fetch-actions/locking/UserLocksFetch'
@@ -17,10 +15,6 @@ type Scores = Map<number, BigNumber>
 type Locks = Map<string, Lock>
 type Batches = Map<number, Batch>
 
-const objectPath = require("object-path")
-const LOCK_EVENT = 'LockToken'
-const RELEASE_EVENT = 'Release'
-const EXTEND_LOCKING_EVENT = 'ExtendLocking'
 const AGREEMENT_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
 const { BN } = helpers
@@ -319,7 +313,6 @@ export default class LockNECStore {
 
     extendLock = async (lockId, batchesToExtend, batchId) => {
         const contract = this.loadContract()
-        const userAddress = this.rootStore.providerStore.getDefaultAccount()
         this.rootStore.txTracker.setExtendLockActionPending(true)
         log.error('extendLock', lockId, batchesToExtend, batchId)
 
@@ -335,7 +328,6 @@ export default class LockNECStore {
 
     release = async (beneficiary, lockId) => {
         const contract = this.loadContract()
-        const userAddress = this.rootStore.providerStore.getDefaultAccount()
         this.rootStore.txTracker.setReleaseActionPending(lockId, true)
         log.debug('release', beneficiary, lockId)
 

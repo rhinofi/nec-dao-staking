@@ -10,7 +10,7 @@ const Web3Manager = inject('root')(observer((props) => {
 
     useEffect(() => {
         context.setFirstValidConnector(['MetaMask'])
-    }, [])
+    })
 
     if (!context.active && !context.error) {
         //loading

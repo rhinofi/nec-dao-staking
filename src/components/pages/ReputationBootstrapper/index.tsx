@@ -1,7 +1,6 @@
 import React from 'react'
 import { observer, inject } from 'mobx-react'
 import { Switch, Route } from 'react-router-dom'
-import * as log from 'loglevel';
 import styled from 'styled-components'
 import Selector from './Selector'
 import LockNEC from './LockNEC'
@@ -11,10 +10,6 @@ import { RootStore } from 'stores/Root';
 import ConnectWallet from 'components/common/ConnectWallet'
 import ConnectMainNet from 'components/common/ConnectMainNet'
 import { ProviderState } from 'stores/Provider';
-
-const check = {
-  defaultAccount: '[Check] Default Account'
-}
 
 const RootWrapper = styled.div`
   width:100%;

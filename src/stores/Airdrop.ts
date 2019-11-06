@@ -5,13 +5,11 @@ import { deployed } from "config.json"
 import * as log from 'loglevel'
 import { AirdropStaticParams, SnapshotInfo } from 'types'
 import { RootStore } from './Root';
-import { logs, errors, prefix } from 'strings'
-import BigNumber from "utils/bignumber"
+import { prefix } from 'strings'
 import BaseAsync from './BaseAsync';
 import { AirdropStaticParamsFetch } from 'services/fetch-actions/airdrop/AirdropStaticParamsFetch';
 import { StatusEnum } from 'services/fetch-actions/BaseFetch';
 import { AirdropUserDataFetch } from 'services/fetch-actions/airdrop/AirdropUserDataFetch';
-const REDEEM_EVENT = 'Redeem'
 
 export default class AirdropStore extends BaseAsync {
     @observable staticParams!: AirdropStaticParams

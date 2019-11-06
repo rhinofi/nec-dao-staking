@@ -1,6 +1,6 @@
 import { BaseFetch, StatusEnum, FetchActionResult } from 'services/fetch-actions/BaseFetch'
 import { RootStore } from 'stores/Root'
-import { Lock, LockStaticParams, Batch, newBatch } from 'types'
+import { Lock, LockStaticParams, Batch } from 'types'
 import BigNumber from 'utils/bignumber'
 const LOCK_EVENT = 'LockToken'
 const RELEASE_EVENT = 'Release'
@@ -129,7 +129,6 @@ export class UserLocksFetch extends BaseFetch {
         const contract = this.contract
 
         const currentBlock = this.rootStore.timeStore.currentBlock
-        const sessionId = this.rootStore.dataFetcher.getCurrentSessionId()
 
         if (currentBlock < nextBlockToFetch - 1) {
             throw new Error(`Current block ${currentBlock} is less than the last fetched block ${nextBlockToFetch}`)
@@ -182,10 +181,6 @@ export class UserLocksFetch extends BaseFetch {
             if (!locks.has(extend.id)) {
                 throw new Error("Trying to extend lock which doesn't exist")
             }
-
-            const lock = locks.get(extend.id) as Lock
-
-            const scores = this.calcExtendScores(lock, extend)
 
             const updatedLock = this.updateLockDuration(locks.get(extend.id) as Lock, extend.extendDuration)
             locks.set(extend.id, updatedLock)

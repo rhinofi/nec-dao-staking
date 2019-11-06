@@ -1,24 +1,8 @@
-import { observable, action, computed } from 'mobx'
+import { observable, action } from 'mobx'
 import Promise from "bluebird";
-import log from 'loglevel';
 import Web3 from 'web3';
 import { RootStore } from './Root';
 import { activeNetworkId } from 'config.json'
-
-const errors = {
-    setAccount: 'Set Account Failed',
-    setWeb3WebClient: 'Set Web3Client Failed'
-}
-
-const fetchStart = {
-    setAccount: '[Fetch] Set Account',
-    setWeb3WebClient: '[Fetch] Web3Client'
-}
-
-const fetchEnd = {
-    setAccount: '[Complete] Set Account',
-    setWeb3WebClient: '[Complete] Web3Client'
-}
 
 // Libraries
 const promisify = Promise.promisify;

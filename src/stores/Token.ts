@@ -9,19 +9,9 @@ const objectPath = require("object-path")
 type Address = string
 type Key = string
 
-const fetch = {
-    balanceOf: '[Fetch] Balance Of',
-    allowance: '[Fetch] Allowance',
-}
-
 const error = {
     balanceOf: '[Error] Balance Of',
     allowance: '[Error] Allowance',
-}
-
-const complete = {
-    balanceOf: '[Complete] Balance Of',
-    allowance: '[Complete] Allowance',
 }
 
 const defaultAsyncActions = {

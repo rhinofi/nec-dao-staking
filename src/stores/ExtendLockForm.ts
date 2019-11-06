@@ -1,6 +1,5 @@
-import { observable, action, computed } from 'mobx'
+import { observable, action } from 'mobx'
 import { RootStore } from './Root';
-import { Lock } from 'types';
 
 export default class ExtendLockFormStore {
     @observable selectedLockId: string = ''

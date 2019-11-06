@@ -1,7 +1,7 @@
 import { BaseFetch, StatusEnum, FetchActionResult } from 'services/fetch-actions/BaseFetch'
 import { RootStore } from 'stores/Root'
 import BigNumber from "utils/bignumber"
-import { BidStaticParams, Auction, AuctionStatus } from 'types'
+import { Auction, AuctionStatus } from 'types'
 
 const BID_EVENT = 'Bid'
 
@@ -64,7 +64,6 @@ export class AuctionDataFetch extends BaseFetch {
             currentAuction = finalAuction
         }
 
-        let auctionDataLoaded = false
         const auctions = new Map<number, Auction>()
 
         const bidEvents = await this.contract.getPastEvents(BID_EVENT, {

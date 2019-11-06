@@ -38,7 +38,7 @@ const Logo = styled.img`
   height: 127px;
 `
 
-const ConnectMainNet = ({}) => {
+const ConnectMainNet = () => {
   return (
     <ConnectWrapper>
       <Title>
@@ -48,7 +48,7 @@ const ConnectMainNet = ({}) => {
         Please connect to the Ethereum Main Network
       </SubTitle>
       <Logo src={NetworkImage} />
-    </ConnectWrapper> 
+    </ConnectWrapper>
   )
 }
 

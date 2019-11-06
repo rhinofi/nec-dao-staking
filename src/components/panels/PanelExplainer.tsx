@@ -1,7 +1,7 @@
 import React from 'react'
 import { PanelText } from 'components/common'
 import { LockFormWrapper } from './LockPanel'
-import { PanelWrapper, AmountLabelWrapper } from 'components/common/Panel'
+import { AmountLabelWrapper } from 'components/common/Panel'
 import Tooltip from '../common/Tooltip'
 
 interface Props {

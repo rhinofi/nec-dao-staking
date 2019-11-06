@@ -31,7 +31,7 @@ export enum TimeMode {
   MONTHS_DAYS
 }
 
-const { toBN, isAddress } = Web3.utils;
+const { toBN } = Web3.utils;
 
 export const MAX_GAS = 0xffffffff;
 export const MAX_UINT = Web3.utils.toTwosComplement('-1');
@@ -42,10 +42,6 @@ export const MAX_APPROVAL_THRESHOLD = MAX_UINT_BN.dividedToIntegerBy(MAX_UINT_DI
 const TEN18 = new BN('1000000000000000000');
 
 export const WAD = TEN18
-
-var padLeft = function (string, chars, sign) {
-  return new Array(chars - string.length + 1).join(sign ? sign : "0") + string;
-};
 
 export function toChecksum(address) {
   return Web3.utils.toChecksumAddress(address)

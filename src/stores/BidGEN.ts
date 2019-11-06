@@ -1,13 +1,13 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
-import { observable, action, computed } from 'mobx'
+import { observable, action } from 'mobx'
 import { deployed } from "config.json"
 import BigNumber from 'bignumber.js'
 import * as log from 'loglevel'
-import { BidStaticParams, Auction, AuctionStatus } from 'types'
+import { BidStaticParams, Auction } from 'types'
 import { RootStore } from './Root'
 import BaseAsync from './BaseAsync'
-import { logs, errors, prefix } from 'strings'
+import { errors, prefix } from 'strings'
 import { AuctionStaticParamsFetch } from 'services/fetch-actions/auction/AuctionStaticParamsFetch'
 import { AuctionDataFetch } from 'services/fetch-actions/auction/AuctionDataFetch'
 import { StatusEnum } from 'services/fetch-actions/BaseFetch'

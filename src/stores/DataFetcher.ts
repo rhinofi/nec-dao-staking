@@ -1,5 +1,5 @@
 // Stores
-import { observable, action, computed } from 'mobx'
+import { observable, action } from 'mobx'
 import { deployed } from 'config.json'
 import { RootStore } from './Root';
 import * as log from 'loglevel';

@@ -2,7 +2,6 @@ import React from 'react'
 import styled from 'styled-components'
 import Popup from 'reactjs-popup'
 import { observer, inject } from 'mobx-react'
-import { observable } from "mobx"
 import ActiveButton from 'components/common/buttons/ActiveButton'
 import InactiveButton from 'components/common/buttons/InactiveButton'
 import * as helpers from 'utils/helpers'
@@ -14,7 +13,6 @@ import PanelExplainer from './PanelExplainer'
 import { tooltip } from 'strings'
 import Tooltip from 'components/common/Tooltip'
 import { PanelWrapper, ValidationError, AmountForm, AmountLabelWrapper, MaxButton } from 'components/common/Panel'
-import { Root } from 'react-dom'
 
 export const LockFormWrapper = styled.div`
   display: flex;

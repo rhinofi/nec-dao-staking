@@ -93,10 +93,6 @@ enum TabEnum {
   ALL_PERIODS
 }
 
-const status = {
-  NOT_STARTED: 0
-}
-
 type Props = {
   root: RootStore
 }
@@ -121,14 +117,13 @@ class LockNEC extends React.Component<any, State> {
   }
 
   getTimerVisuals() {
-    const { lockNECStore, timeStore } = this.props.root as RootStore
+    const { lockNECStore } = this.props.root as RootStore
 
     const currentBatch = lockNECStore.getActiveLockingBatch()
     const finalBatch = lockNECStore.getFinalBatchIndex()
     const batchLength = lockNECStore.staticParams.batchTime
     const isLockingStarted = lockNECStore.isLockingStarted()
     const isLockingEnded = lockNECStore.isLockingEnded()
-    const numBatches = lockNECStore.staticParams.numLockingBatches
     const finalBatchIndex = lockNECStore.getFinalBatchIndex()
 
     const currentBatchDisplay = currentBatch + 1
@@ -202,7 +197,7 @@ class LockNEC extends React.Component<any, State> {
   }
 
   render() {
-    const { lockNECStore, providerStore, tokenStore, timeStore, txTracker } = this.props.root as RootStore
+    const { lockNECStore, providerStore, tokenStore, txTracker } = this.props.root as RootStore
     const { currentTab } = this.state
     const userAddress = providerStore.getDefaultAccount()
     const necTokenAddress = deployed.NectarToken
@@ -229,7 +224,6 @@ class LockNEC extends React.Component<any, State> {
 
     const userHasLocks = lockNECStore.userHasLocks(userAddress)
     const necBalance = tokenStore.getBalance(necTokenAddress, userAddress)
-    const now = timeStore.currentTime
 
     const timerVisuals = this.getTimerVisuals()
 

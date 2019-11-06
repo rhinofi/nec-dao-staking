@@ -40,11 +40,11 @@ const SubTitle = styled.div`
   margin-bottom: 40px;
 `
 
-const ButtonWrapper =styled.div`
+const ButtonWrapper = styled.div`
   width: 200px;
 `
 
-const ConnectWallet = ({}) => {
+const ConnectWallet = () => {
   return (
     <ConnectWrapper>
       <Logo src={NECLogo} />
@@ -59,7 +59,7 @@ const ConnectWallet = ({}) => {
           Connect
         </ActiveButton>
       </ButtonWrapper>
-    </ConnectWrapper>  
+    </ConnectWrapper>
   )
 }
 

@@ -53,12 +53,6 @@ const ActionsHeader = styled.div`
   border-bottom: 1px solid var(--border);
 `
 
-const propertyNames = {
-  STATIC_PARAMS: 'staticParams',
-  USER_LOCKS: 'userLocks',
-  AUCTION_DATA: 'auctionData'
-}
-
 @inject('root')
 @observer
 class BidGEN extends React.Component<any, any>{
@@ -112,11 +106,9 @@ class BidGEN extends React.Component<any, any>{
     'Auctions have ended'
   */
   getAuctionPercentageAndTimer() {
-    const { bidGENStore, timeStore } = this.props.root as RootStore
+    const { bidGENStore } = this.props.root as RootStore
 
-    const now = timeStore.currentTime
     const currentAuction = bidGENStore.getActiveAuction()
-
     const finalAuction = bidGENStore.getFinalAuctionIndex()
     const timeUntilNextAuction = bidGENStore.getTimeUntilNextAuction()
     const auctionLength = bidGENStore.staticParams.auctionLength
@@ -168,7 +160,7 @@ class BidGEN extends React.Component<any, any>{
   }
 
   render() {
-    const { bidGENStore, tokenStore, providerStore, timeStore } = this.props.root as RootStore
+    const { bidGENStore, tokenStore, providerStore } = this.props.root as RootStore
 
     const userAddress = providerStore.getDefaultAccount()
     const genTokenAddress = deployed.GenToken
@@ -187,7 +179,6 @@ class BidGEN extends React.Component<any, any>{
     const auctionData = bidGENStore.auctionData
     const genBalance = tokenStore.getBalance(genTokenAddress, userAddress)
     const genBalanceDisplay = helpers.tokenDisplay(genBalance)
-    const now = timeStore.currentTime
 
     const auctionDisplayInfo = this.getAuctionPercentageAndTimer()
     const { auctionPercentage, auctionTimer, auctionTitle } = auctionDisplayInfo

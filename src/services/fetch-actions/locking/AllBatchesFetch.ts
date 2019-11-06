@@ -2,9 +2,6 @@ import { BaseFetch, StatusEnum, FetchActionResult } from 'services/fetch-actions
 import { RootStore } from 'stores/Root'
 import { Lock, LockStaticParams, Batch, newBatch } from 'types'
 import BigNumber from 'utils/bignumber'
-const LOCK_EVENT = 'LockToken'
-const RELEASE_EVENT = 'Release'
-const EXTEND_LOCKING_EVENT = 'ExtendLocking'
 
 type Scores = Map<number, BigNumber>
 type Locks = Map<string, Lock>
