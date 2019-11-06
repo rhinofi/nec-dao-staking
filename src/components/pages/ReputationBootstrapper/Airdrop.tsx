@@ -69,6 +69,11 @@ const Info = styled(InfoTitle)`
   text-align: right;
 `
 
+const LoadingCircleWrapper = styled.div`
+  height: 40px;
+  margin-top: -26px;
+`
+
 interface InfoLineProps {
   title: string;
   info: any;
@@ -204,7 +209,7 @@ class Airdrop extends React.Component<any, any>{
     }
 
     if (pending) {
-      return (<LoadingCircle instruction="Claiming REP..." />)
+      return (<LoadingCircleWrapper><LoadingCircle instruction="Claiming REP..." /></LoadingCircleWrapper>)
     }
 
     if (status === snapshotStatus.CLAIM_STARTED && userBalance !== "0" && !hasRedeemed) {
@@ -271,13 +276,13 @@ class Airdrop extends React.Component<any, any>{
           displayTooltip={false}
           tooltipContent={tooltip.airdropExplainer}
         />
-        <Divider width="80%" margin="20px 0px 20px 0px" />
+        <Divider />
         <InfoLine title="Nectar Balance" info={necBalanceDisplay} hasTooltip={false} />
         <InfoLine title="Receive Voting Power" info={repDisplay} hasTooltip={false} />
-        <Divider width="80%" margin="20px 0px 20px 0px" />
+        <Divider />
         <InfoLine title="Airdrop Blocknumber" info={snapshotBlock} hasTooltip={true} />
         <InfoLine title="Current Blocknumber" info={currentBlock} hasTooltip={false} />
-        <Divider width="80%" margin="20px 0px 20px 0px" />
+        <Divider />
         <ButtonWrapper>
           {this.renderActionButton(dropStatus, necBalance, redeemPending, userData)}
         </ButtonWrapper>
