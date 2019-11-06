@@ -208,13 +208,13 @@ class LockPanel extends React.Component<any, any>{
           <input type="text" name="name" placeholder="0" value={amount} onChange={e => this.setLockAmount(e.target.value)} />
           <div>NEC</div>
         </AmountForm>
+        {
+          touched && error ?
+            <ValidationError>{errorMessage}</ValidationError>
+            :
+            <React.Fragment></React.Fragment>
+        }
       </LockFormWrapper>
-      {
-        touched && error ?
-          <ValidationError>{errorMessage}</ValidationError>
-          :
-          <React.Fragment></React.Fragment>
-      }
       <ReleaseableDateWrapper>
         <div>Releasable</div>
         <ReleaseableDate>{releaseableDate}</ReleaseableDate>

@@ -69,7 +69,7 @@ const InactiveTableTabButton = styled(TableTabButton)`
 `
 
 const ActionsWrapper = styled.div`
-  max-width: 324px;
+  width: 324px;
   font-family: Montserrat;
   font-style: normal;
   font-weight: 500;

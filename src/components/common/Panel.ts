@@ -1,14 +1,13 @@
 import styled from 'styled-components'
 
 export const ValidationError = styled.div`
-  text-align: right;
+  text-align: left;
   color: var(--invalid-red);
   font-family: Montserrat;
   font-weight: 600;
   font-size: 12px;
   line-height: 15px;
-  margin-top: 8px;
-  margin-bottom: -23px;
+  margin-bottom: -15px;
 `
 
 export const PanelWrapper = styled.div`
