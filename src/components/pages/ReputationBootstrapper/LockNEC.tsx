@@ -13,7 +13,7 @@ import UserLocksTable from 'components/tables/UserLocksTable'
 import LoadingCircle from '../../common/LoadingCircle'
 import { RootStore } from 'stores/Root'
 import ExtendLockPanel from 'components/panels/ExtendLockPanel'
-import { tooltip } from 'strings'
+import { text, tooltip } from 'strings'
 
 const LockNECWrapper = styled.div`
   display: flex;
@@ -137,7 +137,7 @@ class LockNEC extends React.Component<any, State> {
     let batchPercentage = 0
     let batchTimer = '...'
     let batchStatus = 0
-    let batchTitle = `Current Batch: ${currentBatchDisplay} of ${finalBatchIndexDisplay}`
+    let batchTitle = `${text.currentBatchTitle}: ${currentBatchDisplay} of ${finalBatchIndexDisplay}`
 
     let prefix = 'Next starts in'
 
@@ -155,7 +155,7 @@ class LockNEC extends React.Component<any, State> {
     if (!isLockingEnded) {
       const timeUntilNextBatch = Number(lockNECStore.getTimeUntilNextBatch())
       batchPercentage = (timeUntilNextBatch / batchLength) * 100
-      batchTimer = `${prefix}, ${timeUntilNextBatch} seconds`
+      batchTimer = `${prefix} ${timeUntilNextBatch} seconds`
     }
 
     // Locking Ended
@@ -250,8 +250,8 @@ class LockNEC extends React.Component<any, State> {
             />
             {isLockingStarted ?
               <TableTabEnumWrapper>
-                {this.TabButton(currentTab, TabEnum.ALL_PERIODS, "All Batches")}
-                {this.TabButton(currentTab, TabEnum.YOUR_LOCKS, "Your Locks")}
+                {this.TabButton(currentTab, TabEnum.ALL_PERIODS, text.allBatchesTab)}
+                {this.TabButton(currentTab, TabEnum.YOUR_LOCKS, text.yourLocksTab)}
               </TableTabEnumWrapper>
               : <React.Fragment></React.Fragment>
             }
