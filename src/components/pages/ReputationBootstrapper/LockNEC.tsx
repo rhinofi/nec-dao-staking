@@ -255,7 +255,7 @@ class LockNEC extends React.Component<any, State> {
         <ActionsWrapper>
           <ActionsHeader>
             <LogoAndText icon={icon} text="Nectar" />
-            <TokenValue weiValue={necBalance} />
+            <TokenValue weiValue={necBalance} tokenName="NEC" />
           </ActionsHeader>
           < React.Fragment >
             {tokenApproved === false ?

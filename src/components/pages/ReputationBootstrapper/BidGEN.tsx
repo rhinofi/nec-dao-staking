@@ -13,6 +13,7 @@ import { deployed } from 'config.json'
 import LoadingCircle from '../../common/LoadingCircle'
 import { RootStore } from 'stores/Root'
 import { tooltip } from 'strings'
+import TokenValue from 'components/common/TokenValue'
 
 const BidGENWrapper = styled.div`
   display: flex;
@@ -206,7 +207,7 @@ class BidGEN extends React.Component<any, any>{
         <ActionsWrapper>
           <ActionsHeader>
             <LogoAndText icon={GENLogo} text="GEN" />
-            <div>{genBalanceDisplay} GEN</div>
+            <TokenValue weiValue={genBalance} tokenName='GEN' />
           </ActionsHeader>
           {this.SidePanel()}
         </ActionsWrapper>

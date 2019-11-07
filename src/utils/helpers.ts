@@ -6,6 +6,7 @@ import Web3 from "web3";
 
 // Settings
 import BigNumber from "utils/bignumber"
+import { numeral, moment } from "utils/formatters"
 export const BN = require('bn.js');
 
 export interface FormStatus {
@@ -38,6 +39,12 @@ export const MAX_UINT = Web3.utils.toTwosComplement('-1');
 export const MAX_UINT_BN = new BigNumber(MAX_UINT)
 export const MAX_UINT_DIVISOR = new BigNumber(2)
 export const MAX_APPROVAL_THRESHOLD = MAX_UINT_BN.dividedToIntegerBy(MAX_UINT_DIVISOR)
+
+export const MILLION = new BigNumber(1000000)
+export const THOUSAND = new BigNumber(1000)
+export const ONE = new BigNumber(0)
+export const MIN_VISIBLE_VALUE = new BigNumber(0.0001)
+export const ZERO = new BigNumber(0)
 
 const TEN18 = new BN('1000000000000000000');
 
@@ -156,55 +163,62 @@ function numSecounds(value) {
   // remainingHours = remainder / MINUTE
 }
 
-export function getNetworkNameById(id) {
-  switch (id) {
-    case "main":
-    case "1":
-      return "main";
-    case "morden":
-    case "2":
-      return "morden";
-    case "ropsten":
-    case "3":
-      return "ropsten";
-    case "rinkeby":
-    case "4":
-      return "rinkeby";
-    case "kovan":
-    case "42":
-      return "kovan";
-    case "private":
-    case "1512051714758":
-      return "ganache";
-    default:
-      return `unknown (${id})`;
+/* Display a token value with format based on it's wei value */
+export function tokenDisplay(weiValue: BigNumber, round?: boolean): string {
+  const tokenValue = divTen18(weiValue)
+
+  if (tokenValue.eq(ZERO)) {
+    return '0'
+  }
+
+  // Millions Format (M)
+  if (tokenValue.gt(MILLION)) {
+    return toMillions(tokenValue)
+  }
+  // Thousands Format (k)
+  if (tokenValue.gt(THOUSAND)) {
+    return toThousands(tokenValue)
+  }
+
+  if (tokenValue.gt(ONE)) {
+    return toSubThousands(tokenValue)
+  }
+
+  // Standard Format (currency format, 4-digit decimal precision)
+  if (tokenValue.gt(MIN_VISIBLE_VALUE)) {
+    return toSubOne(tokenValue)
+  }
+
+  // Exponential Format
+  else {
+    return toExponential(tokenValue)
   }
 }
 
-export function getDurationTimeText(value) {
-  const inSeconds = Number(value)
-  const time = timeConstants.inSeconds
-
-  if (inSeconds > time.DAY) {
-    const days = 1
-    const hours = 1
-    return `${days} ${dayText(days)}, ${hours} ${hourText(hours)}`
-  } else if (inSeconds <= time.DAY && inSeconds > time.HOUR) {
-    const hours = 1
-    const minutes = 1
-    return `${hours} ${hourText(hours)}, ${minutes} ${minuteText(minutes)}`
-  } else if (inSeconds <= time.HOUR && inSeconds > time.MINUTE) {
-    const minutes = 1
-    const seconds = 1
-    return `${minutes} ${minuteText(minutes)}, ${seconds} ${secondText(seconds)}`
-  } else if (inSeconds <= time.MINUTE) {
-    const seconds = 1
-    return `${seconds} ${secondText(seconds)}`
-  }
+function toMillions(tokenValue: BigNumber): string {
+  const inMillions = tokenValue.div(MILLION)
+  return numeral(inMillions.toFixed(6)).format('0,0.[0000]') + 'M'
 }
 
-export function tokenDisplay(value: BigNumber): string {
-  return roundValue(Web3.utils.fromWei(value.toString()))
+function toThousands(tokenValue: BigNumber): string {
+  // const inThousands = tokenValue.div(THOUSAND)
+  return numeral(tokenValue.toFixed(6)).format('0,0.[000]')
+}
+
+function toSubThousands(tokenValue: BigNumber): string {
+  return numeral(tokenValue.toFixed(4, BigNumber.ROUND_DOWN)).format('0.[0000]')
+}
+
+function toSubOne(tokenValue: BigNumber): string {
+  console.log({
+    fixed: tokenValue.toFixed(4, BigNumber.ROUND_DOWN),
+    numeral: numeral(tokenValue.toFixed(4, BigNumber.ROUND_DOWN)).format('0.[000]')
+  })
+  return numeral(tokenValue.toFixed(4, BigNumber.ROUND_DOWN)).format('0.[0000]')
+}
+
+function toExponential(tokenValue: BigNumber): string {
+  return tokenValue.toExponential()
 }
 
 export function isZero(value: number | string): boolean {
@@ -246,14 +260,13 @@ export function pow10(value) {
   return ten.pow(value)
 }
 
-export function toAmount(value) {
-  return toFixed(Web3.utils.fromWei(value))
+export function divTen18(value: BigNumber): BigNumber {
+  return value.div(pow10(18))
 }
 
 export function toFixed(value) {
   const numValue = new BigNumber(value)
-  const fixed = numValue.toPrecision(4)
-  return fixed.toString()
+  return numValue.toString(10)
 }
 
 export function fromRep(value) {
@@ -291,17 +304,8 @@ export function timestampToDate(timestamp) {
   return `${day}.${month + 1}.${year}`
 }
 
-export const formatDate = timestamp => {
-  const date = new Date(timestamp * 1000);
-  return `${date.toDateString()} ${addZero(date.getHours())}:${addZero(date.getMinutes())}:${addZero(date.getSeconds())}`;
-}
-
 export const addZero = value => {
   return value > 9 ? value : `0${value}`;
-}
-
-export const fromRaytoWad = (x) => {
-  return toBN(x).div(toBN(10).pow(toBN(9)));
 }
 
 export function toAddressStub(address) {
@@ -311,7 +315,7 @@ export function toAddressStub(address) {
   return `${start}...${end}`
 }
 
-export function roundValue(value) {
+export function roundValue(value: string): string {
   const decimal = value.indexOf('.')
   if (decimal === -1) {
     return value
@@ -333,17 +337,6 @@ export function fromPercentageToFee(value) {
   const weiValue = new BN(Web3.utils.toWei(value, 'ether'))
   const feeValue = weiValue.div(new BN(100))
   return feeValue.toString()
-}
-
-export const copyToClipboard = e => {
-  const value = e.target.title.replace(",", "");
-  var aux = document.createElement("input");
-  aux.setAttribute("value", value);
-  document.body.appendChild(aux);
-  aux.select();
-  document.execCommand("copy");
-  document.body.removeChild(aux);
-  alert(`Value: "${value}" copied to clipboard`);
 }
 
 export const methodSig = method => {

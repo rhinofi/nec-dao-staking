@@ -1,4 +1,3 @@
-/* eslint-disable class-methods-use-this */
 import { observable, action } from 'mobx'
 import * as helpers from "utils/helpers"
 import * as log from 'loglevel';
@@ -156,7 +155,7 @@ export default class TokenStore {
     @action fetchBalanceOf = async (tokenAddress, account) => {
         log.debug('[Fetch] Balance Of', { tokenAddress, account })
         const token = this.loadContract(tokenAddress)
-        const balance = await token.methods.balanceOf(account).call()
+        const balance = new BigNumber(await token.methods.balanceOf(account).call())
         this.setBalanceProperty(tokenAddress, account, balance)
         log.debug('[Complete] Balance Of', { tokenAddress, account, balance })
     }

@@ -1,16 +1,25 @@
 import React from 'react'
 import * as helpers from 'utils/helpers'
+import BigNumber from 'utils/bignumber'
 
 type Props = {
-    weiValue: any
+    weiValue: BigNumber
+    tokenName?: string
 }
 
 class TokenValue extends React.Component<Props, any>{
     render() {
-        const { weiValue } = this.props
-        const displayValue = helpers.roundValue(helpers.fromWei(weiValue))
+        const { weiValue, tokenName } = this.props
+        const displayValue = helpers.tokenDisplay(weiValue)
         return (
-            <div>{displayValue}</div>
+            <React.Fragment>
+                {
+                    tokenName ?
+                        <div>{`${displayValue} ${tokenName}`}</div>
+                        :
+                        <div>{displayValue}</div>
+                }
+            </React.Fragment>
         )
     }
 }
