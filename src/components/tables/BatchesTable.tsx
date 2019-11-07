@@ -90,10 +90,10 @@ class BatchesTable extends React.Component<any, any>{
                                 const Cell = highlight ? CellWrapper : GreyCell
                                 const Wrapper = highlight ? RowWrapper : InactiveRowWrapper
                                 return (
-                                    <Wrapper>
-                                        <Row>
-                                            {columns.map(column => (
-                                                <Cell width={column.width} align={column.align}>
+                                    <Wrapper key={`wrapper-${index}`}>
+                                        <Row key={`row-${index}`}>
+                                            {columns.map((column, index) => (
+                                                <Cell key={`cell-${index}`} width={column.width} align={column.align}>
                                                     {row[column.key]}
                                                 </Cell>
                                             ))}
