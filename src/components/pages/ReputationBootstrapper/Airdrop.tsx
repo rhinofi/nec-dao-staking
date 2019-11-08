@@ -144,12 +144,15 @@ class Airdrop extends React.Component<any, any>{
     const { snapshotBlock } = airdropStore.staticParams
     const now = timeStore.currentTime
     const currentBlock = timeStore.currentBlock
+    const claimPeriodStart = airdropStore.getClaimPeriodStart()
+    const claimPeriodEnd = airdropStore.getClaimPeriodEnd()
+
+    const timeUntilEnd = helpers.formatTimeRemaining(airdropStore.getSecondsUntilClaimsEnd())
 
     const isSnapshotPassed = airdropStore.isAfterSnapshot()
     const isClaimPeriodStarted = airdropStore.isClaimPeriodStarted()
     const isClaimPeriodEnded = airdropStore.isClaimPeriodEnded()
     const isClaimPeriodActive = isClaimPeriodStarted && !isClaimPeriodEnded
-
 
     if (isSnapshotPassed && !isClaimPeriodStarted) {
       dropPercentage = 100
@@ -158,8 +161,9 @@ class Airdrop extends React.Component<any, any>{
     }
 
     else if (isSnapshotPassed && isClaimPeriodActive) {
-      dropPercentage = 100
-      dropTimer = 'Claim Period Active'
+      dropPercentage = helpers.getPercentage(claimPeriodStart, now, claimPeriodEnd)
+
+      dropTimer = `Claiming ends in ${timeUntilEnd}`
       dropStatus = snapshotStatus.CLAIM_STARTED
     }
 
@@ -171,10 +175,10 @@ class Airdrop extends React.Component<any, any>{
 
     else if (!isSnapshotPassed) {
       //This should probably be the deployment block
-      const timerBlockDuration = 1728
-      const blocksUntilSnapshot = airdropStore.getBlocksUntilSnapshot()
+      const arbitraryStartBlock = 5000000
+      const blocksUntilSnapshot = snapshotBlock - currentBlock
 
-      dropPercentage = 100 * (blocksUntilSnapshot / timerBlockDuration)
+      dropPercentage = helpers.getPercentage(arbitraryStartBlock, currentBlock, snapshotBlock)
       dropTimer = `In ${blocksUntilSnapshot} blocks`
     }
 
@@ -192,9 +196,12 @@ class Airdrop extends React.Component<any, any>{
   }
 
   renderActionButton(status, userBalance, pending, userData) {
+    const { airdropStore } = this.props.root as RootStore
     if (status === snapshotStatus.NOT_STARTED) {
       return (<ActiveButton>Buy NEC</ActiveButton>)
     }
+
+    const timeUntilStart = helpers.formatTimeRemaining(airdropStore.getClaimPeriodStart())
 
     const hasRedeemed = userData.hasRedeemed
 
@@ -216,11 +223,11 @@ class Airdrop extends React.Component<any, any>{
     }
 
     if (status === snapshotStatus.CLAIM_ENDED && userBalance !== "0" && !hasRedeemed) {
-      return (<InactiveButton>Claiming Period has Ended</InactiveButton>)
+      return (<InactiveButton>Claim Period has Ended</InactiveButton>)
     }
 
     if (status === snapshotStatus.SNAPSHOT_CONCLUDED) {
-      return (<InactiveButton>Claiming Period has not Started</InactiveButton>)
+      return (<InactiveButton>{`Claiming starts in ${timeUntilStart}`}</InactiveButton>)
     }
   }
 
@@ -241,7 +248,6 @@ class Airdrop extends React.Component<any, any>{
     const snapshotBlock = airdropStore.getSnapshotBlock()
     const currentBlock = timeStore.currentBlock
     const dropVisuals = this.calcDropVisuals()
-
     const { dropPercentage, dropTimer, dropStatus } = dropVisuals
 
 

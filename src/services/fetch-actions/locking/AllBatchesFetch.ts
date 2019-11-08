@@ -2,6 +2,7 @@ import { BaseFetch, StatusEnum, FetchActionResult } from 'services/fetch-actions
 import { RootStore } from 'stores/Root'
 import { Lock, LockStaticParams, Batch, newBatch } from 'types'
 import BigNumber from 'utils/bignumber'
+import * as helpers from 'utils/helpers'
 
 type Scores = Map<number, BigNumber>
 type Locks = Map<string, Lock>
@@ -41,6 +42,7 @@ export class AllBatchesFetch extends BaseFetch {
         return batches
     }
 
+    // Do the network operations or local operations take more time?
     async fetchData(): Promise<FetchActionResult> {
         const contract = this.contract
         const { locks, finalBatch, currentBatch } = this.params
@@ -66,6 +68,8 @@ export class AllBatchesFetch extends BaseFetch {
                 totalScore = new BigNumber(await contract.methods.batches(i).call())
                 // console.log('totalScore', i, totalScore.toString())
             }
+
+            totalRep = helpers.fromReal(totalRep)
 
             const userLocked = batch.userLocked
             const userScore = batch.userScore

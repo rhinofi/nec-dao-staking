@@ -23,7 +23,7 @@ const Title = styled.div`
   font-family: Montserrat;
   font-style: normal;
   font-weight: 400;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 20px;
   text-align: left;
   margin: 0px 0px 0px 20px;

@@ -2,7 +2,6 @@ import BigNumber from "bignumber.js"
 
 // BigNumber.set({ EXPONENTIAL_AT: [-7, 50] })
 BigNumber.config({
-    DECIMAL_PLACES: 4,
     EXPONENTIAL_AT: [-7, 50],
     FORMAT: {
         // string to prepend

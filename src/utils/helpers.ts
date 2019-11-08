@@ -6,7 +6,8 @@ import Web3 from "web3";
 
 // Settings
 import BigNumber from "utils/bignumber"
-import { numeral, moment } from "utils/formatters"
+import moment from 'moment';
+import { numeral } from "utils/formatters"
 export const BN = require('bn.js');
 
 export interface FormStatus {
@@ -24,15 +25,20 @@ export const timeConstants = {
   }
 }
 
+interface Duration {
+  inSeconds: number;
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
+
 export enum TimeMode {
   SECONDS,
   MINUTES_SECONDS,
   HOURS_MINUTES,
-  DAYS_HOURS,
-  MONTHS_DAYS
+  DAYS_HOURS
 }
-
-const { toBN } = Web3.utils;
 
 export const MAX_GAS = 0xffffffff;
 export const MAX_UINT = Web3.utils.toTwosComplement('-1');
@@ -42,9 +48,10 @@ export const MAX_APPROVAL_THRESHOLD = MAX_UINT_BN.dividedToIntegerBy(MAX_UINT_DI
 
 export const MILLION = new BigNumber(1000000)
 export const THOUSAND = new BigNumber(1000)
-export const ONE = new BigNumber(0)
+export const ONE = new BigNumber(1)
 export const MIN_VISIBLE_VALUE = new BigNumber(0.0001)
 export const ZERO = new BigNumber(0)
+export const REAL_ONE = (new BigNumber(2)).exponentiatedBy(40)
 
 const TEN18 = new BN('1000000000000000000');
 
@@ -58,6 +65,10 @@ export function getCurrentTime() {
   return Math.round((new Date()).getTime() / 1000)
 }
 
+export function toTokenValue(value: BigNumber): BigNumber {
+  return value.div(TEN18)
+}
+
 export function toWei(value: string | BigNumber): string {
   return Web3.utils.toWei(value.toString())
 }
@@ -68,6 +79,31 @@ export function fromWei(value: string | BigNumber): string {
 
 export function isNumeric(num) {
   return !isNaN(num)
+}
+
+/*
+  @param zeroValue: Value that represents 0% 
+  @param currentValue: Calculate % based on this value
+  @param hundredValue: Value that reprsents 100%
+  @return Percentage value
+*/
+export function getPercentage(zeroValue: number, currentValue: number, hundredValue: number): number {
+  if (currentValue <= zeroValue) {
+    return 0
+  }
+
+  if (currentValue >= hundredValue) {
+    return 100
+  }
+
+  const numerator = currentValue - zeroValue
+  const demoninator = hundredValue = currentValue
+  return numerator / demoninator
+}
+
+export function timeUntil(timestamp: number): string {
+  const timeUntil = moment(timestamp * 1000).fromNow()
+  return timeUntil
 }
 
 function getTimeModeByDuration(seconds: number): TimeMode {
@@ -89,31 +125,42 @@ function getTimeModeByDuration(seconds: number): TimeMode {
     timeMode = TimeMode.DAYS_HOURS
   }
 
-  if (seconds > MONTH) {
-    timeMode = TimeMode.MONTHS_DAYS
-  }
   return timeMode
 }
-export function formatTimeRemaining(seconds: number) {
-  const { MONTH, DAY, HOUR, MINUTE, SECOND } = timeConstants.inSeconds
+export function formatTimeRemaining(seconds: number): string {
   const timeMode = getTimeModeByDuration(seconds)
+  const duration = secondsToDuration(seconds)
 
   if (timeMode === TimeMode.SECONDS) {
-    return `${seconds} ${secondText(seconds)}`
+    return `${duration.seconds}s`
   }
 
   if (timeMode === TimeMode.MINUTES_SECONDS) {
-    const minutesValue = Math.trunc(seconds / MINUTE)
-    const secondsValue = seconds - (minutesValue * MINUTE)
-    return `${minutesValue} ${minuteText(minutesValue)}, ${secondsValue} ${secondText(secondsValue)}`
+    return `${duration.minutes}m:${duration.seconds}s`
   }
 
   if (timeMode === TimeMode.HOURS_MINUTES) {
-    const hoursValue = Math.trunc(seconds / HOUR)
-    const minutesValue = Math.trunc((seconds - (hoursValue * HOUR)) / MINUTE)
-    return `${hoursValue} ${hourText(hoursValue)}, ${minutesValue} ${minuteText(minutesValue)}`
+    return `${duration.hours}h:${duration.minutes}m:${duration.seconds}s`
   }
 
+  else {
+    return `${duration.days}d:${duration.hours}h:${duration.minutes}m:${duration.seconds}s`
+  }
+}
+
+function secondsToDuration(inSeconds: number): Duration {
+  const rawDuration = moment.duration(inSeconds, 'seconds')
+  const days = rawDuration.days()
+  const hours = rawDuration.hours()
+  const minutes = rawDuration.minutes()
+  const seconds = rawDuration.seconds()
+  return {
+    inSeconds: seconds,
+    days,
+    hours,
+    minutes,
+    seconds
+  }
 }
 
 function monthText(value) {
@@ -163,9 +210,13 @@ function numSecounds(value) {
   // remainingHours = remainder / MINUTE
 }
 
+export function fromReal(value: BigNumber): BigNumber {
+  return value.div(REAL_ONE)
+}
+
 /* Display a token value with format based on it's wei value */
 export function tokenDisplay(weiValue: BigNumber, round?: boolean): string {
-  const tokenValue = divTen18(weiValue)
+  const tokenValue = toTokenValue(weiValue)
 
   if (tokenValue.eq(ZERO)) {
     return '0'
@@ -180,7 +231,7 @@ export function tokenDisplay(weiValue: BigNumber, round?: boolean): string {
     return toThousands(tokenValue)
   }
 
-  if (tokenValue.gt(ONE)) {
+  if (tokenValue.gte(ONE)) {
     return toSubThousands(tokenValue)
   }
 
@@ -197,12 +248,12 @@ export function tokenDisplay(weiValue: BigNumber, round?: boolean): string {
 
 function toMillions(tokenValue: BigNumber): string {
   const inMillions = tokenValue.div(MILLION)
-  return numeral(inMillions.toFixed(6)).format('0,0.[0000]') + 'M'
+  return numeral(inMillions.toFixed(7, BigNumber.ROUND_DOWN)).format('0,0.[0000000]') + 'M'
 }
 
 function toThousands(tokenValue: BigNumber): string {
   // const inThousands = tokenValue.div(THOUSAND)
-  return numeral(tokenValue.toFixed(6)).format('0,0.[000]')
+  return numeral(tokenValue.toFixed(4, BigNumber.ROUND_DOWN)).format('0,0.[0000]')
 }
 
 function toSubThousands(tokenValue: BigNumber): string {
@@ -210,10 +261,6 @@ function toSubThousands(tokenValue: BigNumber): string {
 }
 
 function toSubOne(tokenValue: BigNumber): string {
-  console.log({
-    fixed: tokenValue.toFixed(4, BigNumber.ROUND_DOWN),
-    numeral: numeral(tokenValue.toFixed(4, BigNumber.ROUND_DOWN)).format('0.[000]')
-  })
   return numeral(tokenValue.toFixed(4, BigNumber.ROUND_DOWN)).format('0.[0000]')
 }
 
@@ -255,23 +302,14 @@ export function isEmpty(value) {
   return false
 }
 
-export function pow10(value) {
-  const ten = new BigNumber(10)
-  return ten.pow(value)
-}
-
-export function divTen18(value: BigNumber): BigNumber {
-  return value.div(pow10(18))
-}
-
-export function toFixed(value) {
+export function toFixed(value: BigNumber): string {
   const numValue = new BigNumber(value)
-  return numValue.toString(10)
+  return numValue.toFixed(4, BigNumber.ROUND_DOWN)
 }
 
 export function fromRep(value) {
   const numValue = new BigNumber(value)
-  const repValue = numValue.div(pow10(18))
+  const repValue = numValue.div(TEN18)
   return roundValue(repValue.toString())
 }
 
