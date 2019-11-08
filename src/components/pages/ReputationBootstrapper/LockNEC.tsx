@@ -14,6 +14,7 @@ import LoadingCircle from '../../common/LoadingCircle'
 import { RootStore } from 'stores/Root'
 import ExtendLockPanel from 'components/panels/ExtendLockPanel'
 import { text, tooltip } from 'strings'
+import * as helpers from 'utils/helpers'
 
 const LockNECWrapper = styled.div`
   display: flex;
@@ -134,23 +135,24 @@ class LockNEC extends React.Component<any, State> {
     let batchStatus = 0
     let batchTitle = `${text.currentBatchTitle}: ${currentBatchDisplay} of ${finalBatchIndexDisplay}`
 
-    let prefix = 'Next starts in'
+    let prefix = 'Next in'
 
     if (!isLockingStarted) {
-      prefix = 'First batch in'
+      prefix = 'Starts in'
       batchTitle = "Locking not started"
     }
 
 
     if (currentBatch === finalBatch && !isLockingEnded) {
-      prefix = 'Last batch ends in'
+      prefix = 'Ends in'
     }
 
     // Locking In Progress
     if (!isLockingEnded) {
       const timeUntilNextBatch = Number(lockNECStore.getTimeUntilNextBatch())
       batchPercentage = (timeUntilNextBatch / batchLength) * 100
-      batchTimer = `${prefix} ${timeUntilNextBatch} seconds`
+      const timeUntilNextBatchDisplay = helpers.formatTimeRemaining(timeUntilNextBatch)
+      batchTimer = `${prefix} ${timeUntilNextBatchDisplay}`
     }
 
     // Locking Ended
@@ -255,7 +257,7 @@ class LockNEC extends React.Component<any, State> {
         <ActionsWrapper>
           <ActionsHeader>
             <LogoAndText icon={icon} text="Nectar" />
-            <TokenValue weiValue={necBalance} />
+            <TokenValue weiValue={necBalance} tokenName="NEC" />
           </ActionsHeader>
           < React.Fragment >
             {tokenApproved === false ?

@@ -6,6 +6,8 @@ import Web3 from "web3";
 
 // Settings
 import BigNumber from "utils/bignumber"
+import moment from 'moment';
+import { numeral } from "utils/formatters"
 export const BN = require('bn.js');
 
 export interface FormStatus {
@@ -23,21 +25,33 @@ export const timeConstants = {
   }
 }
 
+interface Duration {
+  inSeconds: number;
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
+
 export enum TimeMode {
   SECONDS,
   MINUTES_SECONDS,
   HOURS_MINUTES,
-  DAYS_HOURS,
-  MONTHS_DAYS
+  DAYS_HOURS
 }
-
-const { toBN } = Web3.utils;
 
 export const MAX_GAS = 0xffffffff;
 export const MAX_UINT = Web3.utils.toTwosComplement('-1');
 export const MAX_UINT_BN = new BigNumber(MAX_UINT)
 export const MAX_UINT_DIVISOR = new BigNumber(2)
 export const MAX_APPROVAL_THRESHOLD = MAX_UINT_BN.dividedToIntegerBy(MAX_UINT_DIVISOR)
+
+export const MILLION = new BigNumber(1000000)
+export const THOUSAND = new BigNumber(1000)
+export const ONE = new BigNumber(1)
+export const MIN_VISIBLE_VALUE = new BigNumber(0.0001)
+export const ZERO = new BigNumber(0)
+export const REAL_ONE = (new BigNumber(2)).exponentiatedBy(40)
 
 const TEN18 = new BN('1000000000000000000');
 
@@ -51,6 +65,10 @@ export function getCurrentTime() {
   return Math.round((new Date()).getTime() / 1000)
 }
 
+export function toTokenValue(value: BigNumber): BigNumber {
+  return value.div(TEN18)
+}
+
 export function toWei(value: string | BigNumber): string {
   return Web3.utils.toWei(value.toString())
 }
@@ -61,6 +79,31 @@ export function fromWei(value: string | BigNumber): string {
 
 export function isNumeric(num) {
   return !isNaN(num)
+}
+
+/*
+  @param zeroValue: Value that represents 0% 
+  @param currentValue: Calculate % based on this value
+  @param hundredValue: Value that reprsents 100%
+  @return Percentage value
+*/
+export function getPercentage(zeroValue: number, currentValue: number, hundredValue: number): number {
+  if (currentValue <= zeroValue) {
+    return 0
+  }
+
+  if (currentValue >= hundredValue) {
+    return 100
+  }
+
+  const numerator = currentValue - zeroValue
+  const demoninator = hundredValue = currentValue
+  return numerator / demoninator
+}
+
+export function timeUntil(timestamp: number): string {
+  const timeUntil = moment(timestamp * 1000).fromNow()
+  return timeUntil
 }
 
 function getTimeModeByDuration(seconds: number): TimeMode {
@@ -82,31 +125,42 @@ function getTimeModeByDuration(seconds: number): TimeMode {
     timeMode = TimeMode.DAYS_HOURS
   }
 
-  if (seconds > MONTH) {
-    timeMode = TimeMode.MONTHS_DAYS
-  }
   return timeMode
 }
-export function formatTimeRemaining(seconds: number) {
-  const { MONTH, DAY, HOUR, MINUTE, SECOND } = timeConstants.inSeconds
+export function formatTimeRemaining(seconds: number): string {
   const timeMode = getTimeModeByDuration(seconds)
+  const duration = secondsToDuration(seconds)
 
   if (timeMode === TimeMode.SECONDS) {
-    return `${seconds} ${secondText(seconds)}`
+    return `${duration.seconds}s`
   }
 
   if (timeMode === TimeMode.MINUTES_SECONDS) {
-    const minutesValue = Math.trunc(seconds / MINUTE)
-    const secondsValue = seconds - (minutesValue * MINUTE)
-    return `${minutesValue} ${minuteText(minutesValue)}, ${secondsValue} ${secondText(secondsValue)}`
+    return `${duration.minutes}m:${duration.seconds}s`
   }
 
   if (timeMode === TimeMode.HOURS_MINUTES) {
-    const hoursValue = Math.trunc(seconds / HOUR)
-    const minutesValue = Math.trunc((seconds - (hoursValue * HOUR)) / MINUTE)
-    return `${hoursValue} ${hourText(hoursValue)}, ${minutesValue} ${minuteText(minutesValue)}`
+    return `${duration.hours}h:${duration.minutes}m:${duration.seconds}s`
   }
 
+  else {
+    return `${duration.days}d:${duration.hours}h:${duration.minutes}m:${duration.seconds}s`
+  }
+}
+
+function secondsToDuration(inSeconds: number): Duration {
+  const rawDuration = moment.duration(inSeconds, 'seconds')
+  const days = rawDuration.days()
+  const hours = rawDuration.hours()
+  const minutes = rawDuration.minutes()
+  const seconds = rawDuration.seconds()
+  return {
+    inSeconds: seconds,
+    days,
+    hours,
+    minutes,
+    seconds
+  }
 }
 
 function monthText(value) {
@@ -156,55 +210,62 @@ function numSecounds(value) {
   // remainingHours = remainder / MINUTE
 }
 
-export function getNetworkNameById(id) {
-  switch (id) {
-    case "main":
-    case "1":
-      return "main";
-    case "morden":
-    case "2":
-      return "morden";
-    case "ropsten":
-    case "3":
-      return "ropsten";
-    case "rinkeby":
-    case "4":
-      return "rinkeby";
-    case "kovan":
-    case "42":
-      return "kovan";
-    case "private":
-    case "1512051714758":
-      return "ganache";
-    default:
-      return `unknown (${id})`;
+export function fromReal(value: BigNumber): BigNumber {
+  return value.div(REAL_ONE)
+}
+
+/* Display a token value with format based on it's wei value */
+export function tokenDisplay(weiValue: BigNumber, round?: boolean): string {
+  const tokenValue = toTokenValue(weiValue)
+
+  if (tokenValue.eq(ZERO)) {
+    return '0'
+  }
+
+  // Millions Format (M)
+  if (tokenValue.gt(MILLION)) {
+    return toMillions(tokenValue)
+  }
+  // Thousands Format (k)
+  if (tokenValue.gt(THOUSAND)) {
+    return toThousands(tokenValue)
+  }
+
+  if (tokenValue.gte(ONE)) {
+    return toSubThousands(tokenValue)
+  }
+
+  // Standard Format (currency format, 4-digit decimal precision)
+  if (tokenValue.gt(MIN_VISIBLE_VALUE)) {
+    return toSubOne(tokenValue)
+  }
+
+  // Exponential Format
+  else {
+    return toExponential(tokenValue)
   }
 }
 
-export function getDurationTimeText(value) {
-  const inSeconds = Number(value)
-  const time = timeConstants.inSeconds
-
-  if (inSeconds > time.DAY) {
-    const days = 1
-    const hours = 1
-    return `${days} ${dayText(days)}, ${hours} ${hourText(hours)}`
-  } else if (inSeconds <= time.DAY && inSeconds > time.HOUR) {
-    const hours = 1
-    const minutes = 1
-    return `${hours} ${hourText(hours)}, ${minutes} ${minuteText(minutes)}`
-  } else if (inSeconds <= time.HOUR && inSeconds > time.MINUTE) {
-    const minutes = 1
-    const seconds = 1
-    return `${minutes} ${minuteText(minutes)}, ${seconds} ${secondText(seconds)}`
-  } else if (inSeconds <= time.MINUTE) {
-    const seconds = 1
-    return `${seconds} ${secondText(seconds)}`
-  }
+function toMillions(tokenValue: BigNumber): string {
+  const inMillions = tokenValue.div(MILLION)
+  return numeral(inMillions.toFixed(7, BigNumber.ROUND_DOWN)).format('0,0.[0000000]') + 'M'
 }
 
-export function tokenDisplay(value: BigNumber): string {
-  return roundValue(Web3.utils.fromWei(value.toString()))
+function toThousands(tokenValue: BigNumber): string {
+  // const inThousands = tokenValue.div(THOUSAND)
+  return numeral(tokenValue.toFixed(4, BigNumber.ROUND_DOWN)).format('0,0.[0000]')
+}
+
+function toSubThousands(tokenValue: BigNumber): string {
+  return numeral(tokenValue.toFixed(4, BigNumber.ROUND_DOWN)).format('0.[0000]')
+}
+
+function toSubOne(tokenValue: BigNumber): string {
+  return numeral(tokenValue.toFixed(4, BigNumber.ROUND_DOWN)).format('0.[0000]')
+}
+
+function toExponential(tokenValue: BigNumber): string {
+  return tokenValue.toExponential()
 }
 
 export function isZero(value: number | string): boolean {
@@ -241,24 +302,14 @@ export function isEmpty(value) {
   return false
 }
 
-export function pow10(value) {
-  const ten = new BigNumber(10)
-  return ten.pow(value)
-}
-
-export function toAmount(value) {
-  return toFixed(Web3.utils.fromWei(value))
-}
-
-export function toFixed(value) {
+export function toFixed(value: BigNumber): string {
   const numValue = new BigNumber(value)
-  const fixed = numValue.toPrecision(4)
-  return fixed.toString()
+  return numValue.toFixed(4, BigNumber.ROUND_DOWN)
 }
 
 export function fromRep(value) {
   const numValue = new BigNumber(value)
-  const repValue = numValue.div(pow10(18))
+  const repValue = numValue.div(TEN18)
   return roundValue(repValue.toString())
 }
 
@@ -291,17 +342,8 @@ export function timestampToDate(timestamp) {
   return `${day}.${month + 1}.${year}`
 }
 
-export const formatDate = timestamp => {
-  const date = new Date(timestamp * 1000);
-  return `${date.toDateString()} ${addZero(date.getHours())}:${addZero(date.getMinutes())}:${addZero(date.getSeconds())}`;
-}
-
 export const addZero = value => {
   return value > 9 ? value : `0${value}`;
-}
-
-export const fromRaytoWad = (x) => {
-  return toBN(x).div(toBN(10).pow(toBN(9)));
 }
 
 export function toAddressStub(address) {
@@ -311,7 +353,7 @@ export function toAddressStub(address) {
   return `${start}...${end}`
 }
 
-export function roundValue(value) {
+export function roundValue(value: string): string {
   const decimal = value.indexOf('.')
   if (decimal === -1) {
     return value
@@ -333,17 +375,6 @@ export function fromPercentageToFee(value) {
   const weiValue = new BN(Web3.utils.toWei(value, 'ether'))
   const feeValue = weiValue.div(new BN(100))
   return feeValue.toString()
-}
-
-export const copyToClipboard = e => {
-  const value = e.target.title.replace(",", "");
-  var aux = document.createElement("input");
-  aux.setAttribute("value", value);
-  document.body.appendChild(aux);
-  aux.select();
-  document.execCommand("copy");
-  document.body.removeChild(aux);
-  alert(`Value: "${value}" copied to clipboard`);
 }
 
 export const methodSig = method => {

@@ -41,6 +41,26 @@ export default class AirdropStore extends BaseAsync {
         return this.redeemAction
     }
 
+    getSecondsUntilClaimsEnd(): number {
+        const now = this.rootStore.timeStore.currentTime
+        const remaining = this.staticParams.claimEndTime - now
+        if (remaining > 0) {
+            return remaining
+        } else {
+            return 0
+        }
+    }
+
+    getSecondsUntilClaimsStart(): number {
+        const now = this.rootStore.timeStore.currentTime
+        const remaining = this.staticParams.claimStartTime - now
+        if (remaining > 0) {
+            return remaining
+        } else {
+            return 0
+        }
+    }
+
     isAfterSnapshot() {
         const snapshotBlock = Number(this.staticParams.snapshotBlock)
         const currentBlock = Number(this.rootStore.timeStore.currentBlock)
@@ -76,6 +96,13 @@ export default class AirdropStore extends BaseAsync {
         return (now > endTime ? true : false)
     }
 
+    getClaimPeriodStart(): number {
+        return this.staticParams.claimStartTime
+    }
+
+    getClaimPeriodEnd(): number {
+        return this.staticParams.claimEndTime
+    }
 
     isUserDataLoaded(userAddress) {
         return this.userDataLoaded.get(userAddress) || false

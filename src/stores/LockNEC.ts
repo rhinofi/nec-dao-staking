@@ -275,7 +275,8 @@ export default class LockNECStore {
         const contract = this.loadContract()
 
         if (!this.areUserLocksLoaded(user)) {
-            throw new Error('User locks must be loaded')
+            log.warn('[Fetch Batch] User Locks are not loaded')
+            return
         }
 
         const locks = this.getUserTokenLocks(user)

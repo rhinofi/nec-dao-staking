@@ -13,6 +13,7 @@ import { deployed } from 'config.json'
 import LoadingCircle from '../../common/LoadingCircle'
 import { RootStore } from 'stores/Root'
 import { tooltip } from 'strings'
+import TokenValue from 'components/common/TokenValue'
 
 const BidGENWrapper = styled.div`
   display: flex;
@@ -122,17 +123,17 @@ class BidGEN extends React.Component<any, any>{
     const finalAuctionDisplay = finalAuction + 1
     const currentAuctionDisplay = (currentAuction >= finalAuction ? finalAuctionDisplay : currentAuction + 1)
 
-    let prefix = 'Next starts in'
+    let prefix = 'Next in'
     let auctionTitle = `Current Auction: ${currentAuctionDisplay} of ${finalAuctionDisplay}`
 
     if (!auctionsStarted) {
       auctionPercentage = 0
-      prefix = 'First starts in'
+      prefix = 'First in'
       auctionTitle = "Auctions not started"
     }
 
     if (currentAuction === finalAuction) {
-      prefix = 'Last auction ends in'
+      prefix = 'Ends in'
     }
 
     if (auctionsEnded) {
@@ -143,13 +144,8 @@ class BidGEN extends React.Component<any, any>{
 
     if (!auctionsEnded) {
       auctionPercentage = (timeUntilNextAuction / auctionLength) * 100
-
-      const seconds = timeUntilNextAuction
-      let hours = (seconds / 60) / 60
-      const days = Math.fround(hours / 24)
-      hours -= days * 24
-      hours = Math.fround(hours)
-      auctionTimer = `${prefix} ${seconds} seconds`
+      const timeUntilNext = helpers.formatTimeRemaining(timeUntilNextAuction)
+      auctionTimer = `${prefix} ${timeUntilNext}`
     }
 
     return {
@@ -206,7 +202,7 @@ class BidGEN extends React.Component<any, any>{
         <ActionsWrapper>
           <ActionsHeader>
             <LogoAndText icon={GENLogo} text="GEN" />
-            <div>{genBalanceDisplay} GEN</div>
+            <TokenValue weiValue={genBalance} tokenName='GEN' />
           </ActionsHeader>
           {this.SidePanel()}
         </ActionsWrapper>

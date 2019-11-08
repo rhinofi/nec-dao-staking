@@ -33,8 +33,8 @@ class TableRow {
 }
 
 const columns = [
-    { name: 'Batch #', key: 'startBatch', width: '20%', align: 'left' },
-    { name: 'Amount', key: 'amount', width: '20%', align: 'left' },
+    { name: 'Period', key: 'startBatch', width: '15%', align: 'left' },
+    { name: 'Amount', key: 'amount', width: '25%', align: 'left' },
     { name: 'Duration', key: 'duration', width: '20%', align: 'left' },
     { name: 'Releasable', key: 'releasable', width: '20%', align: 'left' },
     { name: 'Action', key: 'actionData', width: '20%', align: 'left' },
@@ -64,7 +64,7 @@ class UserLocksTable extends React.Component<any, any> {
 
             const row: TableRow = {
                 lockId: lock.id,
-                startBatch: lock.lockingBatch,
+                startBatch: lock.lockingBatch + 1,
                 amount: displayAmount,
                 duration: durationDisplay,
                 releasable: releasableDisplay,

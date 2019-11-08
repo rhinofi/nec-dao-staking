@@ -41,7 +41,7 @@ export class UserLocksFetch extends BaseFetch {
         return {
             locker: _locker,
             id: _lockingId,
-            amount: _amount,
+            amount: new BigNumber(_amount),
             batchDuration,
             timeDuration,
             lockingTime: block.timestamp,
