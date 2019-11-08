@@ -5,7 +5,7 @@ import InactiveButton from 'components/common/buttons/InactiveButton'
 import * as helpers from 'utils/helpers'
 import LoadingCircle from '../common/LoadingCircle'
 import { deployed } from 'config.json'
-import { ActiveLockingPeriodCell, LockingPeriodCell, LockingPeriodSelectorWrapper, LockingPeriodSelector, LockingPeriodStartCell, LockingPeriodEndCell } from 'components/common/LockingPeriodForm'
+import { ActiveLockingPeriodCell, LockingPeriodCell, LockingPeriodSelectorWrapper, LockingPeriodSelector, LockingPeriodStartCell, LockingPeriodEndCell, LockingPeriodTitle } from 'components/common/LockingPeriodForm'
 import { RootStore } from 'stores/Root'
 import PanelExplainer from './PanelExplainer'
 import { LockFormWrapper, ReleaseableDateWrapper, ReleaseableDate } from './LockPanel'
@@ -97,9 +97,10 @@ class ExtendLockPanel extends React.Component<any, any>{
 
     return (
       <LockingPeriodSelectorWrapper>
-        <div>Extend Lock (Months)
-        <Tooltip title={''} content="You can extend the duration of one of your current token locks to gain more REP over a longer batch. The total duration still cannot exceed 12 months, however." position="right top" />
-        </div>
+        <LockingPeriodTitle>
+          <div>Extend Lock (Months)</div>
+          <Tooltip title={''} content="You can extend the duration of one of your current token locks to gain more REP over a longer batch. The total duration still cannot exceed 12 months, however." position="right top" />
+        </LockingPeriodTitle>
 
         <LockingPeriodSelector>
           <LockingPeriodStartCell onClick={() => {

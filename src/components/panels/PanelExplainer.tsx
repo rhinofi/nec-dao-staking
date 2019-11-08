@@ -1,4 +1,5 @@
 import React from 'react'
+import styled from 'styled-components'
 import { PanelText } from 'components/common'
 import { LockFormWrapper } from './LockPanel'
 import { AmountLabelWrapper } from 'components/common/Panel'
@@ -9,6 +10,10 @@ interface Props {
     tooltip?: string
 }
 
+const TextWrapper = styled.div`
+    width: 80%;
+`
+
 class PanelExplainer extends React.Component<Props, any>{
     render() {
         const { text, tooltip } = this.props
@@ -17,7 +22,7 @@ class PanelExplainer extends React.Component<Props, any>{
                 <LockFormWrapper>
                     <AmountLabelWrapper>
                         <PanelText>
-                            {text}
+                            <TextWrapper>{text}</TextWrapper>
                             {tooltip ?
                                 <Tooltip title='' content={tooltip} position="left center"></Tooltip>
                                 :

@@ -7,7 +7,7 @@ import InactiveButton from 'components/common/buttons/InactiveButton'
 import * as helpers from 'utils/helpers'
 import LoadingCircle from '../common/LoadingCircle'
 import { deployed } from 'config.json'
-import { ActiveLockingPeriodCell, LockingPeriodCell, LockingPeriodSelectorWrapper, LockingPeriodSelector, LockingPeriodStartCell, LockingPeriodEndCell } from 'components/common/LockingPeriodForm'
+import { ActiveLockingPeriodCell, LockingPeriodCell, LockingPeriodSelectorWrapper, LockingPeriodSelector, LockingPeriodStartCell, LockingPeriodEndCell, LockingPeriodTitle } from 'components/common/LockingPeriodForm'
 import { RootStore } from 'stores/Root'
 import PanelExplainer from './PanelExplainer'
 import { tooltip } from 'strings'
@@ -141,7 +141,7 @@ class LockPanel extends React.Component<any, any>{
 
     return (
       <LockingPeriodSelectorWrapper>
-        <div>Lock Duration (Months) <Tooltip title={''} content={tooltip.lockTokenExplainer} position="center left" /></div>
+        <LockingPeriodTitle>Lock Duration (Months) <Tooltip title={''} content={tooltip.lockTokenExplainer} position="center left" /></LockingPeriodTitle>
         <LockingPeriodSelector>
           <LockingPeriodStartCell onClick={() => {
             this.decrementRange(formState)
@@ -208,13 +208,13 @@ class LockPanel extends React.Component<any, any>{
           <input type="text" name="name" placeholder="0" value={amount} onChange={e => this.setLockAmount(e.target.value)} />
           <div>NEC</div>
         </AmountForm>
+        {
+          touched && error ?
+            <ValidationError>{errorMessage}</ValidationError>
+            :
+            <React.Fragment></React.Fragment>
+        }
       </LockFormWrapper>
-      {
-        touched && error ?
-          <ValidationError>{errorMessage}</ValidationError>
-          :
-          <React.Fragment></React.Fragment>
-      }
       <ReleaseableDateWrapper>
         <div>Releasable</div>
         <ReleaseableDate>{releaseableDate}</ReleaseableDate>

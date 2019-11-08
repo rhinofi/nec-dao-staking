@@ -7,6 +7,12 @@ export const LockingPeriodSelectorWrapper = styled.div`
   margin: 20px 24px 23px;
 `
 
+export const LockingPeriodTitle = styled.div`
+  display: fex;
+  flex-direction: row;
+  justify-content: space-evenly;
+`
+
 export const LockingPeriodSelector = styled.div`
   display: flex;
   flex-direction: row;

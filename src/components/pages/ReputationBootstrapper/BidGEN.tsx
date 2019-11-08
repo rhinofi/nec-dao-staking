@@ -23,7 +23,7 @@ const BidGENWrapper = styled.div`
 `
 
 const DetailsWrapper = styled.div`
-  width: 80%;
+  min-width: 605px;
   border-right: 1px solid var(--border);
 `
 
@@ -36,7 +36,7 @@ const TableHeaderWrapper = styled.div`
   border-bottom: 1px solid var(--border);
 `
 const ActionsWrapper = styled.div`
-  width: 425px;
+  width: 324px;
   font-family: Montserrat;
   font-style: normal;
   font-weight: 500;
