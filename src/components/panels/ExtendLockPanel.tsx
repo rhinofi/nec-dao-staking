@@ -44,13 +44,13 @@ class ExtendLockPanel extends React.Component<any, any>{
   }
 
   decrementRange = (formState: FormState) => {
-    const { lockFormStore } = this.props.root as RootStore
-    lockFormStore.rangeStart = formState.rangeStart - 1 > 1 ? formState.rangeStart - 1 : 1
+    const { extendLockFormStore } = this.props.root as RootStore
+    extendLockFormStore.rangeStart = formState.rangeStart - 1 > 1 ? formState.rangeStart - 1 : 1
   }
 
   incrementRange = (formState: FormState) => {
-    const { lockFormStore } = this.props.root as RootStore
-    lockFormStore.rangeStart = formState.rangeStart + 1 <= formState.maxDuration - formState.numCells + 1 ? formState.rangeStart + 1 : formState.rangeStart
+    const { extendLockFormStore } = this.props.root as RootStore
+    extendLockFormStore.rangeStart = formState.rangeStart + 1 <= formState.maxDuration - formState.numCells + 1 ? formState.rangeStart + 1 : formState.rangeStart
   }
 
   cellsToRender(formState: FormState): number {
