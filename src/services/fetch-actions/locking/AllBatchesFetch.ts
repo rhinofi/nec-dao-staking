@@ -8,12 +8,13 @@ type Scores = Map<number, BigNumber>
 type Locks = Map<string, Lock>
 type Batches = Map<number, Batch>
 
-
 interface Params {
     account: string;
     locks: Locks;
     finalBatch: number;
     currentBatch: number;
+    maxLockingBatches: number;
+    completedBatchIndex: number;
 }
 
 export class AllBatchesFetch extends BaseFetch {
@@ -45,28 +46,33 @@ export class AllBatchesFetch extends BaseFetch {
     // Do the network operations or local operations take more time?
     async fetchData(): Promise<FetchActionResult> {
         const contract = this.contract
-        const { locks, finalBatch, currentBatch } = this.params
+        const { locks, finalBatch, currentBatch, maxLockingBatches, completedBatchIndex } = this.params
         let batches = new Map<number, Batch>()
 
-        // Initialize
-        for (let i = 0; i <= finalBatch; i++) {
-            batches.set(i, newBatch(i))
+        const firstBatchToFetch = completedBatchIndex === 0 ? completedBatchIndex : completedBatchIndex + 1
+        const lastBatchToFetch = Math.min(finalBatch, currentBatch + maxLockingBatches)
+
+        for (let i = firstBatchToFetch; i <= finalBatch; i++) {
+            let batch = batches.get(i) as Batch
+            if (!batch) {
+                batches.set(i, newBatch(i))
+                batch = batches.get(i) as Batch
+            }
         }
+
+        console.log({ batches })
 
         batches = this.addUserTotalsFromLocks(locks, batches)
 
         const ZERO = new BigNumber(0)
 
-        for (let i = 0; i <= finalBatch; i++) {
+        for (let i = firstBatchToFetch; i <= lastBatchToFetch; i++) {
             let batch = batches.get(i) as Batch
-
             let totalRep = ZERO
             let totalScore = ZERO
             if (i < currentBatch + this.staticParams.maxLockingBatches) {
-                // const totalScore = new BigNumber(await contract.methods.batches(i).call())
                 totalRep = new BigNumber(await contract.methods.getRepRewardPerBatch(i).call())
                 totalScore = new BigNumber(await contract.methods.batches(i).call())
-                // console.log('totalScore', i, totalScore.toString())
             }
 
             totalRep = helpers.fromReal(totalRep)
@@ -99,7 +105,8 @@ export class AllBatchesFetch extends BaseFetch {
             status: StatusEnum.SUCCESS,
             data: {
                 batches,
-                batchesLoaded: true
+                batchesLoaded: true,
+                completedBatchIndex: Math.max(currentBatch - 1, 0)
             }
         }
     }

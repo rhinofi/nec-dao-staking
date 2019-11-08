@@ -6,7 +6,7 @@ import BigNumber from 'bignumber.js'
 import * as log from 'loglevel'
 import { BidStaticParams, Auction } from 'types'
 import { RootStore } from './Root'
-import BaseAsync from './BaseAsync'
+import BaseStore from './BaseStore'
 import { errors, prefix } from 'strings'
 import { AuctionStaticParamsFetch } from 'services/fetch-actions/auction/AuctionStaticParamsFetch'
 import { AuctionDataFetch } from 'services/fetch-actions/auction/AuctionDataFetch'
@@ -24,7 +24,7 @@ const defaultAsyncActions = {
 type Bids = Map<string, BigNumber>
 type AuctionData = Map<number, Auction>
 
-export default class BidGENStore extends BaseAsync {
+export default class BidGENStore extends BaseStore {
     // Static Parameters
     @observable staticParams!: BidStaticParams
     @observable staticParamsLoaded = false

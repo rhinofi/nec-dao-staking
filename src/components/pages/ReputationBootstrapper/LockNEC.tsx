@@ -109,7 +109,7 @@ class LockNEC extends React.Component<any, State> {
     super(props)
 
     this.state = {
-      currentTab: TabEnum.ALL_PERIODS
+      currentTab: TabEnum.YOUR_LOCKS
     }
   }
 

@@ -108,9 +108,9 @@ export default class DataFetcher {
 
             if (currentBlock > this.blockFetchAttempt) {
                 this.blockFetchAttempt = currentBlock
+                this.fetchLockingData(userAddress)
                 this.fetchAirdropData(userAddress)
                 this.fetchAuctionData(userAddress)
-                this.fetchLockingData(userAddress)
                 this.blockFetchSuccess = currentBlock
             }
         } catch (e) {
@@ -130,10 +130,7 @@ export default class DataFetcher {
     }
 
     @action resetCache = () => {
-        const { lockNECStore, bidGENStore, airdropStore } = this.rootStore
-        lockNECStore.resetData()
-        bidGENStore.resetData()
-        airdropStore.resetData()
+        this.rootStore.resetDataStores()
     }
 
     @action setUser(userAddress: string) {

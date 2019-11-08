@@ -1,7 +1,8 @@
 import { observable, action } from 'mobx'
 import { RootStore } from './Root'
+import BaseStore from './BaseStore'
 
-export default class LockFormStore {
+export default class LockFormStore extends BaseStore {
     @observable amount = ''
     @observable duration = 1
     @observable rangeStart = 1
@@ -11,11 +12,9 @@ export default class LockFormStore {
         errorMessage: ""
     }
 
-    rootStore: RootStore
-
     constructor(rootStore) {
-        this.rootStore = rootStore;
-        this.resetForm()
+        super(rootStore)
+        this.resetData()
     }
 
     @action setInputTouched(flag: boolean) {
@@ -30,7 +29,7 @@ export default class LockFormStore {
         this.tokenInput.errorMessage = message
     }
 
-    @action resetForm = () => {
+    @action resetData = () => {
         this.amount = ''
         this.duration = 1
         this.rangeStart = 1

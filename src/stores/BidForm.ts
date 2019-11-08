@@ -1,20 +1,19 @@
 import { observable, action } from 'mobx'
 import { RootStore } from './Root'
+import BaseStore from './BaseStore'
 
-export default class BidFormStore {
-    @observable bidAmount = ''
-    @observable duration = 1
+export default class BidFormStore extends BaseStore {
+    @observable bidAmount!: string
+    @observable duration!: number
     @observable tokenInput = {
         touched: false,
         error: false,
         errorMessage: ""
     }
 
-    rootStore: RootStore
-
     constructor(rootStore) {
-        this.rootStore = rootStore;
-        this.resetForm()
+        super(rootStore)
+        this.resetData()
     }
 
     @action setBidAmount(value: string) {
@@ -33,7 +32,7 @@ export default class BidFormStore {
         this.tokenInput.errorMessage = message
     }
 
-    @action resetForm = () => {
+    @action resetData = () => {
         this.bidAmount = ''
         this.duration = 1
         this.tokenInput = {

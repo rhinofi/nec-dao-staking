@@ -6,12 +6,12 @@ import * as log from 'loglevel'
 import { AirdropStaticParams, SnapshotInfo } from 'types'
 import { RootStore } from './Root';
 import { prefix } from 'strings'
-import BaseAsync from './BaseAsync';
+import BaseStore from './BaseStore';
 import { AirdropStaticParamsFetch } from 'services/fetch-actions/airdrop/AirdropStaticParamsFetch';
 import { StatusEnum } from 'services/fetch-actions/BaseFetch';
 import { AirdropUserDataFetch } from 'services/fetch-actions/airdrop/AirdropUserDataFetch';
 
-export default class AirdropStore extends BaseAsync {
+export default class AirdropStore extends BaseStore {
     @observable staticParams!: AirdropStaticParams
     @observable staticParamsLoaded = false
 

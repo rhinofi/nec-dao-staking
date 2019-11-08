@@ -204,7 +204,7 @@ class ExtendLockPanel extends React.Component<any, any>{
     const batchId = lockNECStore.getActiveLockingBatch()
 
     await lockNECStore.extendLock(selectedLockId, duration, batchId)
-    extendLockFormStore.resetForm()
+    extendLockFormStore.resetData()
   }
 
   render() {

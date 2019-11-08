@@ -11,6 +11,7 @@ import TimeStore from "./Time"
 import TxTracker from "./TxTracker"
 import DataFetcher from "./DataFetcher"
 import { deployed } from 'config.json'
+import BaseStore from "./BaseStore";
 
 export class RootStore {
     public providerStore: ProviderStore
@@ -24,6 +25,7 @@ export class RootStore {
     public timeStore: TimeStore
     public txTracker: TxTracker
     public dataFetcher: DataFetcher
+    public dataStores: BaseStore[]
 
     private dataUpdateInterval: any
     private clockUpdateInterval: any
@@ -41,6 +43,21 @@ export class RootStore {
         this.tokenStore = new TokenStore(this)
         this.timeStore = new TimeStore(this)
         this.txTracker = new TxTracker(this)
+
+        this.dataStores = [] as BaseStore[]
+        this.dataStores.push(this.airdropStore)
+        this.dataStores.push(this.lockNECStore)
+        this.dataStores.push(this.bidGENStore)
+        this.dataStores.push(this.lockFormStore)
+        this.dataStores.push(this.bidFormStore)
+        this.dataStores.push(this.extendLockFormStore)
+        this.dataStores.push(this.tokenStore)
+    }
+
+    resetDataStores() {
+        for (let store of this.dataStores) {
+            store.resetData()
+        }
     }
 
     clearClockUpdateInterval = () => {

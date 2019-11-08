@@ -1,17 +1,17 @@
 import { observable, action } from 'mobx'
 import { RootStore } from './Root';
+import BaseStore from './BaseStore';
 
-export default class ExtendLockFormStore {
-    @observable selectedLockId: string = ''
-    @observable isLockSelected = false
-    @observable rangeStart = 1
-    @observable duration = 1
-    @observable isExtendable = false
-
-    rootStore: RootStore
+export default class ExtendLockFormStore extends BaseStore {
+    @observable selectedLockId!: string
+    @observable isLockSelected!: boolean
+    @observable rangeStart!: number
+    @observable duration!: number
+    @observable isExtendable!: boolean
 
     constructor(rootStore) {
-        this.rootStore = rootStore;
+        super(rootStore)
+        this.resetData()
     }
 
     @action setIsExtendable(flag: boolean) {
@@ -35,9 +35,12 @@ export default class ExtendLockFormStore {
         this.duration = value
     }
 
-    @action resetForm = () => {
+    @action resetData = () => {
         this.selectedLockId = ''
-        this.duration = 1
         this.isLockSelected = false
+        this.rangeStart = 1
+        this.duration = 1
+        this.isExtendable = false
+
     }
 }

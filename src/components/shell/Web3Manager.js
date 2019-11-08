@@ -36,8 +36,6 @@ const Web3Manager = inject('root')(observer((props) => {
         }
 
         return <React.Fragment>
-            <p>{context.account}</p>
-            <p>{context.networkId + ` ` + activeNetworkId}</p>
             {props.children}
         </React.Fragment>
     }

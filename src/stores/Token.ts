@@ -3,6 +3,7 @@ import * as helpers from "utils/helpers"
 import * as log from 'loglevel';
 import { RootStore } from './Root';
 import BigNumber from 'bignumber.js';
+import BaseStore from './BaseStore';
 const objectPath = require("object-path")
 
 type Address = string
@@ -17,7 +18,7 @@ const defaultAsyncActions = {
     approve: {}
 }
 
-export default class TokenStore {
+export default class TokenStore extends BaseStore {
     @observable symbols = new Map<Key, string>()
     @observable balances = new Map<Key, BigNumber>()
     @observable allowances = new Map<Key, BigNumber>()
@@ -26,10 +27,15 @@ export default class TokenStore {
         approve: {}
     }
 
-    rootStore: RootStore
-
     constructor(rootStore) {
-        this.rootStore = rootStore
+        super(rootStore)
+        this.resetData()
+    }
+
+    @action resetData() {
+        this.symbols = new Map<Key, string>()
+        this.balances = new Map<Key, BigNumber>()
+        this.allowances = new Map<Key, BigNumber>()
     }
 
     resetAsyncActions() {

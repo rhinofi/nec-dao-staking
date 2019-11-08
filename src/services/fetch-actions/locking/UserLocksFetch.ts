@@ -202,7 +202,7 @@ export class UserLocksFetch extends BaseFetch {
             status: StatusEnum.SUCCESS,
             data: {
                 locks,
-                currentBlock,
+                lastBlockFetched: currentBlock,
                 userLocksLoaded: true
             }
         }

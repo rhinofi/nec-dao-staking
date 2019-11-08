@@ -11,6 +11,7 @@ import { LockingStaticParamsFetch } from 'services/fetch-actions/locking/Locking
 import { StatusEnum } from 'services/fetch-actions/BaseFetch'
 import { UserLocksFetch } from 'services/fetch-actions/locking/UserLocksFetch'
 import { AllBatchesFetch } from 'services/fetch-actions/locking/AllBatchesFetch'
+import BaseStore from './BaseStore'
 type Scores = Map<number, BigNumber>
 type Locks = Map<string, Lock>
 type Batches = Map<number, Batch>
@@ -20,7 +21,7 @@ const AGREEMENT_HASH = '0x000000000000000000000000000000000000000000000000000000
 const { BN } = helpers
 log.setDefaultLevel("warn")
 
-export default class LockNECStore {
+export default class LockNECStore extends BaseStore {
     // Static Parameters
     @observable staticParams!: LockStaticParams
     @observable staticParamsLoaded!: boolean
@@ -33,10 +34,8 @@ export default class LockNECStore {
     @observable batchesLoaded!: boolean
     @observable completedBatchIndex!: number
 
-    rootStore: RootStore
-
     constructor(rootStore) {
-        this.rootStore = rootStore;
+        super(rootStore)
         this.resetData()
     }
 
@@ -243,7 +242,7 @@ export default class LockNECStore {
 
         if (result.status === StatusEnum.SUCCESS || result.status === StatusEnum.NO_NEW_DATA) {
             this.userLocks.set(userAddress, result.data.locks)
-            this.nextBlockToFetch = result.data.currentBlock + 1
+            this.nextBlockToFetch = result.data.lastBlockFetched + 1
             this.userLocksLoaded.set(userAddress, result.data.userLocksLoaded)
         }
     }
@@ -282,11 +281,14 @@ export default class LockNECStore {
         const locks = this.getUserTokenLocks(user)
         const finalBatch = this.getFinalBatchIndex()
         const currentBatch = this.getActiveLockingBatch()
+        const maxLockingBatches = this.staticParams.maxLockingBatches
+        const completedBatchIndex = this.completedBatchIndex
 
-        const action = new AllBatchesFetch(contract, this.rootStore, { account: user, locks, finalBatch, currentBatch })
+        const action = new AllBatchesFetch(contract, this.rootStore, { account: user, locks, finalBatch, currentBatch, maxLockingBatches, completedBatchIndex })
         const result = await action.fetch()
         if (result.status === StatusEnum.SUCCESS) {
             this.batches = result.data.batches
+            this.completedBatchIndex = result.data.completedBatchIndex
             this.batchesLoaded = result.data.batchesLoaded
         }
     }
@@ -309,7 +311,6 @@ export default class LockNECStore {
             log.error(e)
             this.rootStore.txTracker.setLockActionPending(false)
         }
-
     }
 
     extendLock = async (lockId, batchesToExtend, batchId) => {

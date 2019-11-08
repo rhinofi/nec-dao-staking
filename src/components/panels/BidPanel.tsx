@@ -60,7 +60,7 @@ class BidPanel extends React.Component<any, any>{
       const currentAuction = bidGENStore.getActiveAuction()
 
       await bidGENStore.bid(weiValue, currentAuction)
-      bidFormStore.resetForm()
+      bidFormStore.resetData()
     }
   }
 
