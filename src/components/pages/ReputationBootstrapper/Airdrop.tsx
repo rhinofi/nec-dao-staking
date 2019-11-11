@@ -200,10 +200,17 @@ class Airdrop extends React.Component<any, any>{
     airdropStore.redeem(userAddress)
   }
 
+  onBuyNecLink = () => {
+    console.log('hola')
+    window.location.href = 'http://app.deversifi.com/NECETH';
+
+  }
+
   renderActionButton(status, userBalance, pending, userData) {
     const { airdropStore } = this.props.root as RootStore
     if (status === snapshotStatus.NOT_STARTED) {
-      return (<ActiveButton>Buy NEC</ActiveButton>)
+      return (<ActiveButton onClick={() => this.onBuyNecLink()}>Buy NEC
+      </ActiveButton>)
     }
 
     const timeUntilStart = helpers.formatTimeRemaining(airdropStore.getClaimPeriodStart())

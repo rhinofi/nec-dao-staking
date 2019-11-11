@@ -1,9 +1,9 @@
 {
     "deployed": {
-        "NectarRepAllocation": "0x8F81D0C438FD8ECf5c71DaaFae5A8311bB539631",
-        "ContinuousLocking4Reputation": "0x50F62f3EeE1F1E1C591fe491F3C8f1319B543B39",
-        "Auction4Reputation": "0xcdF99Ee2874a9a91ce46512186E29F37233f5CAa",
-        "ReputationFromToken": "0xfb46a781aF9d4FC5Cdd7c2e913035721237558bB",
+        "NectarRepAllocation": "0x1C6ff9FA456D121b7eD5060b63A249A30DA470Fb",
+        "ContinuousLocking4Reputation": "0xb59e1f4c7Ca3dC20760d9E670b4bF7119abB92b1",
+        "Auction4Reputation": "0x47ED6C8B30d57c0E47494b89744601E37E93dC9D",
+        "ReputationFromToken": "0x930779605462b0b30705A65555046A30da3e8CA8",
         "NectarToken": "0x05a047c9bd8f36b0d9f8ad146176eba821b3a3ae",
         "GenToken": "0x543Ff227F64Aa17eA132Bf9886cAb5DB55DCAddf"
     },
