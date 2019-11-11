@@ -184,7 +184,7 @@ class Airdrop extends React.Component<any, any>{
       const blocksUntilSnapshot = snapshotBlock - currentBlock
 
       dropPercentage = helpers.getPercentage(arbitraryStartBlock, currentBlock, snapshotBlock)
-      dropTimer = `In ${blocksUntilSnapshot} blocks`
+      dropTimer = `In ${blocksUntilSnapshot} ${helpers.blocksText(blocksUntilSnapshot)}`
     }
 
     return {
@@ -201,9 +201,7 @@ class Airdrop extends React.Component<any, any>{
   }
 
   onBuyNecLink = () => {
-    console.log('hola')
     window.location.href = 'http://app.deversifi.com/NECETH';
-
   }
 
   renderActionButton(status, userBalance, pending, userData) {

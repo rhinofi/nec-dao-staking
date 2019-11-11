@@ -185,6 +185,10 @@ function secondText(value) {
   return (value === 1 ? 'Second' : 'Seconds')
 }
 
+export function blocksText(value) {
+  return (value === 1 ? 'block' : 'blocks')
+}
+
 export function fromReal(value: BigNumber): BigNumber {
   return value.div(REAL_ONE)
 }
