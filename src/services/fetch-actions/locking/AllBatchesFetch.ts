@@ -21,7 +21,7 @@ export class AllBatchesFetch extends BaseFetch {
     params: Params;
     staticParams!: LockStaticParams
     constructor(contract, rootStore: RootStore, params: Params) {
-        const fetchText = 'User Locks'
+        const fetchText = 'All Batches'
         super(contract, fetchText, rootStore, params)
         this.params = params
         this.staticParams = this.rootStore.lockNECStore.staticParams

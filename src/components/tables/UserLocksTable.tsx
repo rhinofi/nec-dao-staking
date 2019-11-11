@@ -33,11 +33,11 @@ class TableRow {
 }
 
 const columns = [
-    { name: 'Period', key: 'startBatch', width: '15%', align: 'left' },
-    { name: 'Amount', key: 'amount', width: '25%', align: 'left' },
-    { name: 'Duration', key: 'duration', width: '20%', align: 'left' },
-    { name: 'Releasable', key: 'releasable', width: '20%', align: 'left' },
-    { name: 'Action', key: 'actionData', width: '20%', align: 'left' },
+    { name: 'Period', key: 'startBatch', width: '10%', align: 'left' },
+    { name: 'Amount', key: 'amount', width: '30%', align: 'right' },
+    { name: 'Duration', key: 'duration', width: '20%', align: 'right' },
+    { name: 'Releasable', key: 'releasable', width: '20%', align: 'right' },
+    { name: 'Action', key: 'actionData', width: '15%', align: 'right' },
 ]
 
 @inject('root')

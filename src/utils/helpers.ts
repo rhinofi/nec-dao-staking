@@ -46,6 +46,8 @@ export const MAX_UINT_BN = new BigNumber(MAX_UINT)
 export const MAX_UINT_DIVISOR = new BigNumber(2)
 export const MAX_APPROVAL_THRESHOLD = MAX_UINT_BN.dividedToIntegerBy(MAX_UINT_DIVISOR)
 
+export const TRILLION = new BigNumber('1000000000000')
+export const BILLION = new BigNumber('1000000000')
 export const MILLION = new BigNumber(1000000)
 export const THOUSAND = new BigNumber(1000)
 export const ONE = new BigNumber(1)
@@ -183,33 +185,6 @@ function secondText(value) {
   return (value === 1 ? 'Second' : 'Seconds')
 }
 
-// These all truncate
-function numDays(value) {
-  // fullDays = value / days 
-  // fullDays / DAY
-}
-
-function numHours(value) {
-  // fullDays = value / days 
-  // remainingTime = value % days
-  // remainingHours = remainder / HOUR
-}
-
-function numMinutes(value) {
-  // fullDays = value / days 
-  // remainingTime = value % days
-  // remainingTime = value % hours
-  // remainingHours = remainder / MINUTE 
-}
-
-function numSecounds(value) {
-  // fullDays = value / days 
-  // remainingTime = value % days
-  // remainingTime = value % hours
-  // remainingTime = value % seconds
-  // remainingHours = remainder / MINUTE
-}
-
 export function fromReal(value: BigNumber): BigNumber {
   return value.div(REAL_ONE)
 }
@@ -222,12 +197,20 @@ export function tokenDisplay(weiValue: BigNumber, round?: boolean): string {
     return '0'
   }
 
+  if (tokenValue.gte(TRILLION)) {
+    return toExponential(tokenValue)
+  }
+
+  if (tokenValue.gte(BILLION)) {
+    return toBillions(tokenValue)
+  }
+
   // Millions Format (M)
-  if (tokenValue.gt(MILLION)) {
+  if (tokenValue.gte(MILLION)) {
     return toMillions(tokenValue)
   }
   // Thousands Format (k)
-  if (tokenValue.gt(THOUSAND)) {
+  if (tokenValue.gte(THOUSAND)) {
     return toThousands(tokenValue)
   }
 
@@ -246,26 +229,32 @@ export function tokenDisplay(weiValue: BigNumber, round?: boolean): string {
   }
 }
 
-function toMillions(tokenValue: BigNumber): string {
+function toBillions(tokenValue: BigNumber): string {
   const inMillions = tokenValue.div(MILLION)
-  return numeral(inMillions.toFixed(7, BigNumber.ROUND_DOWN)).format('0,0.[0000000]') + 'M'
+  console.log({ tokenValue: tokenValue.toString(), inMillions: inMillions.toString() })
+  return numeral(inMillions.toFixed(8, BigNumber.ROUND_DOWN)).format('0.[0]') + 'm'
+}
+
+function toMillions(tokenValue: BigNumber): string {
+  // const inMillions = tokenValue.div(MILLION)
+  return numeral(tokenValue.toFixed(10, BigNumber.ROUND_DOWN)).format('0,0.[0]')
 }
 
 function toThousands(tokenValue: BigNumber): string {
   // const inThousands = tokenValue.div(THOUSAND)
-  return numeral(tokenValue.toFixed(4, BigNumber.ROUND_DOWN)).format('0,0.[0000]')
+  return numeral(tokenValue.toFixed(3, BigNumber.ROUND_DOWN)).format('0,0.[000]')
 }
 
 function toSubThousands(tokenValue: BigNumber): string {
-  return numeral(tokenValue.toFixed(4, BigNumber.ROUND_DOWN)).format('0.[0000]')
+  return numeral(tokenValue.toFixed(3, BigNumber.ROUND_DOWN)).format('0.[000]')
 }
 
 function toSubOne(tokenValue: BigNumber): string {
-  return numeral(tokenValue.toFixed(4, BigNumber.ROUND_DOWN)).format('0.[0000]')
+  return numeral(tokenValue.toFixed(3, BigNumber.ROUND_DOWN)).format('0.[000]')
 }
 
 function toExponential(tokenValue: BigNumber): string {
-  return tokenValue.toExponential()
+  return tokenValue.toExponential(4)
 }
 
 export function isZero(value: number | string): boolean {
