@@ -205,12 +205,12 @@ class Airdrop extends React.Component<any, any>{
   }
 
   renderActionButton(status, userBalance, pending, userData) {
-    const { airdropStore } = this.props.root as RootStore
+    const { airdropStore, timeStore } = this.props.root as RootStore
     if (status === snapshotStatus.NOT_STARTED) {
       return (<ActiveButton onClick={() => this.onBuyNecLink()}>Buy NEC
       </ActiveButton>)
     }
-
+    const now = timeStore.currentTime
     const timeUntilStart = helpers.formatTimeRemaining(airdropStore.getClaimPeriodStart())
 
     const hasRedeemed = userData.hasRedeemed
@@ -247,7 +247,7 @@ class Airdrop extends React.Component<any, any>{
     const necTokenAddress = deployed.NectarToken
     const staticParamsLoaded = airdropStore.areStaticParamsLoaded()
     const userDataLoaded = airdropStore.isUserDataLoaded(userAddress)
-
+    const now = timeStore.currentTime
     const redeemPending = airdropStore.isRedeemPending()
 
     if (!staticParamsLoaded || !userDataLoaded) {

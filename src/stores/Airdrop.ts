@@ -97,11 +97,17 @@ export default class AirdropStore extends BaseStore {
     }
 
     getClaimPeriodStart(): number {
-        return this.staticParams.claimStartTime
+        const now = this.rootStore.timeStore.currentTime
+        const startTime = this.staticParams.claimStartTime
+
+        return startTime - now
     }
 
     getClaimPeriodEnd(): number {
-        return this.staticParams.claimEndTime
+        const now = this.rootStore.timeStore.currentTime
+        const endTime = this.staticParams.claimEndTime
+
+        return endTime - now
     }
 
     isUserDataLoaded(userAddress) {
