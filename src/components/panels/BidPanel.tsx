@@ -10,6 +10,7 @@ import LoadingCircle from '../common/LoadingCircle'
 import { deployed } from 'config.json'
 import { RootStore } from 'stores/Root'
 import { PanelWrapper, AmountLabelWrapper, ValidationError, MaxButton, AmountForm } from 'components/common/Panel'
+import BigNumber from 'bignumber.js';
 
 const BidWrapper = styled.div`
   display: flex;
@@ -46,7 +47,7 @@ class BidPanel extends React.Component<any, any>{
     const bidAmount = bidFormStore.bidAmount
     const checkValidity = helpers.isValidTokenAmount(bidAmount, userBalance, 'bid')
 
-    bidFormStore.setErrorStatus(!checkValidity.isValid)
+    bidFormStore.setErrorStatus(checkValidity.displayError)
     bidFormStore.setErrorMessage(checkValidity.errorMessage)
     return checkValidity.isValid
   }
@@ -69,11 +70,15 @@ class BidPanel extends React.Component<any, any>{
     const { bidAmount } = this.renderData
     const currentAuction = bidGENStore.getActiveAuction()
     const timeUntilNextAuction = bidGENStore.getTimeUntilNextAuction()
-    const timeText = helpers.getSecondsText(timeUntilNextAuction)
+    const timeText = helpers.formatTimeRemaining(timeUntilNextAuction)
+
+    debugger
+    const weiValue = helpers.toWeiValue(new BigNumber(bidAmount))
+    const bidAmountDisplay = helpers.tokenDisplay(weiValue)
 
     return (
       <React.Fragment>
-        <LoadingCircle instruction={`Bid ${bidAmount} GEN`} subinstruction={`Auction ${currentAuction + 1} - Ends in ${timeText}`} />
+        <LoadingCircle instruction={`Bid ${bidAmountDisplay} GEN`} subinstruction={`Auction ${currentAuction + 1} - Ends in ${timeText}`} />
       </React.Fragment >
     )
   }
@@ -83,12 +88,11 @@ class BidPanel extends React.Component<any, any>{
     const { buttonText, auctionsEnded, auctionsStarted, userBalance } = this.renderData
     const actionEnabled = auctionsStarted && !auctionsEnded
     const bidAmount = bidFormStore.bidAmount
-    const { touched, error, errorMessage } = bidFormStore.tokenInput
+    const { error, errorMessage } = bidFormStore.tokenInput
 
     console.log({
       bidAmount,
       userBalance,
-      touched,
       error,
       errorMessage
     })
@@ -111,12 +115,12 @@ class BidPanel extends React.Component<any, any>{
               </div>
             </Popup>
           </AmountLabelWrapper>
-          <AmountForm className={touched && error ? "invalid-border" : ""}>
+          <AmountForm className={error ? "invalid-border" : ""}>
             <input type="text" name="name" placeholder="0" value={bidAmount} onChange={e => this.setBidAmount(e.target.value)} />
             <div>GEN</div>
           </AmountForm>
           {
-            touched && error ?
+            error ?
               <ValidationError>{errorMessage}</ValidationError>
               :
               <React.Fragment></React.Fragment>

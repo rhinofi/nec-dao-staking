@@ -204,7 +204,7 @@ class Airdrop extends React.Component<any, any>{
     window.location.href = 'http://app.deversifi.com/NECETH';
   }
 
-  renderActionButton(status, userBalance, pending, userData) {
+  renderActionButton(status, userBalance: BigNumber, pending, userData) {
     const { airdropStore, timeStore } = this.props.root as RootStore
     if (status === snapshotStatus.NOT_STARTED) {
       return (<ActiveButton onClick={() => this.onBuyNecLink()}>Buy NEC
@@ -214,8 +214,7 @@ class Airdrop extends React.Component<any, any>{
     const timeUntilStart = helpers.formatTimeRemaining(airdropStore.getClaimPeriodStart())
 
     const hasRedeemed = userData.hasRedeemed
-
-    if (userBalance === "0") {
+    if (userBalance.eq(helpers.ZERO)) {
       // return (<div>This address has no REP to claim from the Airdrop</div>)
       return (<InactiveButton>No REP to Claim</InactiveButton>)
     }
@@ -224,7 +223,7 @@ class Airdrop extends React.Component<any, any>{
       return (<LoadingCircleWrapper><LoadingCircle instruction="Claiming REP..." /></LoadingCircleWrapper>)
     }
 
-    if (status === snapshotStatus.CLAIM_STARTED && userBalance !== "0" && !hasRedeemed) {
+    if (status === snapshotStatus.CLAIM_STARTED && !userBalance.eq(helpers.ZERO) && !hasRedeemed) {
       return (<ActiveButton onClick={() => { this.redeem() }}>Claim REP</ActiveButton>)
     }
 
@@ -232,7 +231,7 @@ class Airdrop extends React.Component<any, any>{
       return (<InactiveButton>REP Claimed</InactiveButton>)
     }
 
-    if (status === snapshotStatus.CLAIM_ENDED && userBalance !== "0" && !hasRedeemed) {
+    if (status === snapshotStatus.CLAIM_ENDED && !userBalance.eq(helpers.ZERO) && !hasRedeemed) {
       return (<InactiveButton>Claim Period has Ended</InactiveButton>)
     }
 
@@ -280,7 +279,7 @@ class Airdrop extends React.Component<any, any>{
         <TimelineProgress
           value={dropPercentage}
           icon={<Logo src={logo} alt="ethfinex" />}
-          title="NectarDAO Reputation Airdrop"
+          title="NecDAO Reputation Airdrop"
           subtitle={dropTimer}
           width="50px"
           height="50px"

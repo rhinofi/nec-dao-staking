@@ -105,7 +105,7 @@ class LockPanel extends React.Component<any, any>{
     const amount = lockFormStore.amount
     const checkValidity = helpers.isValidTokenAmount(amount, userBalance, 'lock')
 
-    lockFormStore.setErrorStatus(!checkValidity.isValid)
+    lockFormStore.setErrorStatus(checkValidity.displayError)
     lockFormStore.setErrorMessage(checkValidity.errorMessage)
     return checkValidity.isValid
   }
@@ -141,7 +141,7 @@ class LockPanel extends React.Component<any, any>{
 
     return (
       <LockingPeriodSelectorWrapper>
-        <LockingPeriodTitle>Lock Duration (Months) <Tooltip title={''} content={tooltip.lockTokenExplainer} position="center left" /></LockingPeriodTitle>
+        <LockingPeriodTitle>Lock Duration (Months) <Tooltip title={''} content={tooltip.lockTokenExplainer} position="bottom" /></LockingPeriodTitle>
         <LockingPeriodSelector>
           <LockingPeriodStartCell onClick={() => {
             this.decrementRange(formState)

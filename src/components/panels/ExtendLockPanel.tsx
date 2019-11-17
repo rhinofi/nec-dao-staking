@@ -226,7 +226,6 @@ class ExtendLockPanel extends React.Component<any, any>{
     const isLockSelected = extendLockFormStore.isLockSelected
     const releaseableDate = helpers.timestampToDate(releaseableTimestamp)
 
-
     let renderData: RenderData = {
       selectedLockId,
       isLockSelected,

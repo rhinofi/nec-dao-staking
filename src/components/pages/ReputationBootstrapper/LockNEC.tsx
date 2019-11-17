@@ -109,7 +109,7 @@ class LockNEC extends React.Component<any, State> {
     super(props)
 
     this.state = {
-      currentTab: TabEnum.YOUR_LOCKS
+      currentTab: TabEnum.ALL_PERIODS
     }
   }
 
@@ -147,8 +147,13 @@ class LockNEC extends React.Component<any, State> {
       prefix = 'Ends in'
     }
 
+    if (!isLockingStarted) {
+      //TODO: Make the time 'until' the next 
+      // Percentage will be related to deployment time
+    }
+
     // Locking In Progress
-    if (!isLockingEnded) {
+    if (isLockingStarted && !isLockingEnded) {
       const timeUntilNextBatch = Number(lockNECStore.getTimeUntilNextBatch())
       batchPercentage = (timeUntilNextBatch / batchLength) * 100
       const timeUntilNextBatchDisplay = helpers.formatTimeRemaining(timeUntilNextBatch)

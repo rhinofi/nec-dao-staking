@@ -12,6 +12,7 @@ export const BN = require('bn.js');
 
 export interface FormStatus {
   isValid: boolean;
+  displayError: boolean;
   errorMessage: string;
 }
 
@@ -65,6 +66,10 @@ export function toChecksum(address) {
 
 export function getCurrentTime() {
   return Math.round((new Date()).getTime() / 1000)
+}
+
+export function toWeiValue(value: BigNumber): BigNumber {
+  return value.times(TEN18)
 }
 
 export function toTokenValue(value: BigNumber): BigNumber {
@@ -392,13 +397,15 @@ export const isValidTokenAmount = (value, maxValue, actionText: string): FormSta
   if (isEmpty(value)) {
     return {
       isValid: false,
-      errorMessage: "Please input a token value"
+      displayError: false,
+      errorMessage: ""
     }
   }
 
   if (!isNumeric(value)) {
     return {
       isValid: false,
+      displayError: true,
       errorMessage: "Please input a valid number"
     }
   }
@@ -406,6 +413,7 @@ export const isValidTokenAmount = (value, maxValue, actionText: string): FormSta
   if (isZero(value)) {
     return {
       isValid: false,
+      displayError: true,
       errorMessage: `Cannot ${actionText} zero tokens`
     }
   }
@@ -413,6 +421,7 @@ export const isValidTokenAmount = (value, maxValue, actionText: string): FormSta
   if (!isPositiveNumber(value)) {
     return {
       isValid: false,
+      displayError: true,
       errorMessage: "Please input a positive number"
     }
   }
@@ -420,6 +429,7 @@ export const isValidTokenAmount = (value, maxValue, actionText: string): FormSta
   if (getDecimalPlaces(value) > 18) {
     return {
       isValid: false,
+      displayError: true,
       errorMessage: "Input exceeds 18 decimal places"
     }
   }
@@ -427,6 +437,7 @@ export const isValidTokenAmount = (value, maxValue, actionText: string): FormSta
   if (isGreaterThan(value, maxValue)) {
     return {
       isValid: false,
+      displayError: true,
       errorMessage: "Insufficent Balance"
     }
   }
@@ -434,12 +445,14 @@ export const isValidTokenAmount = (value, maxValue, actionText: string): FormSta
   if (isLessThan(value, 1)) {
     return {
       isValid: false,
+      displayError: true,
       errorMessage: `Minimum ${actionText} is one token`
     }
   }
 
   return {
     isValid: true,
+    displayError: false,
     errorMessage: ""
   }
 }

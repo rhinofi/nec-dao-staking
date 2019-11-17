@@ -88,12 +88,14 @@ export default class DataFetcher {
 
     fetchAirdropData = async (userAddress) => {
         console.log(`[Fetch] Airdrop Data for ${userAddress}`)
-        const { airdropStore } = this.rootStore
+        const { airdropStore, tokenStore } = this.rootStore
+        const necTokenAddress = deployed.NectarToken
 
         if (!airdropStore.areStaticParamsLoaded()) {
             await airdropStore.fetchStaticParams()
         }
 
+        await tokenStore.fetchBalanceOf(necTokenAddress, userAddress)
         await airdropStore.fetchUserData(userAddress)
     }
 

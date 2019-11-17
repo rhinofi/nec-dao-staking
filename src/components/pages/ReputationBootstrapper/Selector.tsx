@@ -140,8 +140,8 @@ const Selector = withRouter((props) => {
   return (
     <HeaderWrapper height={height}>
       <Title>
-        How do you want to earn Reputation for the NectarDAO?
-        <Tooltip title="" content="You can earn Reputation in the NectarDAO by locking Nectar tokens, through the airdrop to Nectar token holders, or by bidding GEN in Reputation auctions." position="right top" />
+        How do you want to earn Reputation for the NecDAO?
+        <Tooltip title="" content="You can earn Reputation in the NecDAO by locking Nectar tokens, through the airdrop to Nectar token holders, or by bidding GEN in Reputation auctions." position="right top" />
       </Title>
       <NavWrapper>
         <Button option={1} route="/lock-nec">
