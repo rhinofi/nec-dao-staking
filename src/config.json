@@ -1,19 +1,22 @@
 {
     "deployed": {
-        "NectarRepAllocation": "0x8F8e30cb0Bcd0B983664e8CDC30494d2d4073D22",
-        "ContinuousLocking4Reputation": "0x479647eAdB7778De4011773556082Ade405718C2",
-        "Auction4Reputation": "0xB9254104F19a1aA6752a0d965573dF5c12661511",
-        "ReputationFromToken": "0x16922De74c0d485C2a9373082D0d8B2F3C83cD18",
-        "NectarToken": "0x05A047C9bD8F36B0D9F8AD146176EbA821B3a3AE",
+        "NectarRepAllocation": "0x3bF3741Da55d578fb2Da95Ef9815762bD09c7F3D",
+        "ContinuousLocking4Reputation": "0xcBa7B9288e182d48C4d12AA3253B0E691Ec9F1B6",
+        "Auction4Reputation": "0x28249c7654329484BA1d348839791C2ACEE773f4",
+        "ReputationFromToken": "0xd049503E520d6171C663A4213c034B472d8a6192",
+        "NectarToken": "0xcc80c051057b774cd75067dc48f8987c4eb97a5e",
         "GenToken": "0x543Ff227F64Aa17eA132Bf9886cAb5DB55DCAddf"
     },
     "tokens": {
         "Nectar": {
             "rinkeby": "0x05A047C9bD8F36B0D9F8AD146176EbA821B3a3AE",
             "mainnet": "0xcc80c051057b774cd75067dc48f8987c4eb97a5e"
+        },
+        "Gen": {
+            "allPublic": "0x543Ff227F64Aa17eA132Bf9886cAb5DB55DCAddf"
         }
     },
-    "activeNetworkId": 4,
+    "activeNetworkId": 1,
     "lockNEC": {
         "totalRep": "850000"
     },
