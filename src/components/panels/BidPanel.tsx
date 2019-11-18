@@ -11,7 +11,7 @@ import { deployed } from 'config.json'
 import { RootStore } from 'stores/Root'
 import { PanelWrapper, AmountLabelWrapper, ValidationError, MaxButton, AmountForm } from 'components/common/Panel'
 import BigNumber from 'bignumber.js';
-import { tooltip } from 'strings'
+import { tooltip, instructions } from 'strings'
 import PanelExplainer from './PanelExplainer'
 
 const BidWrapper = styled.div`
@@ -68,7 +68,7 @@ class BidPanel extends React.Component<any, any>{
   }
 
   renderAuctionsEnded() {
-    return <PanelExplainer text={tooltip.explainers.auctionsEnded} tooltip={tooltip.auctionsEnded} />
+    return <PanelExplainer text={instructions.auctionsEnded} tooltip={tooltip.auctionsEnded} />
   }
 
   renderPending() {

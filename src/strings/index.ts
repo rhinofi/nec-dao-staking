@@ -14,10 +14,14 @@ export const text = {
     yourLocksTab: 'Your Locks'
 }
 
+export const instructions = {
+    auctionsEnded: `Auctions have ended and GEN Tokens can no longer be bid for Reputation.`
+}
+
 export const tooltip = {
     airdropBlocknumber: `Reputation is distributed based on the Nectar token balances at this block.`,
     airdropExplainer: `Reputation is distributed based on the Nectar token balances at the given block number.`,
-    lockTokenExplainer: `You can lock Nectar tokens to receive Reputation in the NecDAO. The longer you lock your tokens for, the more Reputation you will receive.`,
+    lockTokenExplainer: `You can lock Nectar tokens to receive Reputation in the necDAO. The longer you lock your tokens for, the more Reputation you will receive.`,
     noUserLocks: `Looks like you haven't locked any tokens yet! Go to the 'All Periods' tab to create a new token lock`,
     extendLockInstruction: `Select one of your locks in the table to interact with it.`,
     extendLockExplainer: `You can extend a token lock beyond it's original duration to continue receiving Reptuation. Note that the total time locked still cannot exceed the maximum locking duration of 12 months.`,
@@ -38,7 +42,9 @@ export const tooltip = {
     explainers: {
         auctionsEnded: `Auctions have ended and GEN Tokens can no longer be bid for Reputation.`
     },
-    auctionsEnded: 'You will automatically recieve Reputation from your existing GEN bids.'
+    auctionsEnded: 'You will automatically recieve Reputation from your existing GEN bids.',
+    necDAOBasics: `necDAO Reputation can be earned by locking NEC, through an airdrop to on-chain NEC holders, or by bidding GEN in Reputation auctions.`
+
 }
 
 export const logs = {

@@ -279,7 +279,7 @@ class Airdrop extends React.Component<any, any>{
         <TimelineProgress
           value={dropPercentage}
           icon={<Logo src={logo} alt="ethfinex" />}
-          title="NecDAO Reputation Airdrop"
+          title="necDAO Reputation Airdrop"
           subtitle={dropTimer}
           width="50px"
           height="50px"

@@ -27,6 +27,7 @@ export const LockingPeriodCell = styled.div`
   width: 40px;
   height: 34px;
   border: 1px solid var(--inactive-border);
+  cursor: pointer;
 `
 
 export const ActiveLockingPeriodCell = styled(LockingPeriodCell)`
@@ -36,8 +37,10 @@ export const ActiveLockingPeriodCell = styled(LockingPeriodCell)`
 
 export const LockingPeriodStartCell = styled(LockingPeriodCell)`
   border-radius: 4px 0px 0px 4px;
+  cursor: pointer;
 `
 
 export const LockingPeriodEndCell = styled(LockingPeriodCell)`
   border-radius: 0px 4px 4px 0px;
+  cursor: pointer;
 `

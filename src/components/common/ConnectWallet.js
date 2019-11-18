@@ -52,7 +52,7 @@ const ConnectWallet = () => {
         Connect Wallet
       </Title>
       <SubTitle>
-        To start using the NecDAO Interface
+        To start using the necDAO Interface
       </SubTitle>
       {/* <ButtonWrapper>
         <ActiveButton>
