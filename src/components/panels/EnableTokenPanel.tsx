@@ -10,7 +10,7 @@ import { RootStore } from 'stores/Root'
 class EnableTokenPanel extends React.Component<any, any>{
   Enable = () => {
     const { tokenStore } = this.props.root as RootStore
-    const { instruction, subinstruction, buttonText, spenderAddress, tokenAddress } = this.props
+    const { instruction, subinstruction, pendingInstruction, buttonText, spenderAddress, tokenAddress } = this.props
 
     return (
       <React.Fragment>
@@ -30,7 +30,7 @@ class EnableTokenPanel extends React.Component<any, any>{
   }
 
   Pending = () => {
-    const { instruction, subinstruction, buttonText } = this.props
+    const { instruction, pendingInstruction, subinstruction, buttonText } = this.props
 
     return (
       <React.Fragment>
@@ -39,7 +39,7 @@ class EnableTokenPanel extends React.Component<any, any>{
             value={66} width={"45px"} height={"45px"}
             rotate
           />
-          <Instruction>{instruction}</Instruction>
+          <Instruction>{pendingInstruction}</Instruction>
           <SubInstruction>{subinstruction}</SubInstruction>
         </CircleAndTextContainer>
         <DisableButton marginBottom="25px">{buttonText}</DisableButton>

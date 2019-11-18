@@ -13,7 +13,7 @@ import UserLocksTable from 'components/tables/UserLocksTable'
 import LoadingCircle from '../../common/LoadingCircle'
 import { RootStore } from 'stores/Root'
 import ExtendLockPanel from 'components/panels/ExtendLockPanel'
-import { text, tooltip } from 'strings'
+import { instructions, text, tooltip } from 'strings'
 import * as helpers from 'utils/helpers'
 
 const LockNECWrapper = styled.div`
@@ -273,7 +273,8 @@ class LockNEC extends React.Component<any, State> {
           < React.Fragment >
             {tokenApproved === false ?
               <EnableTokenPanel
-                instruction="Enable NEC for locking"
+                instruction={instructions.enableLock}
+                pendingInstruction={instructions.pending.enableLock}
                 subinstruction="-"
                 buttonText="Enable NEC"
                 userAddress={userAddress}

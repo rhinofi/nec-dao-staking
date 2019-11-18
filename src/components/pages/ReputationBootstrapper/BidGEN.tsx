@@ -12,7 +12,7 @@ import * as helpers from 'utils/helpers'
 import { deployed } from 'config.json'
 import LoadingCircle from '../../common/LoadingCircle'
 import { RootStore } from 'stores/Root'
-import { tooltip } from 'strings'
+import { instructions, tooltip } from 'strings'
 import TokenValue from 'components/common/TokenValue'
 
 const BidGENWrapper = styled.div`
@@ -72,7 +72,8 @@ class BidGEN extends React.Component<any, any>{
       <React.Fragment>
         {tokenApproved === false ?
           <EnableTokenPanel
-            instruction="Enable GEN to bid on Auctions"
+            instruction={instructions.enableBid}
+            pendingInstruction={instructions.pending.enableBid}
             subinstructions="-"
             buttonText="Enable GEN"
             tokenAddress={genTokenAddress}

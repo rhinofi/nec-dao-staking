@@ -15,7 +15,13 @@ export const text = {
 }
 
 export const instructions = {
-    auctionsEnded: `Auctions have ended and GEN Tokens can no longer be bid for Reputation.`
+    auctionsEnded: `Auctions have ended and GEN Tokens can no longer be bid for Reputation.`,
+    enableBid: `Enable GEN to bid on Auctions`,
+    enableLock: `Enable NEC for locking`,
+    pending: {
+        enableBid: `Enabling GEN...`,
+        enableLock: `Enabling NEC...`,
+    }
 }
 
 export const tooltip = {
