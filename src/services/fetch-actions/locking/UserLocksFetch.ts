@@ -37,7 +37,6 @@ export class UserLocksFetch extends BaseFetch {
         const timeDuration = batchDuration * batchTime
         const lockingBatch = this.rootStore.lockNECStore.getLockingBatchByTimestamp(block.timestamp)
         const releasable = Number(block.timestamp) + Number(timeDuration)
-
         return {
             locker: _locker,
             id: _lockingId,
@@ -117,8 +116,10 @@ export class UserLocksFetch extends BaseFetch {
     }
 
     updateLockDuration(lock: Lock, batchExtension: number): Lock {
+        const timeExtension = this.staticParams.batchTime * batchExtension
         lock.batchDuration = lock.batchDuration + batchExtension
-        lock.timeDuration = lock.timeDuration + (this.staticParams.batchTime * batchExtension)
+        lock.timeDuration = lock.timeDuration + timeExtension
+        lock.releasable = lock.releasable + timeExtension
         return lock
     }
 

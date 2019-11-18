@@ -288,7 +288,7 @@ class Airdrop extends React.Component<any, any>{
         />
         <Divider />
         <InfoLine title="Nectar Balance" info={`${necBalanceDisplay} NEC`} hasTooltip={false} />
-        <InfoLine title="Receive Voting Power" info={`${repDisplay} REP`} hasTooltip={false} />
+        <InfoLine title="Airdropped Voting Power" info={`${repDisplay} REP`} hasTooltip={false} />
         <Divider />
         <InfoLine title="Airdrop Blocknumber" info={snapshotBlock} hasTooltip={true} />
         <InfoLine title="Current Blocknumber" info={currentBlock} hasTooltip={false} />

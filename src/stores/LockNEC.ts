@@ -60,6 +60,11 @@ export default class LockNECStore extends BaseStore {
         return (startTime + (batchIndex * batchTime))
     }
 
+    getTimeUntilStartFrom(timestamp: number) {
+        const startTime = this.staticParams.startTime
+        return startTime - timestamp
+    }
+
     getBatchEndTime(batchIndex: number): number {
         const startTime = this.staticParams.startTime
         const batchTime = this.staticParams.batchTime
@@ -319,6 +324,8 @@ export default class LockNECStore extends BaseStore {
         log.error('extendLock', lockId, batchesToExtend, batchId)
 
         try {
+            const gas = await contract.methods.extendLocking(batchesToExtend, batchId, lockId, AGREEMENT_HASH).estimateGas()
+            console.log('gass', gas)
             await contract.methods.extendLocking(batchesToExtend, batchId, lockId, AGREEMENT_HASH).send()
             this.rootStore.txTracker.setExtendLockActionPending(false)
         } catch (e) {

@@ -13,6 +13,7 @@ import PanelExplainer from './PanelExplainer'
 import { tooltip } from 'strings'
 import Tooltip from 'components/common/Tooltip'
 import { PanelWrapper, ValidationError, AmountForm, AmountLabelWrapper, MaxButton } from 'components/common/Panel'
+import BigNumber from 'bignumber.js'
 
 export const LockFormWrapper = styled.div`
   display: flex;
@@ -36,7 +37,7 @@ export const ReleaseableDate = styled.div`
 `
 
 interface RenderData {
-  amount;
+  amount: string;
   releaseableDate;
   buttonText;
   enabled;
@@ -163,8 +164,12 @@ class LockPanel extends React.Component<any, any>{
   renderPending() {
     const { amount, releaseableDate, duration } = this.renderData
     const batchText = helpers.getBatchText(duration)
+
+    const tokenValue = helpers.toWeiValue(new BigNumber(amount))
+    const weiValue = helpers.tokenDisplay(tokenValue)
+
     return (
-      <LoadingCircle instruction={`Lock ${amount} NEC`} subinstruction={`${duration} ${batchText} - Unlock on ${releaseableDate}`} />
+      <LoadingCircle instruction={`Lock ${weiValue} NEC`} subinstruction={`${duration} ${batchText} - Unlock on ${releaseableDate}`} />
     )
   }
 

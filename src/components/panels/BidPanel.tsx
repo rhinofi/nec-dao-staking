@@ -11,6 +11,8 @@ import { deployed } from 'config.json'
 import { RootStore } from 'stores/Root'
 import { PanelWrapper, AmountLabelWrapper, ValidationError, MaxButton, AmountForm } from 'components/common/Panel'
 import BigNumber from 'bignumber.js';
+import { tooltip } from 'strings'
+import PanelExplainer from './PanelExplainer'
 
 const BidWrapper = styled.div`
   display: flex;
@@ -65,14 +67,17 @@ class BidPanel extends React.Component<any, any>{
     }
   }
 
-  Pending() {
+  renderAuctionsEnded() {
+    return <PanelExplainer text={tooltip.explainers.auctionsEnded} tooltip={tooltip.auctionsEnded} />
+  }
+
+  renderPending() {
     const { bidGENStore } = this.props.root as RootStore
     const { bidAmount } = this.renderData
     const currentAuction = bidGENStore.getActiveAuction()
     const timeUntilNextAuction = bidGENStore.getTimeUntilNextAuction()
     const timeText = helpers.formatTimeRemaining(timeUntilNextAuction)
 
-    debugger
     const weiValue = helpers.toWeiValue(new BigNumber(bidAmount))
     const bidAmountDisplay = helpers.tokenDisplay(weiValue)
 
@@ -83,19 +88,16 @@ class BidPanel extends React.Component<any, any>{
     )
   }
 
-  BidForm() {
+  renderBidForm() {
     const { bidFormStore } = this.props.root as RootStore
     const { buttonText, auctionsEnded, auctionsStarted, userBalance } = this.renderData
     const actionEnabled = auctionsStarted && !auctionsEnded
     const bidAmount = bidFormStore.bidAmount
     const { error, errorMessage } = bidFormStore.tokenInput
 
-    console.log({
-      bidAmount,
-      userBalance,
-      error,
-      errorMessage
-    })
+    if (auctionsEnded) {
+      return this.renderAuctionsEnded()
+    }
 
     return (
       <React.Fragment>
@@ -164,8 +166,8 @@ class BidPanel extends React.Component<any, any>{
       <PanelWrapper>
         {
           pending ?
-            this.Pending() :
-            this.BidForm()
+            this.renderPending() :
+            this.renderBidForm()
         }
       </PanelWrapper>
     )

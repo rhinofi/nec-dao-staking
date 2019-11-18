@@ -1,6 +1,7 @@
 import React from 'react'
+import styled from 'styled-components'
 import { inject, observer } from "mobx-react";
-import { TableWrapper, RowWrapper, InactiveRowWrapper, Row, CellWrapper, GreyCell } from 'components/common/Table'
+import { TableWrapper, RowWrapper, Row, CellWrapper, GreyCell } from 'components/common/Table'
 import 'components/common/Table.scss'
 import * as helpers from 'utils/helpers'
 import LoadingCircle from '../common/LoadingCircle';
@@ -20,6 +21,11 @@ interface ActionData {
     releasable: number,
     released: boolean
 }
+
+const InactiveRowWrapper = styled.div`
+  border-bottom: 1px solid var(--faded-border);
+  cursor: pointer;
+`
 
 class TableRow {
     constructor(
@@ -123,9 +129,10 @@ class UserLocksTable extends React.Component<any, any> {
 
         if (key === 'actionData') {
             const { released, releasable, beneficiary, lockId } = value
-
+            console.log('lockReleaseInfo', value)
             const isReleasable = (now > releasable)
             const isReleaseActionPending = txTracker.isReleaseActionPending(lockId)
+            console.log('isReleasable', isReleasable)
 
             // If it's not expired (aka releasable), and there are >0 batches left to extend to, we can extend
             const isExtendable = true
@@ -168,6 +175,7 @@ class UserLocksTable extends React.Component<any, any> {
 
             userLocks.size > 0 ? hasLocks = true : hasLocks = false
             if (hasLocks) {
+                console.log('userLockss', userLocks)
                 rows = this.generateTableRows(userLocks, userAddress)
             }
         }

@@ -118,7 +118,7 @@ class LockNEC extends React.Component<any, State> {
   }
 
   getTimerVisuals() {
-    const { lockNECStore } = this.props.root as RootStore
+    const { lockNECStore, timeStore } = this.props.root as RootStore
 
     const currentBatch = lockNECStore.getActiveLockingBatch()
     const finalBatch = lockNECStore.getFinalBatchIndex()
@@ -126,6 +126,8 @@ class LockNEC extends React.Component<any, State> {
     const isLockingStarted = lockNECStore.isLockingStarted()
     const isLockingEnded = lockNECStore.isLockingEnded()
     const finalBatchIndex = lockNECStore.getFinalBatchIndex()
+
+    const now = timeStore.currentTime
 
     const currentBatchDisplay = currentBatch + 1
     const finalBatchIndexDisplay = finalBatchIndex + 1
@@ -150,6 +152,10 @@ class LockNEC extends React.Component<any, State> {
     if (!isLockingStarted) {
       //TODO: Make the time 'until' the next 
       // Percentage will be related to deployment time
+      const timeUntilNextBatch = lockNECStore.getTimeUntilStartFrom(now)
+      batchPercentage = (timeUntilNextBatch / batchLength) * 100
+      const timeUntilNextBatchDisplay = helpers.formatTimeRemaining(timeUntilNextBatch)
+      batchTimer = `${prefix} ${timeUntilNextBatchDisplay}`
     }
 
     // Locking In Progress

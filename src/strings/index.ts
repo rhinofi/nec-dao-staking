@@ -35,6 +35,10 @@ export const tooltip = {
     lockAlreadyExpiredTooltip: `You can release the tokens from this lock with the corresponding 'Release' button in the table.`,
     lockAlreadyReleased: `The selected lock has already been released and cannot be extended.`,
     lockAlreadyReleasedTooltip: `You can create a new lock on the 'All Periods' tab.`,
+    explainers: {
+        auctionsEnded: `Auctions have ended and GEN Tokens can no longer be bid for Reputation.`
+    },
+    auctionsEnded: 'You will automatically recieve Reputation from your existing GEN bids.'
 }
 
 export const logs = {
