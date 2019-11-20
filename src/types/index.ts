@@ -90,7 +90,8 @@ export class SnapshotInfo {
     constructor(
         public balance: BigNumber,
         public rep: BigNumber,
-        public hasRedeemed: boolean
+        public hasRedeemed: boolean,
+        public claimedAmount: BigNumber
     ) { }
 }
 

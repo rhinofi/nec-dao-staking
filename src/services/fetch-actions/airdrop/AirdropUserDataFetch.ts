@@ -2,6 +2,7 @@ import { BaseFetch, StatusEnum, FetchActionResult } from 'services/fetch-actions
 import { RootStore } from 'stores/Root'
 import { SnapshotInfo } from 'types'
 import BigNumber from 'utils/bignumber'
+import * as helpers from 'utils/helpers'
 
 const REDEEM_EVENT = 'Redeem'
 
@@ -21,8 +22,9 @@ export class AirdropUserDataFetch extends BaseFetch {
 
     async fetchData(): Promise<FetchActionResult> {
         const { necRepAllocationContract, tokenContract, account } = this.params
+        const { airdropStore } = this.rootStore
         const contract = this.contract
-        const snapshotBlock = this.rootStore.airdropStore.staticParams.snapshotBlock
+        const snapshotBlock = airdropStore.staticParams.snapshotBlock
 
         const redeemEvents = await contract.getPastEvents(REDEEM_EVENT, {
             filter: { _beneficiary: account },
@@ -33,7 +35,17 @@ export class AirdropUserDataFetch extends BaseFetch {
         const snapshotRep = new BigNumber(await necRepAllocationContract.methods.balanceOf(account).call())
         const hasRedeemed = (redeemEvents && (redeemEvents.length >= 1))
 
-        const data: SnapshotInfo = new SnapshotInfo(snapshotBalance, snapshotRep, hasRedeemed)
+        let claimedAmount = helpers.ZERO
+        if (hasRedeemed) {
+            claimedAmount = new BigNumber(redeemEvents[0]._amount)
+        }
+
+        const data: SnapshotInfo = new SnapshotInfo(
+            snapshotBalance,
+            snapshotRep,
+            hasRedeemed,
+            claimedAmount
+        )
 
         return {
             status: StatusEnum.SUCCESS,
