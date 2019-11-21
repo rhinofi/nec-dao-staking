@@ -16,8 +16,6 @@ type Scores = Map<number, BigNumber>
 type Locks = Map<string, Lock>
 type Batches = Map<number, Batch>
 
-const AGREEMENT_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000'
-
 const { BN } = helpers
 log.setDefaultLevel("warn")
 
@@ -305,12 +303,12 @@ export default class LockNECStore extends BaseStore {
             amount: amount,
             duration: duration,
             batchId: batchId,
-            agreementHash: AGREEMENT_HASH
+            agreementHash: this.staticParams.agreementHash
         })
 
         this.rootStore.txTracker.setLockActionPending(true)
         try {
-            await contract.methods.lock(amount, duration, batchId, AGREEMENT_HASH).send()
+            await contract.methods.lock(amount, duration, batchId, this.staticParams.agreementHash).send()
             this.rootStore.txTracker.setLockActionPending(false)
         } catch (e) {
             log.error(e)
@@ -324,9 +322,9 @@ export default class LockNECStore extends BaseStore {
         log.error('extendLock', lockId, batchesToExtend, batchId)
 
         try {
-            const gas = await contract.methods.extendLocking(batchesToExtend, batchId, lockId, AGREEMENT_HASH).estimateGas()
+            const gas = await contract.methods.extendLocking(batchesToExtend, batchId, lockId, this.staticParams.agreementHash).estimateGas()
             console.log('gass', gas)
-            await contract.methods.extendLocking(batchesToExtend, batchId, lockId, AGREEMENT_HASH).send()
+            await contract.methods.extendLocking(batchesToExtend, batchId, lockId, this.staticParams.agreementHash).send()
             this.rootStore.txTracker.setExtendLockActionPending(false)
         } catch (e) {
             log.error(e)

@@ -15,7 +15,8 @@ export class AuctionStaticParamsFetch extends BaseFetch {
             this.contract.methods.auctionPeriod().call(),
             this.contract.methods.numberOfAuctions().call(),
             this.contract.methods.redeemEnableTime().call(),
-            this.contract.methods.auctionReputationReward().call()
+            this.contract.methods.auctionReputationReward().call(),
+            this.contract.methods.getAgreementHash().call()
         ])
 
         return {
@@ -26,7 +27,8 @@ export class AuctionStaticParamsFetch extends BaseFetch {
                 auctionLength: Number(data[2]),
                 numAuctions: Number(data[3]),
                 redeemEnableTime: Number(data[4]),
-                auctionRepReward: new BigNumber(data[5])
+                auctionRepReward: new BigNumber(data[5]),
+                agreementHash: data[6],
             }
         }
     }

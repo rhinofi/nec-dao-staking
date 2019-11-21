@@ -12,8 +12,6 @@ import { AuctionStaticParamsFetch } from 'services/fetch-actions/auction/Auction
 import { AuctionDataFetch } from 'services/fetch-actions/auction/AuctionDataFetch'
 import { StatusEnum } from 'services/fetch-actions/BaseFetch'
 
-const AGREEMENT_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000'
-
 const objectPath = require("object-path")
 
 const defaultAsyncActions = {
@@ -241,7 +239,7 @@ export default class BidGENStore extends BaseStore {
         log.debug(prefix.ACTION_PENDING, 'bid', amount, auctionId)
         this.setBidActionPending(true)
         try {
-            await contract.methods.bid(amount, auctionId, AGREEMENT_HASH).send()
+            await contract.methods.bid(amount, auctionId, this.staticParams.agreementHash).send()
             this.setBidActionPending(false)
             log.debug(prefix.ACTION_SUCCESS, 'bid', amount, auctionId)
         } catch (e) {

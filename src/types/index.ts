@@ -102,14 +102,15 @@ export interface BidStaticParams {
     numAuctions: number;
     redeemEnableTime: number;
     auctionRepReward: BigNumber;
+    agreementHash: string;
 }
 
 export interface LockStaticParams {
     numLockingBatches: number;
     batchTime: number;
     startTime: number;
-    agreementHash: string;
     maxLockingBatches: number;
+    agreementHash: string;
 }
 
 export interface AirdropStaticParams {
@@ -119,4 +120,5 @@ export interface AirdropStaticParams {
     claimEndTime: number;
     totalRepReward: BigNumber;
     token: string;
+    agreementHash: string;
 }

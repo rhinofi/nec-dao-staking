@@ -144,8 +144,13 @@ export default class AirdropStore extends BaseStore {
 
     fetchStaticParams = async () => {
         const contract = this.loadNecRepAllocationContract()
+        const necRepAllocationContract = this.loadNecRepAllocationContract()
+        const repFromTokenContract = this.loadRepFromTokenContract()
 
-        const action = new AirdropStaticParamsFetch(contract, this.rootStore)
+        const action = new AirdropStaticParamsFetch(contract, this.rootStore, {
+            necRepAllocationContract,
+            repFromTokenContract
+        })
         const result = await action.fetch()
 
         if (result.status === StatusEnum.SUCCESS) {
@@ -182,7 +187,7 @@ export default class AirdropStore extends BaseStore {
         log.debug(prefix.ACTION_PENDING, 'redeem', beneficiary)
         this.setRedeemPending(true)
         try {
-            await contract.methods.redeem(beneficiary).send()
+            await contract.methods.redeem(beneficiary, this.staticParams.agreementHash).send()
             this.setRedeemPending(false)
             log.debug(prefix.ACTION_SUCCESS, 'redeem', beneficiary)
         } catch (e) {
