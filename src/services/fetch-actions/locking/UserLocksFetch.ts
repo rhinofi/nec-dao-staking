@@ -148,23 +148,27 @@ export class UserLocksFetch extends BaseFetch {
             locks = existingLocks.get(account) as Locks
         }
 
-        const lockEvents = await contract.getPastEvents(LOCK_EVENT, {
-            filter: { _locker: account },
-            fromBlock: nextBlockToFetch,
-            toBlock: currentBlock
-        })
+        const events = await Promise.all([
+            contract.getPastEvents(LOCK_EVENT, {
+                filter: { _locker: account },
+                fromBlock: nextBlockToFetch,
+                toBlock: currentBlock
+            }),
+            contract.getPastEvents(EXTEND_LOCKING_EVENT, {
+                filter: { _locker: account },
+                fromBlock: nextBlockToFetch,
+                toBlock: currentBlock
+            }),
+            contract.getPastEvents(RELEASE_EVENT, {
+                filter: { _beneficiary: account },
+                fromBlock: nextBlockToFetch,
+                toBlock: currentBlock
+            })
+        ])
 
-        const extendEvents = await contract.getPastEvents(EXTEND_LOCKING_EVENT, {
-            filter: { _locker: account },
-            fromBlock: nextBlockToFetch,
-            toBlock: currentBlock
-        })
-
-        const releaseEvents = await contract.getPastEvents(RELEASE_EVENT, {
-            filter: { _beneficiary: account },
-            fromBlock: nextBlockToFetch,
-            toBlock: currentBlock
-        })
+        const lockEvents = events[0]
+        const extendEvents = events[1]
+        const releaseEvents = events[2]
 
         // Add new Locks
         for (const event of lockEvents) {

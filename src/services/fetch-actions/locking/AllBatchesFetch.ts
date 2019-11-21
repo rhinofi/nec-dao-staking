@@ -66,13 +66,21 @@ export class AllBatchesFetch extends BaseFetch {
 
         const ZERO = new BigNumber(0)
 
+        const promises = [] as Array<Promise<any>>;
+
+        for (let i = firstBatchToFetch; i < currentBatch + this.staticParams.maxLockingBatches; i++) {
+            promises.push(contract.methods.getRepRewardPerBatch(i).call())
+            promises.push(contract.methods.batches(i).call())
+        }
+
+        const data = await Promise.all(promises)
         for (let i = firstBatchToFetch; i <= lastBatchToFetch; i++) {
             let batch = batches.get(i) as Batch
             let totalRep = ZERO
             let totalScore = ZERO
             if (i < currentBatch + this.staticParams.maxLockingBatches) {
-                totalRep = new BigNumber(await contract.methods.getRepRewardPerBatch(i).call())
-                totalScore = new BigNumber(await contract.methods.batches(i).call())
+                totalRep = new BigNumber(data[2 * i])
+                totalScore = new BigNumber(data[2 * i + 1])
             }
 
             totalRep = helpers.fromReal(totalRep)

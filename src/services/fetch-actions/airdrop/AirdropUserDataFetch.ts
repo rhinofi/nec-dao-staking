@@ -26,13 +26,19 @@ export class AirdropUserDataFetch extends BaseFetch {
         const contract = this.contract
         const snapshotBlock = airdropStore.staticParams.snapshotBlock
 
-        const redeemEvents = await contract.getPastEvents(REDEEM_EVENT, {
-            filter: { _beneficiary: account },
-            fromBlock: 0,
-            toBlock: 'latest'
-        })
-        const snapshotBalance = new BigNumber(await tokenContract.methods.balanceOfAt(account, snapshotBlock).call())
-        const snapshotRep = new BigNumber(await necRepAllocationContract.methods.balanceOf(account).call())
+        const data = await Promise.all([
+            contract.getPastEvents(REDEEM_EVENT, {
+                filter: { _beneficiary: account },
+                fromBlock: 0,
+                toBlock: 'latest'
+            }),
+            tokenContract.methods.balanceOfAt(account, snapshotBlock).call(),
+            necRepAllocationContract.methods.balanceOf(account).call()
+        ])
+
+        const redeemEvents = data[0]
+        const snapshotBalance = new BigNumber(data[1])
+        const snapshotRep = new BigNumber(data[2])
         const hasRedeemed = (redeemEvents && (redeemEvents.length >= 1))
 
         let claimedAmount = helpers.ZERO
@@ -40,7 +46,7 @@ export class AirdropUserDataFetch extends BaseFetch {
             claimedAmount = new BigNumber(redeemEvents[0]._amount)
         }
 
-        const data: SnapshotInfo = new SnapshotInfo(
+        const snapshotInfo: SnapshotInfo = new SnapshotInfo(
             snapshotBalance,
             snapshotRep,
             hasRedeemed,
@@ -49,7 +55,7 @@ export class AirdropUserDataFetch extends BaseFetch {
 
         return {
             status: StatusEnum.SUCCESS,
-            data: data
+            data: snapshotInfo
         }
     }
 }
