@@ -9,23 +9,26 @@ export class AuctionStaticParamsFetch extends BaseFetch {
     }
 
     async fetchData(): Promise<FetchActionResult> {
-        const auctionsStartTime = await this.contract.methods.auctionsStartTime().call()
-        const auctionsEndTime = await this.contract.methods.auctionsEndTime().call()
-        const auctionLength = await this.contract.methods.auctionPeriod().call()
-        const numAuctions = await this.contract.methods.numberOfAuctions().call()
-        const redeemEnableTime = await this.contract.methods.redeemEnableTime().call()
-        const auctionRepReward = await this.contract.methods.auctionReputationReward().call()
+        const data = await Promise.all([
+            this.contract.methods.auctionsStartTime().call(),
+            this.contract.methods.auctionsEndTime().call(),
+            this.contract.methods.auctionPeriod().call(),
+            this.contract.methods.numberOfAuctions().call(),
+            this.contract.methods.redeemEnableTime().call(),
+            this.contract.methods.auctionReputationReward().call()
+        ])
 
         return {
             status: StatusEnum.SUCCESS,
             data: {
-                auctionsStartTime: Number(auctionsStartTime),
-                auctionsEndTime: Number(auctionsEndTime),
-                auctionLength: Number(auctionLength),
-                numAuctions: Number(numAuctions),
-                redeemEnableTime: Number(redeemEnableTime),
-                auctionRepReward: new BigNumber(auctionRepReward)
+                auctionsStartTime: Number(data[0]),
+                auctionsEndTime: Number(data[1]),
+                auctionLength: Number(data[2]),
+                numAuctions: Number(data[3]),
+                redeemEnableTime: Number(data[4]),
+                auctionRepReward: new BigNumber(data[5])
             }
         }
     }
 }
+

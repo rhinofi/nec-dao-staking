@@ -9,22 +9,26 @@ export class AirdropStaticParamsFetch extends BaseFetch {
     }
 
     async fetchData(): Promise<FetchActionResult> {
-        const snapshotBlock = Number(await this.contract.methods.blockReference().call())
-        const snapshotTotalSupplyAt = new BigNumber(await this.contract.methods.totalTokenSupplyAt().call())
-        const claimStartTime = Number(await this.contract.methods.claimingStartTime().call())
-        const claimEndTime = Number(await this.contract.methods.claimingEndTime().call())
-        const totalRepReward = new BigNumber(await this.contract.methods.reputationReward().call())
-        const token = await this.contract.methods.token().call()
+        const data = await Promise.all(
+            [
+                this.contract.methods.blockReference().call(),
+                this.contract.methods.totalTokenSupplyAt().call(),
+                this.contract.methods.claimingStartTime().call(),
+                this.contract.methods.claimingEndTime().call(),
+                this.contract.methods.reputationReward().call(),
+                this.contract.methods.token().call()
+            ]
+        )
 
         return {
             status: StatusEnum.SUCCESS,
             data: {
-                snapshotBlock,
-                snapshotTotalSupplyAt,
-                claimStartTime,
-                claimEndTime,
-                totalRepReward,
-                token
+                snapshotBlock: Number(data[0]),
+                snapshotTotalSupplyAt: new BigNumber(data[1]),
+                claimStartTime: Number(data[2]),
+                claimEndTime: Number(data[3]),
+                totalRepReward: new BigNumber(data[4]),
+                token: data[5]
             }
         }
     }

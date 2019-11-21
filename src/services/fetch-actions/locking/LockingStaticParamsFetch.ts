@@ -8,20 +8,21 @@ export class LockingStaticParamsFetch extends BaseFetch {
     }
 
     async fetchData(): Promise<FetchActionResult> {
-        const numLockingBatches = await this.contract.methods.batchesIndexCap().call()
-        const batchTime = await this.contract.methods.batchTime().call()
-        const startTime = await this.contract.methods.startTime().call()
-        const maxLockingBatches = await this.contract.methods.maxLockingBatches().call()
-        const agreementHash = await this.contract.methods.getAgreementHash().call()
-
+        const data = await Promise.all([
+            this.contract.methods.batchesIndexCap().call(),
+            this.contract.methods.batchTime().call(),
+            this.contract.methods.startTime().call(),
+            this.contract.methods.maxLockingBatches().call(),
+            this.contract.methods.getAgreementHash().call()
+        ])
         return {
             status: StatusEnum.SUCCESS,
             data: {
-                numLockingBatches: Number(numLockingBatches),
-                batchTime: Number(batchTime),
-                startTime: Number(startTime),
-                agreementHash,
-                maxLockingBatches: Number(maxLockingBatches),
+                numLockingBatches: Number(data[0]),
+                batchTime: Number(data[1]),
+                startTime: Number(data[2]),
+                maxLockingBatches: Number(data[3]),
+                agreementHash: data[4]
             }
         }
     }
