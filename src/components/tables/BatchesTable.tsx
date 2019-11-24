@@ -22,9 +22,6 @@ class BatchesTable extends React.Component<any, any>{
 
 
         data.forEach((batch: Batch, key, map) => {
-            console.log({
-                key, batch
-            })
             if (key <= maxIndexToDisplay) {
                 const row = {
                     batchId: batch.id,

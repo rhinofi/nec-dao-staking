@@ -3,6 +3,8 @@ import { RootStore } from 'stores/Root'
 import { Lock, LockStaticParams, Batch, newBatch } from 'types'
 import BigNumber from 'utils/bignumber'
 import * as helpers from 'utils/helpers'
+import { printBatches } from 'utils/debug'
+const ZERO = helpers.ZERO
 
 type Scores = Map<number, BigNumber>
 type Locks = Map<string, Lock>
@@ -15,6 +17,8 @@ interface Params {
     currentBatch: number;
     maxLockingBatches: number;
     completedBatchIndex: number;
+    existingBatches: Batches;
+    isInitialLoadComplete: boolean;
 }
 
 export class AllBatchesFetch extends BaseFetch {
@@ -46,11 +50,14 @@ export class AllBatchesFetch extends BaseFetch {
     // Do the network operations or local operations take more time?
     async fetchData(): Promise<FetchActionResult> {
         const contract = this.contract
-        const { locks, finalBatch, currentBatch, maxLockingBatches, completedBatchIndex } = this.params
-        let batches = new Map<number, Batch>()
+        const { locks, finalBatch, currentBatch, maxLockingBatches, completedBatchIndex, existingBatches, isInitialLoadComplete } = this.params
+        let batches = existingBatches;
 
-        const firstBatchToFetch = completedBatchIndex === 0 ? completedBatchIndex : completedBatchIndex + 1
-        const lastBatchToFetch = Math.min(finalBatch, currentBatch + maxLockingBatches)
+        let firstBatchToFetch = 0;
+        let lastBatchToFetch = Math.min(finalBatch, currentBatch + maxLockingBatches);
+        if (isInitialLoadComplete) {
+            firstBatchToFetch = completedBatchIndex + 1
+        }
 
         for (let i = firstBatchToFetch; i <= finalBatch; i++) {
             let batch = batches.get(i) as Batch
@@ -60,12 +67,7 @@ export class AllBatchesFetch extends BaseFetch {
             }
         }
 
-        console.log({ batches })
-
         batches = this.addUserTotalsFromLocks(locks, batches)
-
-        const ZERO = new BigNumber(0)
-
         const promises = [] as Array<Promise<any>>;
 
         for (let i = firstBatchToFetch; i < currentBatch + this.staticParams.maxLockingBatches; i++) {

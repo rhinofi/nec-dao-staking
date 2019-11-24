@@ -6,11 +6,11 @@ import * as log from 'loglevel'
 import { deployed } from 'config.json'
 import BigNumber from "utils/bignumber"
 import { Lock, LockStaticParams, Batch } from 'types'
-import { RootStore } from './Root'
 import { LockingStaticParamsFetch } from 'services/fetch-actions/locking/LockingStaticParamsFetch'
 import { StatusEnum } from 'services/fetch-actions/BaseFetch'
 import { UserLocksFetch } from 'services/fetch-actions/locking/UserLocksFetch'
 import { AllBatchesFetch } from 'services/fetch-actions/locking/AllBatchesFetch'
+import { printBatches, printParams } from 'utils/debug';
 import BaseStore from './BaseStore'
 type Scores = Map<number, BigNumber>
 type Locks = Map<string, Lock>
@@ -287,13 +287,29 @@ export default class LockNECStore extends BaseStore {
         const maxLockingBatches = this.staticParams.maxLockingBatches
         const completedBatchIndex = this.completedBatchIndex
 
-        const action = new AllBatchesFetch(contract, this.rootStore, { account: user, locks, finalBatch, currentBatch, maxLockingBatches, completedBatchIndex })
+        printParams({
+            currentBatch: currentBatch,
+            finalBatch: finalBatch,
+            completedBatchIndex: completedBatchIndex
+        })
+
+        const action = new AllBatchesFetch(contract, this.rootStore, {
+            account: user,
+            locks,
+            finalBatch,
+            currentBatch,
+            maxLockingBatches,
+            completedBatchIndex,
+            existingBatches: this.batches,
+            isInitialLoadComplete: this.batchesLoaded
+        })
         const result = await action.fetch()
         if (result.status === StatusEnum.SUCCESS) {
             this.batches = result.data.batches
             this.completedBatchIndex = result.data.completedBatchIndex
             this.batchesLoaded = result.data.batchesLoaded
         }
+        printBatches(result.data.batches);
     }
 
     lock = async (amount, duration, batchId) => {
