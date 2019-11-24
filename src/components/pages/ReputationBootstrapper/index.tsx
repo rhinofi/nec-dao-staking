@@ -1,6 +1,6 @@
 import React from 'react'
 import { observer, inject } from 'mobx-react'
-import { Switch, Route } from 'react-router-dom'
+import { Switch, Route, Redirect } from 'react-router-dom'
 import styled from 'styled-components'
 import Selector from './Selector'
 import LockNEC from './LockNEC'
@@ -42,7 +42,7 @@ class ReputationBoostrapper extends React.Component<any, any> {
           <BidGEN />
         </Route>
         <Route exact path="/">
-          <LockNEC />
+          <Redirect to="/lock-nec" />
         </Route>
       </Switch>
     )
