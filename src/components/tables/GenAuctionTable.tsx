@@ -11,7 +11,7 @@ const columns = [
     { name: 'Auction', key: 'auctionNumberDisplay', width: '10%', align: 'left' },
     { name: 'You Have Bid', key: 'userBid', width: '25%', align: 'right' },
     { name: 'Total Bid', key: 'totalBid', width: '30%', align: 'right' },
-    { name: 'You Received', key: 'status', width: '30%', align: 'right' }
+    { name: 'You Will Receive', key: 'status', width: '30%', align: 'right' }
 ]
 
 @inject('root')

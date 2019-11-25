@@ -11,7 +11,7 @@ const columns = [
     { name: 'Period', key: 'batchIdDisplay', width: '10%', align: 'left' },
     { name: 'You Locked', key: 'userLocked', width: '25%', align: 'right' },
     { name: 'Total Reputation', key: 'totalRep', width: '30%', align: 'right' },
-    { name: 'You Received', key: 'userRep', width: '30%', align: 'right' },
+    { name: 'You Will Receive', key: 'userRep', width: '30%', align: 'right' },
 ]
 
 @inject('root')

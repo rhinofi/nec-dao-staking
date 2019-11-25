@@ -99,7 +99,7 @@ class ExtendLockPanel extends React.Component<any, any>{
       <LockingPeriodSelectorWrapper>
         <LockingPeriodTitle>
           <div>Extend Lock (Months)</div>
-          <Tooltip title={''} content="You can extend the duration of one of your current token locks to gain more REP over a longer batch. The total duration still cannot exceed 12 months, however." position="right top" />
+          <Tooltip title={''} content="You can extend the duration of one of your current token locks to gain more REP over a longer batch. The total duration still cannot exceed 12 months." position="right top" />
         </LockingPeriodTitle>
 
         <LockingPeriodSelector>
