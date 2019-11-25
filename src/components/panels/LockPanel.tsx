@@ -169,7 +169,7 @@ class LockPanel extends React.Component<any, any>{
     const weiValue = helpers.tokenDisplay(tokenValue)
 
     return (
-      <LoadingCircle instruction={`Lock ${weiValue} NEC`} subinstruction={`${duration} ${batchText} - Unlock on ${releaseableDate}`} />
+      <LoadingCircle instruction={`Locking ${weiValue} NEC`} subinstruction={`${duration} ${batchText} - Unlock on ${releaseableDate}`} />
     )
   }
 

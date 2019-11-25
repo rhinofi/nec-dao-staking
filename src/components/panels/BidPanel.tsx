@@ -83,7 +83,7 @@ class BidPanel extends React.Component<any, any>{
 
     return (
       <React.Fragment>
-        <LoadingCircle instruction={`Bid ${bidAmountDisplay} GEN`} subinstruction={`Auction ${currentAuction + 1} - Ends in ${timeText}`} />
+        <LoadingCircle instruction={`Bidding ${bidAmountDisplay} GEN`} subinstruction={`Auction ${currentAuction + 1} - Ends in ${timeText}`} />
       </React.Fragment >
     )
   }
