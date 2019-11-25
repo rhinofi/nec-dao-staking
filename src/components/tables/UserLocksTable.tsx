@@ -12,6 +12,7 @@ import 'components/common/Modal.scss'
 import BigNumber from "utils/bignumber"
 import { Lock } from 'types'
 import { RootStore } from 'stores/Root';
+import { duration } from 'moment';
 type Scores = Map<number, BigNumber>
 type Locks = Map<string, Lock>
 
@@ -19,7 +20,8 @@ interface ActionData {
     beneficiary: string,
     lockId: string,
     releasable: number,
-    released: boolean
+    released: boolean,
+    batchDuration: number,
 }
 
 const InactiveRowWrapper = styled.div`
@@ -78,7 +80,8 @@ class UserLocksTable extends React.Component<any, any> {
                     beneficiary: userAddress,
                     lockId: lock.id,
                     releasable: lock.releasable,
-                    released: lock.released
+                    released: lock.released,
+                    batchDuration: lock.batchDuration,
                 },
             }
 
@@ -124,20 +127,26 @@ class UserLocksTable extends React.Component<any, any> {
     }
 
     generateCell(key, value) {
-        const { timeStore, txTracker } = this.props.root as RootStore
+        const { timeStore, txTracker, lockNECStore } = this.props.root as RootStore
+        const maxDuration = lockNECStore.staticParams.maxLockingBatches
         const now = timeStore.currentTime
 
         if (key === 'actionData') {
-            const { released, releasable, beneficiary, lockId } = value
+            const { released, releasable, beneficiary, lockId, batchDuration } = value
             console.log('lockReleaseInfo', value)
             const isReleasable = (now > releasable)
             const isReleaseActionPending = txTracker.isReleaseActionPending(lockId)
             console.log('isReleasable', isReleasable)
 
             // If it's not expired (aka releasable), and there are >0 batches left to extend to, we can extend
-            const isExtendable = true
+            console.log({
+                batchDuration,
+                maxDuration,
+                isReleasable
+            })
+            const isExtendable = batchDuration < maxDuration
 
-            if (!isReleasable && isExtendable) {
+            if (isExtendable && !isReleasable) {
                 return <TableButton>Extend</TableButton>
             }
 
@@ -145,12 +154,16 @@ class UserLocksTable extends React.Component<any, any> {
                 return <DisabledText>Released</DisabledText>
             }
 
-            if (!isReleaseActionPending) {
+            if (isReleasable && !isReleaseActionPending) {
                 return <TableButton onClick={() => { this.release(beneficiary, lockId) }}>Release</TableButton>
             }
 
             if (isReleaseActionPending) {
                 return <TableButton>Pending...</TableButton>
+            }
+
+            if (batchDuration >= maxDuration && !isReleasable) {
+                return <DisabledText>Release</DisabledText>
             }
 
             return <DisabledText>Error</DisabledText>
