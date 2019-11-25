@@ -142,7 +142,7 @@ class LockPanel extends React.Component<any, any>{
 
     return (
       <LockingPeriodSelectorWrapper>
-        <LockingPeriodTitle>Lock Duration (Months) <Tooltip title={''} content={tooltip.lockTokenExplainer} position="bottom" /></LockingPeriodTitle>
+        <LockingPeriodTitle>Lock Duration (Months) <Tooltip title={''} content={tooltip.lockTokenExplainer} position="bottom center" /></LockingPeriodTitle>
         <LockingPeriodSelector>
           <LockingPeriodStartCell onClick={() => {
             this.decrementRange(formState)
@@ -201,7 +201,7 @@ class LockPanel extends React.Component<any, any>{
           <div>Lock Amount</div>
           <Popup
             trigger={<MaxButton onClick={e => this.setLockAmount(userBalance)} />}
-            position="top center"
+            position="left center"
             on="hover"
           >
             <div>
