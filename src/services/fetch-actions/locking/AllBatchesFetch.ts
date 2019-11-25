@@ -85,14 +85,25 @@ export class AllBatchesFetch extends BaseFetch {
     async fetchData(): Promise<FetchActionResult> {
         const contract = this.contract
         const { locks, finalBatch, currentBatch, maxLockingBatches, completedBatchIndex, existingBatches, isInitialLoadComplete, batchesMetadata } = this.params
-        this.batches = existingBatches;
-        this.locksIncluded = batchesMetadata.locksIncluded
+
+        const initialLoadComplete = false
 
         let firstBatchToFetch = 0;
         let lastBatchToFetch = Math.min(finalBatch, currentBatch + maxLockingBatches);
-        if (isInitialLoadComplete) {
+
+        if (initialLoadComplete) {
+            this.batches = existingBatches;
+            this.locksIncluded = batchesMetadata.locksIncluded
             firstBatchToFetch = completedBatchIndex + 1
+        } else {
+            this.batches = new Map<number, Batch>();
+            this.locksIncluded = new Set<string>();
         }
+
+        console.log({
+            firstBatchToFetch,
+            lastBatchToFetch
+        })
 
         this.initializeEmptyBatches(firstBatchToFetch, finalBatch)
         this.addUserTotalsFromLocks(locks)
