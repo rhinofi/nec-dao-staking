@@ -9,7 +9,7 @@ const Web3Manager = inject('root')(observer((props) => {
     // const { providerStore } = root
 
     useEffect(() => {
-        context.setFirstValidConnector(['MetaMask'])
+        context.setConnector('MetaMask', { suppressAndThrowErrors: true }).catch(err => context.setError(err))
     })
 
     if (!context.active && !context.error) {

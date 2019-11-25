@@ -7,7 +7,8 @@ import { Provider } from 'mobx-react'
 import RootStore from './stores/Root'
 import Web3 from 'web3'
 import { Connectors } from 'web3-react'
-const { InjectedConnector, NetworkOnlyConnector } = Connectors
+import InjectedConnector from 'components/shell/InjectedConnector'
+const { NetworkOnlyConnector } = Connectors
 
 const MetaMask = new InjectedConnector()
 

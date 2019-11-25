@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import NECLogo from 'assets/svgs/necdao-glow.svg'
-import ActiveButton from 'components/common/buttons/ActiveButton'
+import ActiveButton from './buttons/ActiveButton'
 
 const ConnectWrapper = styled.div`
   display: flex;
@@ -54,11 +54,11 @@ const ConnectWallet = () => {
       <SubTitle>
         To start using the necDAO Interface
       </SubTitle>
-      {/* <ButtonWrapper>
-        <ActiveButton>
+      <ButtonWrapper>
+        <ActiveButton onClick={() => { window.location.reload() }}>
           Connect
         </ActiveButton>
-      </ButtonWrapper> */}
+      </ButtonWrapper>
     </ConnectWrapper>
   )
 }
