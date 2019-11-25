@@ -23,11 +23,24 @@ interface ActionData {
     released: boolean,
     batchDuration: number,
 }
+interface ReleasableData {
+    releasableTimestamp: number;
+    releasableDateDisplay: string;
+}
 
 const InactiveRowWrapper = styled.div`
   border-bottom: 1px solid var(--faded-border);
   cursor: pointer;
 `
+
+enum TableRowKeys {
+    lockId = 'lockId',
+    startBatch = 'startBatch',
+    amount = 'amount',
+    duration = 'duration',
+    releasableData = 'releasableData',
+    actionData = 'actionData'
+}
 
 class TableRow {
     constructor(
@@ -35,17 +48,17 @@ class TableRow {
         public startBatch: number,
         public amount: string,
         public duration: string,
-        public releasable: string,
+        public releasableData: ReleasableData,
         public actionData: ActionData
     ) { }
 }
 
 const columns = [
-    { name: 'Period', key: 'startBatch', width: '10%', align: 'left' },
-    { name: 'Amount', key: 'amount', width: '30%', align: 'right' },
-    { name: 'Duration', key: 'duration', width: '20%', align: 'right' },
-    { name: 'Releasable', key: 'releasable', width: '20%', align: 'right' },
-    { name: 'Action', key: 'actionData', width: '15%', align: 'right' },
+    { name: 'Period', key: TableRowKeys.startBatch, width: '10%', align: 'left' },
+    { name: 'Amount', key: TableRowKeys.amount, width: '30%', align: 'right' },
+    { name: 'Duration', key: TableRowKeys.duration, width: '20%', align: 'right' },
+    { name: 'Releasable', key: TableRowKeys.releasableData, width: '20%', align: 'right' },
+    { name: 'Action', key: TableRowKeys.actionData, width: '15%', align: 'right' },
 ]
 
 @inject('root')
@@ -68,14 +81,17 @@ class UserLocksTable extends React.Component<any, any> {
             const displayAmount = `${helpers.tokenDisplay(lock.amount)} NEC`
 
             // let releasableDisplay
-            const releasableDisplay = helpers.timestampToDate(lock.releasable)
+            const releasableDateDisplay = helpers.timestampToDate(lock.releasable)
 
             const row: TableRow = {
                 lockId: lock.id,
                 startBatch: lock.lockingBatch + 1,
                 amount: displayAmount,
                 duration: durationDisplay,
-                releasable: releasableDisplay,
+                releasableData: {
+                    releasableTimestamp: lock.releasable,
+                    releasableDateDisplay
+                },
                 actionData: {
                     beneficiary: userAddress,
                     lockId: lock.id,
@@ -131,20 +147,17 @@ class UserLocksTable extends React.Component<any, any> {
         const maxDuration = lockNECStore.staticParams.maxLockingBatches
         const now = timeStore.currentTime
 
-        if (key === 'actionData') {
+        if (key === TableRowKeys.actionData) {
             const { released, releasable, beneficiary, lockId, batchDuration } = value
-            console.log('lockReleaseInfo', value)
             const isReleasable = (now > releasable)
             const isReleaseActionPending = txTracker.isReleaseActionPending(lockId)
-            console.log('isReleasable', isReleasable)
 
             // If it's not expired (aka releasable), and there are >0 batches left to extend to, we can extend
-            console.log({
-                batchDuration,
-                maxDuration,
-                isReleasable
-            })
             const isExtendable = batchDuration < maxDuration
+
+            if (isExtendable && !isReleasable) {
+                return <TableButton>Extend</TableButton>
+            }
 
             if (isExtendable && !isReleasable) {
                 return <TableButton>Extend</TableButton>
@@ -163,10 +176,29 @@ class UserLocksTable extends React.Component<any, any> {
             }
 
             if (batchDuration >= maxDuration && !isReleasable) {
-                return <DisabledText>Release</DisabledText>
+                return <DisabledText>---</DisabledText>
             }
 
             return <DisabledText>Error</DisabledText>
+        }
+
+        /* Display the releasable column as a date, unless we are <24 hours to releasable time: in which case show a countdown clock */
+        if (key === TableRowKeys.releasableData) {
+            const { releasableTimestamp, releasableDateDisplay } = value as ReleasableData
+            const timeUntilReleasable = releasableTimestamp - now;
+
+            console.log({
+                releasableTimestamp,
+                releasableDateDisplay,
+                timeUntilReleasable,
+                time: helpers.formatTimeRemaining(timeUntilReleasable)
+            })
+
+            if (timeUntilReleasable < helpers.timeConstants.inSeconds.DAY && timeUntilReleasable > 0) {
+                return helpers.formatTimeRemaining(timeUntilReleasable)
+            }
+
+            return releasableDateDisplay
         }
 
         return value
@@ -188,7 +220,6 @@ class UserLocksTable extends React.Component<any, any> {
 
             userLocks.size > 0 ? hasLocks = true : hasLocks = false
             if (hasLocks) {
-                console.log('userLockss', userLocks)
                 rows = this.generateTableRows(userLocks, userAddress)
             }
         }

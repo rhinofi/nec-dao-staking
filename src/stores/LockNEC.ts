@@ -3,7 +3,7 @@
 import { observable, action } from 'mobx'
 import * as helpers from "utils/helpers"
 import * as log from 'loglevel'
-import { deployed } from 'config.json'
+import { deployed, testFlag } from 'config.json'
 import BigNumber from "utils/bignumber"
 import { Lock, LockStaticParams, Batch, BatchesMetadata } from 'types'
 import { LockingStaticParamsFetch } from 'services/fetch-actions/locking/LockingStaticParamsFetch'
