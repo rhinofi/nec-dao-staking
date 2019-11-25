@@ -14,6 +14,11 @@ export class Lock {
         public released: boolean
     ) { };
 }
+export class BatchesMetadata {
+    constructor(
+        public locksIncluded: Set<string>
+    ) { };
+}
 
 export enum TxType {
     LOCK,

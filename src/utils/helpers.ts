@@ -88,6 +88,11 @@ export function isNumeric(num) {
   return !isNaN(num)
 }
 
+export function safeDiv(num: BigNumber, denom: BigNumber) {
+  if (num.eq(0)) return ZERO;
+  if (denom.eq(0)) return ZERO;
+  return num.div(denom);
+}
 /*
   @param zeroValue: Value that represents 0% 
   @param currentValue: Calculate % based on this value

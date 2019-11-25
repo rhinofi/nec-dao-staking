@@ -1,14 +1,15 @@
 import { BaseFetch, StatusEnum, FetchActionResult } from 'services/fetch-actions/BaseFetch'
 import { RootStore } from 'stores/Root'
-import { Lock, LockStaticParams, Batch, newBatch } from 'types'
+import { Lock, LockStaticParams, Batch, newBatch, BatchesMetadata } from 'types'
 import BigNumber from 'utils/bignumber'
 import * as helpers from 'utils/helpers'
-import { printBatches } from 'utils/debug'
+import { printBatch } from 'utils/debug'
 const ZERO = helpers.ZERO
 
 type Scores = Map<number, BigNumber>
 type Locks = Map<string, Lock>
 type Batches = Map<number, Batch>
+type LocksIncluded = Set<string>
 
 interface Params {
     account: string;
@@ -19,11 +20,15 @@ interface Params {
     completedBatchIndex: number;
     existingBatches: Batches;
     isInitialLoadComplete: boolean;
+    batchesMetadata: BatchesMetadata;
 }
 
 export class AllBatchesFetch extends BaseFetch {
     params: Params;
     staticParams!: LockStaticParams
+    batches!: Batches
+    locksIncluded!: Set<string>
+
     constructor(contract, rootStore: RootStore, params: Params) {
         const fetchText = 'All Batches'
         super(contract, fetchText, rootStore, params)
@@ -31,27 +36,57 @@ export class AllBatchesFetch extends BaseFetch {
         this.staticParams = this.rootStore.lockNECStore.staticParams
     }
 
-    addUserTotalsFromLocks(locks: Locks, batches: Batches): Batches {
-        locks.forEach(lock => {
+    addUserTotalsFromLocks(userLocks: Locks) {
+        userLocks.forEach(lock => {
             const lockBatchId = lock.lockingBatch
-            const batch = batches.get(lockBatchId) as Batch
-            batch.userLocked = batch.userLocked.plus(lock.amount)
-            batches.set(lockBatchId, batch)
 
-            lock.scores.forEach((score, key) => {
-                const batch = batches.get(key) as Batch
-                batch.userScore = batch.userScore.plus(score)
-                batches.set(key, batch)
-            })
+            if (!this.locksIncluded.has(lock.id)) {
+
+                if (!this.batches.has(lockBatchId)) {
+                    throw new Error(`Batch ${lockBatchId} not received`)
+                }
+                const batch = this.batches.get(lockBatchId) as Batch
+                const updated = this.addLockAmountToBatch(batch, lock.amount)
+                this.batches.set(lockBatchId, updated);
+                this.addLockScoresToBatches(lock.scores)
+                this.locksIncluded.add(lock.id)
+            }
         });
-        return batches
+    }
+
+    addLockAmountToBatch(batch: Batch, amount: BigNumber): Batch {
+        batch.userLocked = batch.userLocked.plus(amount)
+        return batch;
+    }
+
+    addLockScoresToBatches(scores: Map<number, BigNumber>) {
+        scores.forEach((score, key) => {
+
+            if (!this.batches.has(key)) {
+                throw new Error(`Batch ${key} not received`)
+            }
+            const batch = this.batches.get(key) as Batch
+            batch.userScore = batch.userScore.plus(score)
+            this.batches.set(key, batch)
+        })
+        return this.batches
+    }
+
+    initializeEmptyBatches(startIndex, endIndex) {
+        for (let i = startIndex; i <= endIndex; i++) {
+            if (!this.batches.has(i)) {
+                this.batches.set(i, newBatch(i))
+            }
+        }
+        return this.batches
     }
 
     // Do the network operations or local operations take more time?
     async fetchData(): Promise<FetchActionResult> {
         const contract = this.contract
-        const { locks, finalBatch, currentBatch, maxLockingBatches, completedBatchIndex, existingBatches, isInitialLoadComplete } = this.params
-        let batches = existingBatches;
+        const { locks, finalBatch, currentBatch, maxLockingBatches, completedBatchIndex, existingBatches, isInitialLoadComplete, batchesMetadata } = this.params
+        this.batches = existingBatches;
+        this.locksIncluded = batchesMetadata.locksIncluded
 
         let firstBatchToFetch = 0;
         let lastBatchToFetch = Math.min(finalBatch, currentBatch + maxLockingBatches);
@@ -59,47 +94,39 @@ export class AllBatchesFetch extends BaseFetch {
             firstBatchToFetch = completedBatchIndex + 1
         }
 
-        for (let i = firstBatchToFetch; i <= finalBatch; i++) {
-            let batch = batches.get(i) as Batch
-            if (!batch) {
-                batches.set(i, newBatch(i))
-                batch = batches.get(i) as Batch
-            }
-        }
+        this.initializeEmptyBatches(firstBatchToFetch, finalBatch)
+        this.addUserTotalsFromLocks(locks)
 
-        batches = this.addUserTotalsFromLocks(locks, batches)
+        //Make all necessary network calls
         const promises = [] as Array<Promise<any>>;
 
-        for (let i = firstBatchToFetch; i < currentBatch + this.staticParams.maxLockingBatches; i++) {
+        for (let i = firstBatchToFetch; i <= lastBatchToFetch; i++) {
             promises.push(contract.methods.getRepRewardPerBatch(i).call())
             promises.push(contract.methods.batches(i).call())
         }
 
         const data = await Promise.all(promises)
+
+        // console.log(data)
+
+        // For every batch that is not yet completed, and could possibly have a score (i.e. <= 12 batches in the future)
         for (let i = firstBatchToFetch; i <= lastBatchToFetch; i++) {
-            let batch = batches.get(i) as Batch
+            let batch = this.batches.get(i) as Batch
             let totalRep = ZERO
             let totalScore = ZERO
-            if (i < currentBatch + this.staticParams.maxLockingBatches) {
-                totalRep = new BigNumber(data[2 * i])
-                totalScore = new BigNumber(data[2 * i + 1])
-            }
 
+            const dataIndex = i - firstBatchToFetch
+            totalRep = new BigNumber(data[2 * dataIndex])
+            totalScore = new BigNumber(data[2 * dataIndex + 1])
+
+            // Scale conversion for total REP
             totalRep = helpers.fromReal(totalRep)
 
-            const userLocked = batch.userLocked
-            const userScore = batch.userScore
-
-            let userPortion = ZERO
-
-            if (!userScore.eq(ZERO) && !totalScore.eq(ZERO)) {
-                userPortion = userScore.div(totalScore)
-            }
+            // What % of total score does user have for this batch?
+            const userPortion = totalScore.eq(ZERO) ? ZERO : helpers.safeDiv(batch.userScore, totalScore)
 
             const userRep = userPortion.times(totalRep)
 
-            batch.userLocked = userLocked
-            batch.userScore = userScore
             batch.totalRep = totalRep
             batch.userRep = userRep
             batch.totalScore = totalScore
@@ -108,13 +135,19 @@ export class AllBatchesFetch extends BaseFetch {
                 batch.isComplete = true
             }
 
-            batches.set(i, batch)
+            // printBatch(batch)
+            this.batches.set(i, batch)
         }
+
+        const newMetadata: BatchesMetadata = new BatchesMetadata(
+            this.locksIncluded
+        )
 
         return {
             status: StatusEnum.SUCCESS,
             data: {
-                batches,
+                batches: this.batches,
+                batchesMetadata: newMetadata,
                 batchesLoaded: true,
                 completedBatchIndex: Math.max(currentBatch - 1, 0)
             }

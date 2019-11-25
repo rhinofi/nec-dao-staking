@@ -5,7 +5,7 @@ import * as helpers from "utils/helpers"
 import * as log from 'loglevel'
 import { deployed } from 'config.json'
 import BigNumber from "utils/bignumber"
-import { Lock, LockStaticParams, Batch } from 'types'
+import { Lock, LockStaticParams, Batch, BatchesMetadata } from 'types'
 import { LockingStaticParamsFetch } from 'services/fetch-actions/locking/LockingStaticParamsFetch'
 import { StatusEnum } from 'services/fetch-actions/BaseFetch'
 import { UserLocksFetch } from 'services/fetch-actions/locking/UserLocksFetch'
@@ -29,6 +29,7 @@ export default class LockNECStore extends BaseStore {
     @observable nextBlockToFetch!: number
 
     @observable batches!: Map<number, Batch>
+    @observable batchesMetadata!: BatchesMetadata
     @observable batchesLoaded!: boolean
     @observable completedBatchIndex!: number
 
@@ -47,6 +48,9 @@ export default class LockNECStore extends BaseStore {
         this.nextBlockToFetch = 0
 
         this.batches = new Map<number, Batch>()
+        this.batchesMetadata = new BatchesMetadata(
+            new Set<string>()
+        );
         this.batchesLoaded = false
         this.completedBatchIndex = 0
     }
@@ -290,8 +294,11 @@ export default class LockNECStore extends BaseStore {
         printParams({
             currentBatch: currentBatch,
             finalBatch: finalBatch,
-            completedBatchIndex: completedBatchIndex
+            completedBatchIndex: completedBatchIndex,
+
         })
+
+        console.log(this.batchesMetadata.locksIncluded)
 
         const action = new AllBatchesFetch(contract, this.rootStore, {
             account: user,
@@ -301,15 +308,16 @@ export default class LockNECStore extends BaseStore {
             maxLockingBatches,
             completedBatchIndex,
             existingBatches: this.batches,
-            isInitialLoadComplete: this.batchesLoaded
+            isInitialLoadComplete: this.batchesLoaded,
+            batchesMetadata: this.batchesMetadata
         })
         const result = await action.fetch()
         if (result.status === StatusEnum.SUCCESS) {
             this.batches = result.data.batches
+            this.batchesMetadata = result.data.batchesMetadata
             this.completedBatchIndex = result.data.completedBatchIndex
             this.batchesLoaded = result.data.batchesLoaded
         }
-        printBatches(result.data.batches);
     }
 
     lock = async (amount, duration, batchId) => {
