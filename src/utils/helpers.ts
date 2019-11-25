@@ -144,19 +144,28 @@ export function formatTimeRemaining(seconds: number): string {
   const duration = secondsToDuration(seconds)
 
   if (timeMode === TimeMode.SECONDS) {
-    return `${duration.seconds}s`
+    return `<1m`
   }
 
   if (timeMode === TimeMode.MINUTES_SECONDS) {
-    return `${duration.minutes}m:${duration.seconds}s`
+    return `${duration.minutes}m`
   }
 
   if (timeMode === TimeMode.HOURS_MINUTES) {
-    return `${duration.hours}h:${duration.minutes}m:${duration.seconds}s`
+    return `${duration.hours}h:${duration.minutes}m`
   }
 
   else {
-    return `${duration.days}d:${duration.hours}h:${duration.minutes}m:${duration.seconds}s`
+    return `${duration.days}d:${duration.hours}h:${duration.minutes}m`
+  }
+}
+
+export function parseTimeRemaining(seconds: number) {
+  const timeMode = getTimeModeByDuration(seconds)
+  const duration = secondsToDuration(seconds)
+  return {
+    timeMode,
+    duration
   }
 }
 
