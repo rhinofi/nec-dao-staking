@@ -61,6 +61,10 @@ export default class DataFetcher {
         await tokenStore.fetchBalanceOf(necTokenAddress, userAddress)
         await tokenStore.fetchAllowance(necTokenAddress, userAddress, lockSchemeAddress)
 
+        if (tokenStore.hasMaxApproval(necTokenAddress, userAddress, lockSchemeAddress)) {
+            tokenStore.setApprovePending(necTokenAddress, userAddress, lockSchemeAddress, false)
+        }
+
         if (lockNECStore.isLockingStarted()) {
             await lockNECStore.fetchUserLocks(userAddress)
             await lockNECStore.fetchBatches(userAddress)
