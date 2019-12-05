@@ -126,7 +126,6 @@ export default class TokenStore extends BaseStore {
 
             await token.methods.approve(spender, helpers.MAX_UINT).send()
             await this.fetchAllowance(tokenAddress, account, spender)
-            this.setApprovePending(tokenAddress, account, spender, false)
 
         } catch (e) {
             log.error(e)
