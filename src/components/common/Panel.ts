@@ -33,6 +33,14 @@ export const AmountForm = styled.div`
     color: var(--white-text);
     background: var(--background);
     border: none;
+    box-shadow: inset 0 0 0 1px var(--background), inset 0 0 0 100px var(--background);
+    :-webkit-autofill,
+    :-webkit-autofill:hover,
+    :-webkit-autofill:focus,
+    :-webkit-autofill:active, 
+    :-internal-autofill-selected {
+      -webkit-text-fill-color: var(--white-text);
+    }
   }
 `
 
