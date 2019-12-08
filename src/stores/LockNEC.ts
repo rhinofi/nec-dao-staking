@@ -3,7 +3,7 @@
 import { observable, action } from 'mobx'
 import * as helpers from "utils/helpers"
 import * as log from 'loglevel'
-import { deployed, testFlag } from 'config.json'
+import { deployed } from 'config.json'
 import BigNumber from "utils/bignumber"
 import { Lock, LockStaticParams, Batch, BatchesMetadata } from 'types'
 import { LockingStaticParamsFetch } from 'services/fetch-actions/locking/LockingStaticParamsFetch'
@@ -273,7 +273,7 @@ export default class LockNECStore extends BaseStore {
         return Number(currentBatch) - 1
     }
 
-    /* 
+    /*
         Returns the 'amount locked' within a given locking batch
         Scores are calculated from each lock and extend lock event
     */
