@@ -13,7 +13,7 @@ const { NetworkOnlyConnector } = Connectors
 const MetaMask = new InjectedConnector()
 
 const Infura = new NetworkOnlyConnector({
-    providerURL: 'https://rinkeby.infura.io/v3/cd282052becb4c26ae80ce3aee65aa0c'
+    providerURL: process.env.REACT_APP_INFURA_URL || ''
 })
 
 const connectors = { MetaMask, Infura }
