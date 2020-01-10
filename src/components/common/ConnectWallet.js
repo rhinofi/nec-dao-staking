@@ -1,7 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
+import { observer, inject } from "mobx-react"
 import NECLogo from 'assets/svgs/necdao-glow.svg'
 import ActiveButton from './buttons/ActiveButton'
+import LedgerModal from './LedgerModal'
+import { Wallet } from '../../stores/Provider'
 
 const ConnectWrapper = styled.div`
   display: flex;
@@ -40,11 +43,18 @@ const SubTitle = styled.div`
   margin-bottom: 40px;
 `
 
-const ButtonWrapper = styled.div`
-  width: 200px;
+const Buttons = styled.div`
+  display: flex;
+  width: 500px;
+  justify-content: space-between;
 `
 
-const ConnectWallet = () => {
+const ButtonWrapper = styled.div`
+  width: 300px;
+`
+
+const ConnectWallet = inject('root')(observer((props) => {
+  const [modal, toggleModal] = useState(false)
   return (
     <ConnectWrapper>
       <Logo src={NECLogo} />
@@ -54,13 +64,24 @@ const ConnectWallet = () => {
       <SubTitle>
         To start using the necDAO Interface
       </SubTitle>
-      <ButtonWrapper>
-        <ActiveButton onClick={() => { window.location.reload() }}>
-          Connect
-        </ActiveButton>
-      </ButtonWrapper>
+      <Buttons>
+        <ButtonWrapper>
+          <ActiveButton onClick={() => { props.root.providerStore.setWallet(Wallet.METAMASK) }}>
+            Connect Metamask
+          </ActiveButton>
+        </ButtonWrapper>
+        <ButtonWrapper>
+          <ActiveButton onClick={() => { toggleModal(true) }}>
+            Connect Ledger
+          </ActiveButton>
+        </ButtonWrapper>
+      </Buttons>
+      {
+        modal &&
+        <LedgerModal toggleModal={toggleModal} />
+      }
     </ConnectWrapper>
   )
-}
+}))
 
 export default ConnectWallet

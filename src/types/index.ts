@@ -127,3 +127,7 @@ export interface AirdropStaticParams {
     token: string;
     agreementHash: string;
 }
+
+declare global {
+    interface Window { ledgerData: any; }
+}
