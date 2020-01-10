@@ -5,6 +5,8 @@
   "dependencies": {
     "@babel/core": "7.6.0",
     "@babel/preset-react": "^7.6.3",
+    "@ledgerhq/hw-app-eth": "^5.3.0",
+    "@ledgerhq/hw-transport-u2f": "^5.3.0",
     "@material-ui/core": "^4.5.1",
     "@material-ui/icons": "^4.5.1",
     "@material-ui/lab": "^4.0.0-alpha.29",
@@ -38,11 +40,12 @@
     "eslint-plugin-jsx-a11y": "6.2.3",
     "eslint-plugin-react": "7.14.3",
     "eslint-plugin-react-hooks": "^1.6.1",
-    "ethereumjs-tx": "^2.1.1",
+    "ethereumjs-tx": "^1.3.7",
     "ethereumjs-util": "^6.1.0",
     "ethers": "^4.0.38",
     "file-loader": "3.0.1",
     "fs-extra": "7.0.1",
+    "hdkey": "^1.1.1",
     "html-webpack-plugin": "4.0.0-beta.5",
     "identity-obj-proxy": "3.0.0",
     "is-wsl": "^1.1.0",
@@ -87,13 +90,13 @@
     "web3x": "^4.0.4",
     "web3x-codegen": "^4.0.4",
     "webpack": "4.41.0",
-    "webpack-dev-server": "3.2.1",
+    "webpack-dev-server": "3.9.0",
     "webpack-manifest-plugin": "2.1.1",
     "workbox-webpack-plugin": "4.3.1"
   },
   "scripts": {
     "ganache": "ganache-cli --deterministic",
-    "start": "REACT_APP_INFURA_URL=https://rinkeby.infura.io/v3/cd282052becb4c26ae80ce3aee65aa0c node scripts/start.js",
+    "start": "REACT_APP_INFURA_URL=https://mainnet.infura.io/v3/cd282052becb4c26ae80ce3aee65aa0c node scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js"
   },

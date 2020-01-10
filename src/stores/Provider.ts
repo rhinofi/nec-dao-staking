@@ -25,6 +25,12 @@ export enum ProviderState {
     SUCCESS
 }
 
+export enum Wallet {
+    NONE,
+    LEDGER,
+    METAMASK
+}
+
 export default class ProviderStore {
     @observable web3!: Web3;
     @observable context: any
@@ -32,6 +38,7 @@ export default class ProviderStore {
     @observable isProviderSet = false;
     @observable isAccountSet = false;
     @observable state: ProviderState = ProviderState.LOADING
+    @observable wallet: Wallet = Wallet.NONE
 
     rootStore: RootStore
 
@@ -83,6 +90,14 @@ export default class ProviderStore {
 
     setState(value: ProviderState) {
         this.state = value
+    }
+
+    getWallet(): Wallet {
+        return this.wallet
+    }
+
+    setWallet(value: Wallet) {
+        this.wallet = value
     }
 
     getAccounts = () => {

@@ -3,20 +3,25 @@ import ReactDOM from 'react-dom';
 import Web3Provider from 'web3-react'
 import App from 'components/App';
 import * as serviceWorker from './serviceWorker';
-import { Provider } from 'mobx-react'
+import {Provider} from 'mobx-react'
 import RootStore from './stores/Root'
 import Web3 from 'web3'
-import { Connectors } from 'web3-react'
+import {Connectors} from 'web3-react'
 import InjectedConnector from 'components/shell/InjectedConnector'
-const { NetworkOnlyConnector } = Connectors
+import LedgerConnector from 'components/shell/LedgerConnector'
 
+const {NetworkOnlyConnector} = Connectors
+const Ledger = new LedgerConnector({
+    supportedNetworkURLs: {'1': process.env.REACT_APP_INFURA_URL || ''},
+    defaultNetwork: 1
+});
 const MetaMask = new InjectedConnector()
 
 const Infura = new NetworkOnlyConnector({
     providerURL: process.env.REACT_APP_INFURA_URL || ''
 })
 
-const connectors = { MetaMask, Infura }
+const connectors = {Ledger, MetaMask, Infura}
 
 const Root = (
     <Provider root={RootStore}>
