@@ -96,7 +96,7 @@
   },
   "scripts": {
     "ganache": "ganache-cli --deterministic",
-    "start": "REACT_APP_INFURA_URL=https://mainnet.infura.io/v3/cd282052becb4c26ae80ce3aee65aa0c node scripts/start.js",
+    "start": "node scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js"
   },
