@@ -91,7 +91,7 @@ const signTransaction = (ledgerPath) => async (txParams, cb = () => {}) => {
       s: addHexPrefix(rsv.s),
       v: addHexPrefix(rsv.v),
     })
-    cb(`0x${signedTx.serialize().toString('hex')}`)
+    cb(null, `0x${signedTx.serialize().toString('hex')}`)
     return `0x${signedTx.serialize().toString('hex')}`
   } catch (e) {
     console.error(e)
