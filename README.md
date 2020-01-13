@@ -3,7 +3,7 @@
 This is an application which provides a convenient user interface to the necDAO,
 allowing Reputation in the DAO to be earned through three methods.
 
-`REACT_APP_INFURA_URL` should be available as a process environment variable.
+`REACT_APP_INFURA_URL` should be available as a process environment variable and at build.
 
 ## Available Scripts
 
