@@ -84,6 +84,22 @@ const ActiveButton = styled.div`
   width: 156px;
 `
 
+const ButtonExternal = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--action-button);
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 18px;
+  margin-left: 50px;
+  padding: 9px 0px;
+  cursor: pointer;
+  width: 156px;
+`
+
 const InactiveButton = styled(ActiveButton)`
   border: 1px solid var(--inactive-border);
   color: var(--inactive-header-text);
@@ -154,6 +170,16 @@ const Selector = withRouter((props) => {
         <Button option={3} route="/bid-gen">
           <LogoAndText icon={GENLogo} text="Bid GEN" />
         </Button>
+        <ButtonExternal>
+          <a
+            href="https://alchemy.daostack.io/dao/0xe56b4d8d42b1c9ea7dda8a6950e3699755943de7/members/"
+            target="_blank"
+          >
+            <LogoAndText icon={EthFinexLogo} text="Go to DAO" />
+          </a>
+        </ButtonExternal>
+      </NavWrapper>
+      <NavWrapper>
       </NavWrapper>
       <TotalRepWrapper>
         <StarWrapper>
