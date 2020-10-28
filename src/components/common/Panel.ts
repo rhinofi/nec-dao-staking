@@ -27,7 +27,7 @@ export const AmountForm = styled.div`
   padding: 0px 20px 6px 20px;
   border-bottom: 1px solid var(--inactive-border);
   input {
-    border: ${props => props.border || '1px solid #ccc'};
+    border: '1px solid #ccc';
     font-size: 15px;
     line-height: 18px;
     color: var(--white-text);
@@ -45,11 +45,12 @@ export const AmountForm = styled.div`
 `
 
 export const MaxButton = styled.div`
-  background: rgba(101, 102, 251, 0.5);
+  background: #E2A907;
   width: 12px;
   height: 12px;
   border-radius: 7px;
   margin-top: 3px;
   cursor: pointer;
+  
 `
 

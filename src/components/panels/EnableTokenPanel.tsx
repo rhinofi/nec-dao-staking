@@ -14,7 +14,7 @@ class EnableTokenPanel extends React.Component<any, any>{
 
     return (
       <React.Fragment>
-        <CircleAndTextContainer marginBottom="74px">
+        <CircleAndTextContainer style={{ marginBottom: "74px" }}>
           <ProgressCircle
             value={0} width={"45px"} height={"45px"}
             icon={(<Icon src={checkboxIcon} />)}
@@ -22,7 +22,7 @@ class EnableTokenPanel extends React.Component<any, any>{
           <Instruction>{instruction}</Instruction>
           <SubInstruction>{subinstruction}</SubInstruction>
         </CircleAndTextContainer>
-        <Button marginBottom="25px" onClick={() => { tokenStore.approveMax(tokenAddress, spenderAddress) }}>
+        <Button style={{ marginBottom: "25px" }} onClick={() => { tokenStore.approveMax(tokenAddress, spenderAddress) }}>
           {buttonText}
         </Button>
       </React.Fragment >
@@ -34,7 +34,7 @@ class EnableTokenPanel extends React.Component<any, any>{
 
     return (
       <React.Fragment>
-        <CircleAndTextContainer marginBottom="74px">
+        <CircleAndTextContainer style={{ marginBottom: "74px" }}>
           <ProgressCircle
             value={66} width={"45px"} height={"45px"}
             rotate
@@ -42,7 +42,7 @@ class EnableTokenPanel extends React.Component<any, any>{
           <Instruction>{pendingInstruction}</Instruction>
           <SubInstruction>{subinstruction}</SubInstruction>
         </CircleAndTextContainer>
-        <DisableButton marginBottom="25px">{buttonText}</DisableButton>
+        <DisableButton style={{ marginBottom: "25px" }}>{buttonText}</DisableButton>
       </React.Fragment >
     )
   }

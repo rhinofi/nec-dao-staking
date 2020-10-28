@@ -6,16 +6,19 @@ export const TableWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 220px;
+  height: 360px;
   overflow: auto;
+background: rgba(40, 50, 74, 0.5);
+
 `
 
 export const RowWrapper = styled.div`
-  border-bottom: 1px solid var(--border);
+border-bottom: 1px solid #A9ABCB;
 `
 
 export const InactiveRowWrapper = styled.div`
-  border-bottom: 1px solid var(--faded-border);
+  border-bottom: 1px solid #A9ABCB;
+
 `
 
 export const Row = styled.div`
@@ -29,7 +32,7 @@ export const Row = styled.div`
 export const CellWrapper = styled.div`
   width: ${props => props.width};
   text-align: ${props => props.align};
-  color: var(--white-text);
+  color: white;
   font-family: Montserrat;
   font-style: normal;
   font-weight: 400;
@@ -38,7 +41,7 @@ export const CellWrapper = styled.div`
 `
 
 export const GreyCell = styled(CellWrapper)`
-  color: var(--inactive-text)
+  color: #A9ABCB;;
 `
 
 const Table = ({ highlightTopRow, columns, data }) => (

@@ -6,12 +6,7 @@ import {
 } from 'react-circular-progressbar'
 import './ProgressCircle.scss'
 
-const Wrapper = styled.div`
-  width: ${props => props.width};
-  height: ${props => props.height};
-`
-
-const RotateWrapper = styled(Wrapper)`
+const RotateWrapper = styled.div`
   animation-name: spin;
   animation-duration: 4000ms;
   animation-iteration-count: infinite;
@@ -58,12 +53,12 @@ const ProgressCircle = (props: Props) => {
 
     // Colors
     pathColor: '#9872fb',
-    trailColor: '#3a3867',
+    trailColor: '#E2A907',
   })
 
   if (rotate) {
     return (
-      <RotateWrapper width={width} height={height}>
+      <RotateWrapper style={{ width, height }}>
         <Circle
           value={value}
           strokeWidth={5}
@@ -78,7 +73,7 @@ const ProgressCircle = (props: Props) => {
     )
   } else {
     return (
-      <Wrapper width={width} height={height}>
+      <div style={{ width, height }}>
         <Circle
           value={value}
           strokeWidth={5}
@@ -89,7 +84,7 @@ const ProgressCircle = (props: Props) => {
             <React.Fragment />
           }
         </Circle>
-      </Wrapper>
+      </div>
     )
   }
 }

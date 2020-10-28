@@ -1,8 +1,10 @@
-// Stores
-import { observable, action } from 'mobx'
-import { deployed } from 'config.json'
-import { RootStore } from './Root';
 import * as log from 'loglevel';
+
+// Stores
+import { action, observable } from 'mobx'
+
+import { RootStore } from './Root';
+import { deployed } from 'config.json'
 
 export default class DataFetcher {
     dataUpdateInterval: any
@@ -71,6 +73,15 @@ export default class DataFetcher {
         }
     }
 
+    fetchBeehiveData = async (userAddress) => {
+        console.log(`[Fetch] Beehive Data for ${userAddress}`)
+        const { beehiveStore } = this.rootStore
+
+        await beehiveStore.fetchTradingVolume(userAddress)
+        await beehiveStore.fetchTableData(userAddress)
+        await beehiveStore.fetchBptBalance(userAddress)
+    }
+
     fetchAuctionData = async (userAddress) => {
         console.log(`[Fetch] Auction Data for ${userAddress}`)
         const { bidGENStore, tokenStore } = this.rootStore
@@ -123,7 +134,7 @@ export default class DataFetcher {
             log.error('Error fetching user data', { e, userAddress })
 
         } finally {
-            setTimeout(() => this.fetchData(userAddress), 1000);
+            setTimeout(() => this.fetchData(userAddress), 1000)
         }
     }
 
@@ -152,6 +163,9 @@ export default class DataFetcher {
         // Re-enable fetching and fetch for new user
         this.startFetching()
         this.fetchData(userAddress)
+
+        this.fetchBeehiveData(userAddress)
+        setInterval(() => this.fetchBeehiveData(userAddress), 25000)
     }
 
 }

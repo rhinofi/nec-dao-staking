@@ -201,10 +201,7 @@ class Airdrop extends React.Component<any, any>{
   }
 
   onBuyNecLink = () => {
-    window.open(
-      'http://app.deversifi.com/NECETH',
-      '_blank'
-    )
+    window.location.href = 'http://app.deversifi.com/NECETH';
   }
 
   renderActionButton(status, userBalance: BigNumber, pending, userData) {

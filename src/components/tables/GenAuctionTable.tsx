@@ -84,6 +84,7 @@ class GenAuctionTable extends React.Component<any, any>{
                     <Row>
                         {columns.map((column, index) => {
                             return (
+                                //@ts-ignore
                                 <GreyCell key={`column-${index}`} width={column.width} align={column.align}>
                                     {column.name}
                                 </GreyCell>
@@ -102,6 +103,7 @@ class GenAuctionTable extends React.Component<any, any>{
                                     <Row key={`row-${index}`}>
                                         {columns.map((column, index) => {
                                             return (
+                                                //@ts-ignore
                                                 <Cell key={`cell-${index}`} width={column.width} align={column.align}>
                                                     {row[column.key]}
                                                 </Cell>

@@ -25,5 +25,6 @@
     },
     "airdrop": {
         "totalRep": "100000"
-    }
+    },
+    "testflag": false
 }

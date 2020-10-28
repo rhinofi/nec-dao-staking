@@ -9,6 +9,7 @@ import Web3 from 'web3'
 import {Connectors} from 'web3-react'
 import InjectedConnector from 'components/shell/InjectedConnector'
 import LedgerConnector from 'components/shell/LedgerConnector'
+import './index.css'
 
 const {NetworkOnlyConnector} = Connectors
 const Ledger = new LedgerConnector({
