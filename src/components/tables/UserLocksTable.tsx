@@ -229,6 +229,7 @@ class UserLocksTable extends React.Component<any, any> {
                 <RowWrapper>
                     <Row>
                         {columns.map((column, index) => (
+                            //@ts-ignore
                             <GreyCell key={`col-${index}`} width={column.width} align={column.align}>
                                 {column.name}
                             </GreyCell>
@@ -245,6 +246,7 @@ class UserLocksTable extends React.Component<any, any> {
                                 <Wrapper key={`wrapper-${index}`} onClick={() => { this.setSelectedLock(row.lockId) }} >
                                     <Row key={`row-${index}`}>
                                         {columns.map((column, index) => (
+                                            //@ts-ignore
                                             <Cell key={`cell-${index}`} width={column.width} align={column.align}>
                                                 {this.generateCell(column.key, row[column.key])}
                                             </Cell>

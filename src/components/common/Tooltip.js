@@ -7,7 +7,6 @@ const TooltipIndicator = styled.div`
   height: 20px;
   border-radius: 11px;
   font-size: 11px;
-  margin-left: 12px;
   text-align: center;
   color: var(--inactive-header-text);
   border: 1px solid var(--inactive-border);

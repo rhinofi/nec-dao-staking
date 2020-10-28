@@ -1,54 +1,54 @@
 
-:root {
-  --active-border: #FFFFFF;
-  --action-button: #4e0ffb;
-  --background: #222A42;
-  --border: #4E5568;
-  --enable-purple-border: rgba(153, 114, 251, 0.4);
-  --enable-purple-text: #9972FB;
-  --faint-divider: rgba(78, 85, 104, 0.25);
-  --faded-border: rgba(255, 255, 255, 0.08);
-  --inactive-border: #4D5474;
-  --inactive-header-text: rgba(255, 255, 255, 0.6);
-  --inactive-text: rgba(255, 255, 255, 0.4);
-  --invalid-red: #DE6067;
-  --logo-background: #191F32;
-  --pending-panel-gray: #9094A0;
-  --white-text: #FFFFFF;
-}
+// :root {
+//   --active-border: #FFFFFF;
+//   --action-button: #4e0ffb;
+//   --background: #05111A;
+//   --border: #4E5568;
+//   --enable-purple-border: rgba(153, 114, 251, 0.4);
+//   --enable-purple-text: #9972FB;
+//   --faint-divider: rgba(78, 85, 104, 0.25);
+//   --faded-border: rgba(255, 255, 255, 0.08);
+//   --inactive-border: #4D5474;
+//   --inactive-header-text: rgba(255, 255, 255, 0.6);
+//   --inactive-text: rgba(255, 255, 255, 0.4);
+//   --invalid-red: #DE6067;
+//   --logo-background: #191F32;
+//   --pending-panel-gray: #9094A0;
+//   --white-text: #FFFFFF;
+// }
 
-#root {
+// #root {
   
-}
+// }
 
-body {
-  background: var(--background);
-}
+// body {
+//   background: var(--background);
+// }
 
-h1 {
-  font-family: var(--pt-serif);
-}
+// h1 {
+//   font-family: var(--pt-serif);
+// }
 
-input:focus {
-  outline-style: none;
-}
+// input:focus {
+//   outline-style: none;
+// }
 
-.green-text {
-  color: #54AE6F;
-}
+// .green-text {
+//   color: #54AE6F;
+// }
 
-.blue-text {
-  color: #536DFE;
-}
+// .blue-text {
+//   color: #536DFE;
+// }
 
-.popup-content {
-  color: var(--background);
-}
+// .popup-content {
+//   color: var(--background);
+// }
 
-.invalid-border {
-  border-bottom: 1px solid var(--invalid-red);
-}
+// .invalid-border {
+//   border-bottom: 1px solid var(--invalid-red);
+// }
 
-.valid-border {
-  border-bottom: 1px solid var(--inactive-border);
-}
+// .valid-border {
+//   border-bottom: 1px solid var(--inactive-border);
+// }

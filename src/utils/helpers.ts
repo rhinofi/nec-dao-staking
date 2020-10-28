@@ -390,7 +390,7 @@ export function fromPercentageToFee(value) {
 }
 
 export const methodSig = method => {
-  return Web3.utils.sha3(method).substring(0, 10)
+  return Web3.utils.sha3(method)!.substring(0, 10)
 }
 
 export const generateIcon = (address) => {

@@ -23,7 +23,13 @@ export const LockFormWrapper = styled.div`
   color: var(--inactive-text);
   height: 64px;
 `
-
+const ButtonWrapper = styled.div`
+border: 1px solid #E2A907;
+padding: 10px;
+`
+const CellBorder = styled.div`
+border: 1px solid #E2A907;
+`
 export const ReleaseableDateWrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -143,7 +149,7 @@ class LockPanel extends React.Component<any, any>{
     return (
       <LockingPeriodSelectorWrapper>
         <LockingPeriodTitle>Lock Duration (Months) <Tooltip title={''} content={tooltip.lockTokenExplainer} position="bottom center" /></LockingPeriodTitle>
-        <LockingPeriodSelector>
+        <LockingPeriodSelector> 
           <LockingPeriodStartCell onClick={() => {
             this.decrementRange(formState)
           }}
@@ -225,7 +231,7 @@ class LockPanel extends React.Component<any, any>{
         <ReleaseableDate>{releaseableDate}</ReleaseableDate>
       </ReleaseableDateWrapper>
       {
-        enabled ? <ActiveButton onClick={() => { this.lockHandler() }}>{buttonText}</ActiveButton> :
+        enabled ? <ActiveButton onClick={() => { this.lockHandler() }}><ButtonWrapper>{buttonText}</ButtonWrapper></ActiveButton> :
           <InactiveButton>{buttonText}</InactiveButton>
       }
 

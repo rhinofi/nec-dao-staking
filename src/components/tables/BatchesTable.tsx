@@ -75,6 +75,7 @@ class BatchesTable extends React.Component<any, any>{
                 <RowWrapper>
                     <Row>
                         {columns.map((column, index) => (
+                            //@ts-ignore
                             <GreyCell key={`col-${index}`} width={column.width} align={column.align}>
                                 {column.name}
                             </GreyCell>
@@ -93,7 +94,8 @@ class BatchesTable extends React.Component<any, any>{
                                     <Wrapper key={`wrapper-${index}`}>
                                         <Row key={`row-${index}`}>
                                             {columns.map((column, index) => (
-                                                <Cell key={`cell-${index}`} width={column.width} align={column.align}>
+                                                //@ts-ignore
+                                                <Cell key={`cell-${index}`} style={{ width: column.width, align: column.align }}>
                                                     {row[column.key]}
                                                 </Cell>
                                             ))}

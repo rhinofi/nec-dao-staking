@@ -1,34 +1,22 @@
 import React, { Component } from 'react';
+import { Modal, IconButton, Typography, Grid, Box, Button, TextField } from "@material-ui/core";
 import styled from 'styled-components';
 import { listAccounts } from '../../services/ledgerService';
 import ActiveButton from './buttons/ActiveButton';
 import { inject, observer } from 'mobx-react';
 import { Wallet } from '../../stores/Provider';
-import { Title } from './index';
+import { Close } from "@material-ui/icons";
+import { Title } from './beehive/Title'
 
-const Modal = styled.div`
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  z-index: 9999;
-  
+const StyledModal = styled(Modal)`
+  max-width: 1068px;
   display: flex;
-  align-items: center;
   justify-content: center;
-  
-  & > div {
-    position: relative;
-    width: 450px;
-    border: 1px solid var(--border);
-    background-color: var(--background);
-    padding: 30px 20px;
-    color: var(--white-text);
-    font-family: Montserrat;
-    font-style: normal;
-  }
-`
+  align-items: center;
+  margin: auto;
+  height: 815px;
+  overflow-y: auto;
+`;
 
 const LedgerAccoutsTable = styled.table`
   width: 100%;
@@ -82,71 +70,60 @@ const Pagination = styled.div`
   }
 `;
 
-const TopWrapper = styled.div`
-  position: relative;
-  display: flex;
-  margin-bottom: 30px;
-  align-items: center;
-  
-  label {
-    margin-right: 30px;
-  }
-`
-
 const Select = styled.select`
-    -webkit-appearance: none;
-    font-size: 11px;
-    color: var(--white-text);
-    font-family: inherit;
-    display: inline-block;
-    height: 34px;
-    border-radius: 0;
-    padding: 0 40px 0 15px;
-    outline: none;
-    background-color: var(--background);
-    background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1IDEwIj48ZGVmcz48c3R5bGU+LmNscy0ye2ZpbGw6I2ZmZjt9PC9zdHlsZT48L2RlZnM+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjEuNDEgNC42NyAyLjQ4IDMuMTggMy41NCA0LjY3IDEuNDEgNC42NyIvPjxwb2x5Z29uIGNsYXNzPSJjbHMtMiIgcG9pbnRzPSIzLjU0IDUuMzMgMi40OCA2LjgyIDEuNDEgNS4zMyAzLjU0IDUuMzMiLz48L3N2Zz4=);
-    background-repeat: no-repeat;
-    background-position: 95% center;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-    font-weight: bold;
-    border: 1px solid var(--border);
-`
+  font-size: 14px;
+  color: white;
+  display: inline-block;
+  height: 34px;
+  border-radius: 0;
+  padding: 0 40px 0 15px;
+  outline: none;
+  background-color: var(--background);
+  text-transform: uppercase;
+  -webkit-letter-spacing: 0.02em;
+  -moz-letter-spacing: 0.02em;
+  -ms-letter-spacing: 0.02em;
+  letter-spacing: 0.02em;
+  border: 1px solid var(--border);
 
-const Input = styled.input`
-  -webkit-appearance: none;
-    font-size: 11px;
-    color: var(--white-text);
-    display: inline-block;
-    height: 34px;
-    border-radius: 0;
-    outline: none;
-    background-color: var(--background);
-    font-weight: bold;
-    border: 1px solid var(--border);
-    padding-left: 15px;
+  option {
+    background-color: #222b42 !important;
+  }
 `
 
 const ButtonWrapper = styled.div`
   width: 200px;
 `
 
-const CustomTitle = styled(Title)`
-  margin-left: 0;
-  margin-bottom: 30px;
-`
+const BackgroundWrapper = styled.div`
+  box-sizing: border-box;
+  padding: 25px;
+  background-color: #222b42;
+  outline: none;
+`;
 
-const Close = styled.div`
-  position: absolute;
-  top: 0;
-  right: 12px;
-  font-size: 36px;
-  color: var(--white-text);
+const CloseIconContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+`;
+
+const CloseIcon = styled(IconButton)`
+  padding: 16px;
+  color: #ffffff !important;
+  font-size: 16px;
+`;
+
+const Subtitle = styled(Typography)`
+  font-family: Montserrat;
+`;
+
+const BodyText = styled(Typography)`
   cursor: pointer;
-  &:hover {
-    color: var(--enable-purple-text)
-  }
-`
+`;
+
+
 
 @inject('root')
 @observer
@@ -215,7 +192,7 @@ class LedgerAccountPicker extends Component {
       loading: true,
       error: ''
     });
-    let derivation = this.ledgerDerivation.value;
+    let derivation = this.ledgerDerivation? this.ledgerDerivation.value : 'legacy';
     if (derivation === 'custom')
       derivation = this.ledgerPath ? this.ledgerPath.value : `44'/60'/0'/0`;
     const accounts = await this.listAddresses(derivation, this.state.page);
@@ -249,58 +226,88 @@ class LedgerAccountPicker extends Component {
     const ledgerListDebounced = this.debounce(this.ledgerList, 500);
 
     return (
-      <Modal>
-        <div>
-          <Close onClick={() => toggleModal()}>×</Close>
+      <StyledModal
+        open={true}
+        aria-labelledby="ledger"
+        disableAutoFocus={true}
+      >
+        <BackgroundWrapper>
+          <CloseIconContainer>
+            <CloseIcon onClick={() => toggleModal()}>
+              <Close />
+            </CloseIcon>
+          </CloseIconContainer>
+          <Box width='100%' paddingBottom='25px' display='flex' justifyContent='center'>
+            <Title text={"Connect Ledger"} afterElement={true} />
+          </Box>
           {
             !this.state.ledgerConnected &&
-            <CustomTitle>
-              Please check if your ledger is connected...
-            </CustomTitle>
+            <Box width='100%' padding='10px 0'>
+              <Subtitle color='textSecondary' variant='body2' align='center'>
+                Please check if your ledger is connected...
+              </Subtitle>
+            </Box>
           }
-          <TopWrapper>
-            <Select
-              placeholder="Derivation"
-              onChange={this.ledgerList}
-              ref={(input) => { this.ledgerDerivation = input; }}
-            >
-              <option value="legacy">Legacy</option>
-              <option value="live">Ledger Live</option>
-              <option value="custom">Custom path</option>
-            </Select>
-            <ButtonWrapper>
-              <ActiveButton onClick={() => this.ledgerList()}>
-                Reload
-              </ActiveButton>
-            </ButtonWrapper>
+            <Grid container justify={'center'} style={{ paddingBottom: 25 }}>
+              <Grid item>
+              <Select
+                placeholder="Derivation"
+                onChange={this.ledgerList}
+                ref={(input) => { 
+                  console.log(input)  
+                  this.ledgerDerivation = input
+                }}
+              >
+                <option value="legacy">Legacy</option>
+                <option value="live">Ledger Live</option>
+                <option value="custom">Custom path</option>
+              </Select>
+              </Grid>
 
-          </TopWrapper>
+              <Grid item>
+              <ButtonWrapper>
+                <Button onClick={() => this.ledgerList()}>
+                  Reload
+                </Button>
+              </ButtonWrapper>
+              </Grid>
+            </Grid>
+
           {
             this.ledgerDerivation &&
             this.ledgerDerivation.value === 'custom' &&
-            <TopWrapper>
-              <label>PATH</label>
-              <Input
-                className="modal-input"
-                type="text"
-                ref={(input) => { this.ledgerPath = input; }}
-                onChange={ledgerListDebounced}
-                defaultValue="44'/60'/0'/0"
-              />
-            </TopWrapper>
+            <Grid container justify={'center'}>
+              <Grid item>
+                <Box paddingRight='25px'>
+                  <BodyText variant={'body2'} color='textPrimary'>Path</BodyText>
+                </Box>
+              </Grid>
+              <Grid item>
+                <TextField
+                  type="text"
+                  ref={(input) => { this.ledgerPath = input; }}
+                  onChange={ledgerListDebounced}
+                  defaultValue="44'/60'/0'/0"
+                />
+              </Grid>
+            </Grid>
           }
           {
             this.state.ledgerConnected &&
             this.state.accounts.length === 0 &&
             this.state.loading &&
-            <div>
-              Loading...
-            </div>
+            <Box width='100%' padding='10px 0'>
+              <Subtitle color='textPrimary' variant='body2' align='center'>
+                Loading...
+              </Subtitle>
+            </Box>
           }
           <div>
             {
               error &&
-              <div>{error}</div>
+              <Box width='100%' padding='10px 0'>
+                <Subtitle color='textSecondary' variant='body2' align='center'>{error}</Subtitle>
+              </Box>
             }
           </div>
           {
@@ -309,7 +316,7 @@ class LedgerAccountPicker extends Component {
               <LedgerAccoutsTable cellSpacing={0}>
                 <thead>
                 <MetaRow>
-                  <th>Address</th>
+                  <Subtitle color='textPrimary' variant='body2'>Address</Subtitle>
                 </MetaRow>
                 </thead>
               </LedgerAccoutsTable>
@@ -320,7 +327,7 @@ class LedgerAccountPicker extends Component {
                     this.state.accounts.map(acc => (
                       <tr key={acc.address}
                           onClick={() => this.setPath(acc.path, acc.address)}>
-                        <td>{acc.address}</td>
+                        <td><BodyText variant={"body2"} color={'textPrimary'}>{acc.address}</BodyText></td>
                       </tr>
                     ))
                   }
@@ -329,12 +336,12 @@ class LedgerAccountPicker extends Component {
                       {
                         (!this.ledgerDerivation || this.ledgerDerivation.value !== 'custom') &&
                         <Pagination>
-                          <a onClick={() => this.paginateLedger(1)}>
+                          <a onClick={() => this.paginateLedger(1)} style={{ color: "#E2A907" }}>
                             More accounts
                           </a>
                           {
                             this.state.page > 0 &&
-                            <a onClick={() => this.paginateLedger(-1)}>
+                            <a onClick={() => this.paginateLedger(-1)} style={{ color: "#E2A907" }}>
                               Previous accounts
                             </a>
                           }
@@ -347,8 +354,8 @@ class LedgerAccountPicker extends Component {
               </LedgerAccoutsTableOverflow>
             </React.Fragment>
           }
-        </div>
-      </Modal>
+        </BackgroundWrapper>
+      </StyledModal>
     );
   }
 }

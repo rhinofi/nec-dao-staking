@@ -32,7 +32,7 @@ export const LockingPeriodCell = styled.div`
 
 export const ActiveLockingPeriodCell = styled(LockingPeriodCell)`
   color: var(--white-text);
-  border: 1px solid var(--active-border);
+  border: 1px solid #E2A907;
 `
 
 export const LockingPeriodStartCell = styled(LockingPeriodCell)`

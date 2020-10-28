@@ -1,34 +1,26 @@
 import React from 'react'
 import { withRouter } from 'react-router-dom'
-import LogoAndText from 'components/common/LogoAndText'
+import LogoAndText from '../../common/LogoAndText'
 import Tooltip from 'components/common/Tooltip'
 import EthFinexLogo from 'assets/pngs/NECwithoutText.png'
-import GENLogo from 'assets/svgs/GEN-logo.svg'
 import StarIcon from 'assets/svgs/star.svg'
 import styled from 'styled-components'
 import { lockNEC, bidGEN, airdrop } from 'config.json'
+import { Title } from "../../../components/common/beehive/Title";
+import { Typography } from "@material-ui/core";
+
 import { tooltip } from 'strings'
 const HeaderWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   border: 1px solid var(--border);
-  height: ${props => props.height};
+  margin-top:-64px;
 `
 
-const Title = styled.div`
-  display: flex;
-  flex-direction: row;
-  color: var(--white-text);
-  font-family: Montserrat;
-  font-style: normal;
-  font-weight: 600;
-  font-size: 16px;
-  line-height: 20px;
-  text-align: center;
-  margin: 32px 0px;
-  letter-spacing: 1px;
-`
+const TitleHolder = styled.div`
+text-align:center;
+margin-bottom:50px;`
 
 const NavWrapper = styled.div`
   display: flex;
@@ -41,7 +33,7 @@ const TotalRepWrapper = styled.div`
 `
 
 const TotalRepText = styled.div`
-  color: var(--enable-purple-text);
+color: #A9ABCB;
   font-family: Montserrat;
   font-style: normal;
   font-weight: 500;
@@ -65,7 +57,6 @@ const StarWrapper = styled.div`
   width: 20px;
   margin: 24px 12px 24px 0px;
   border-radius: 12px;
-  border: 1px solid var(--enable-purple-text);
 `
 
 const ActiveButton = styled.div`
@@ -74,7 +65,6 @@ const ActiveButton = styled.div`
   align-items: center;
   color: var(--white-text);
   cursor: pointer;
-  border: 1px solid var(--active-border);
   font-family: Montserrat;
   font-style: normal;
   font-weight: 500;
@@ -82,27 +72,29 @@ const ActiveButton = styled.div`
   line-height: 18px;
   padding: 9px 0px;
   width: 156px;
+  background-color:#4a20e5;
 `
+
 
 const ButtonExternal = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: var(--action-button);
   font-family: Montserrat;
   font-style: normal;
   font-weight: 500;
   font-size: 15px;
   line-height: 18px;
-  margin-left: 50px;
   padding: 9px 0px;
   cursor: pointer;
   width: 156px;
+  color: #A9ABCB;
+  border: 1px solid #E2A907;
 `
-
+const Biodiv = styled.div`
+margin-bottom:24px;`
 const InactiveButton = styled(ActiveButton)`
-  border: 1px solid var(--inactive-border);
-  color: var(--inactive-header-text);
+  background-color:#4a20e5;
 `
 
 const getCurrentSchemeTotalRep = (pathname) => {
@@ -155,23 +147,15 @@ const Selector = withRouter((props) => {
   )
 
   return (
-    <HeaderWrapper height={height}>
-      <Title>
-        How do you want to earn Reputation for the necDAO?
-        <Tooltip title="" content={tooltip.necDAOBasics} position="right top" />
-      </Title>
+    <HeaderWrapper style={{ height }}>
+ <TitleHolder>
+      <Title text={"Governance"} afterElement={true} />
+      </TitleHolder>
+    <Biodiv>  <Typography variant={'body1'} color={'textPrimary'}>Earn necDao Reputation for staking NEC</Typography></Biodiv>
       <NavWrapper>
-        <Button option={1} route="/lock-nec">
-          <LogoAndText icon={EthFinexLogo} text="Lock NEC" />
-        </Button>
-        <Button option={2} route="/airdrop">
-          <LogoAndText icon={EthFinexLogo} text="Airdrop" />
-        </Button>
-        <Button option={3} route="/bid-gen">
-          <LogoAndText icon={GENLogo} text="Bid GEN" />
-        </Button>
+       
         <ButtonExternal>
-          <a
+          <a style ={{color:'#E2A907'}}
             href="https://alchemy.daostack.io/dao/0xe56b4d8d42b1c9ea7dda8a6950e3699755943de7/members/"
             target="_blank"
           >

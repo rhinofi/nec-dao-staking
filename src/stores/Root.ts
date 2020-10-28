@@ -3,6 +3,7 @@ import ProviderStore from "./Provider";
 import AirdropStore from "./Airdrop";
 import LockNECStore from "./LockNEC";
 import BidGENStore from "./BidGEN";
+import BeehiveStore from './BeehiveStore'
 import LockFormStore from "./LockForm"
 import BidFormStore from "./BidForm"
 import ExtendLockFormStore from "./ExtendLockForm"
@@ -24,6 +25,7 @@ export class RootStore {
     public tokenStore: TokenStore
     public timeStore: TimeStore
     public txTracker: TxTracker
+    public beehiveStore: BeehiveStore
     public dataFetcher: DataFetcher
     public dataStores: BaseStore[]
 
@@ -43,6 +45,7 @@ export class RootStore {
         this.tokenStore = new TokenStore(this)
         this.timeStore = new TimeStore(this)
         this.txTracker = new TxTracker(this)
+        this.beehiveStore = new BeehiveStore(this)
 
         this.dataStores = [] as BaseStore[]
         this.dataStores.push(this.airdropStore)
@@ -52,6 +55,7 @@ export class RootStore {
         this.dataStores.push(this.bidFormStore)
         this.dataStores.push(this.extendLockFormStore)
         this.dataStores.push(this.tokenStore)
+        this.dataStores.push(this.beehiveStore)
     }
 
     resetDataStores() {
@@ -140,7 +144,6 @@ export class RootStore {
             this.fetchLockingData(userAddress)
             this.fetchAirdropData(userAddress)
             this.fetchAuctionData(userAddress)
-
         }, 3000);
     }
 }
