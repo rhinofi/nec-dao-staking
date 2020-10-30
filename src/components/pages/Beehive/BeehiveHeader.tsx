@@ -25,8 +25,8 @@ const Statsbox = styled(Box)`
   padding: 15px 20px 15px 0px;
   box-sizing: border-box;
 
-  & > * {
-    flex: 1;
+  & > h3 {
+    margin-top: auto;
   }
 
   &::before {
@@ -214,6 +214,11 @@ const StatisticsBox: React.FC<StatisticsBoxProps> = ({
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.up("md"));
 
+  const hasSmallText = typeof subcurrency === 'number' || 
+    typeof subnumber === 'number' || 
+    typeof baseApy === 'number' || 
+    typeof multiple === 'number'
+
   return (
     <Grid item container xs={12} sm={6} md={2} justify="center">
       <Statsbox centered={!matches}>
@@ -287,6 +292,8 @@ const StatisticsBox: React.FC<StatisticsBoxProps> = ({
             {baseApy ? `${Number(baseApy.toFixed(4))}%` : "0"}
           </SmallSubtitle>
         )}
+
+        {!hasSmallText && <Box height={23.6}/>}
       </Statsbox>
     </Grid>
   );
