@@ -151,9 +151,9 @@ const Selector = withRouter((props) => {
  <TitleHolder>
       <Title text={"Governance"} afterElement={true} />
       </TitleHolder>
-    <Biodiv>  <Typography variant={'body1'} color={'textPrimary'}>Earn necDao Reputation for staking NEC</Typography></Biodiv>
+    <Biodiv>  <Typography variant={'body1'} color={'textPrimary'}>Earn voting power in the DAO that governs Nectar by staking $NEC</Typography></Biodiv>
       <NavWrapper>
-       
+
         <ButtonExternal>
           <a style ={{color:'#E2A907'}}
             href="https://alchemy.daostack.io/dao/0xe56b4d8d42b1c9ea7dda8a6950e3699755943de7/members/"

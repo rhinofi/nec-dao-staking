@@ -248,7 +248,7 @@ const StatisticsBox: React.FC<StatisticsBoxProps> = ({
             align={matches ? "left" : "center"}
             color={"textSecondary"}
           >
-            {multiple ? `${multiple}x Multiple` : "-"}
+            {multiple ? `${multiple}x Multiple (increase by trading)` : "-"}
           </SmallSubtitle>
         )}
         {typeof number === "number" && (
@@ -284,7 +284,7 @@ const StatisticsBox: React.FC<StatisticsBoxProps> = ({
             align={matches ? "left" : "center"}
             color={"textSecondary"}
           >
-            {baseApy ? `${Number(baseApy.toFixed(4))}%` : "0"}
+            {baseApy ? `Base: ${Number(baseApy.toFixed(4))}% (increase by trading)` : "0"}
           </SmallSubtitle>
         )}
       </Statsbox>
@@ -339,20 +339,21 @@ const BigHeader = inject("root")(
     return (
       <>
         <Box width="100%" textAlign="center">
-          <Title text={"Nectar Beehive V1"} afterElement={true} />
+          <Title text={"Nectar Beehive"} afterElement={true} />
           <Box display="flex" justifyContent="center" paddingX="30px">
             <Box maxWidth="1350px" width="100%">
               <Grid container direction="column" alignItems="center">
                 <Box maxWidth="445px" paddingX="25px" boxSizing="border-box">
                   <Typography color={"textSecondary"} variant={"subtitle2"}>
-                    Earn $NEC nd $BAL for Staking into the Balancer NEC/wEth Pool
+                    Stake into the NEC/wETH Balancer pool to earn $NEC and $BAL.
+                    Get up to double the rewards by trading on DeversiFi.
                   </Typography>
                 </Box>
 
                 <Box width="100%" padding="65px 0 2.5% 0" textAlign="center">
                   <Grid container justify="space-between">
                     <StatisticsBox
-                      title="Total Nec Rewards (pre-multipliers)"
+                      title="Total NEC Rewards (pre-multipliers)"
                       number={totalRewards}
                       subcurrency={totalRewardsInUsd}
                     />
@@ -362,8 +363,8 @@ const BigHeader = inject("root")(
                       subnumber={remainingRewardsInUsd}
                     />
                     <StatisticsBox title="NEC Price" necPrice={necPrice} />
-                    <StatisticsBox title="Your 24hr Deversifi Volume" currency={typeof totalUSDVolume === 'number'? totalUSDVolume : -1} multiple={multiplier} />
-                    <StatisticsBox title="Your/Base APY" number={Number((apy * multiplier).toFixed(2))} isApy={true} baseApy={apy} />
+                    <StatisticsBox title="Your 24hr DeversiFi Volume" currency={typeof totalUSDVolume === 'number'? totalUSDVolume : -1} multiple={multiplier} />
+                    <StatisticsBox title="Your APY" number={Number((apy * multiplier).toFixed(2))} isApy={true} baseApy={apy} />
                   </Grid>
                 </Box>
 

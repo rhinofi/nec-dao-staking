@@ -65,7 +65,7 @@ const TableTabButton = styled.div`
   color: var(--white-text);
 `;
 const ButtonExternal = styled.div`
- 
+
   cursor: pointer;
   border: 1px solid #E2A907;
 `
@@ -96,7 +96,7 @@ const ActionsHeader = styled.div`
 `;
 
 enum TabEnum {
-  YOUR_LOCKS,
+  YOUR_STAKES,
   ALL_PERIODS,
 }
 
@@ -147,7 +147,7 @@ class LockNEC extends React.Component<any, State> {
 
     if (!isLockingStarted) {
       prefix = "Starts in";
-      batchTitle = "Locking not started";
+      batchTitle = "Staking not started";
     }
 
     if (currentBatch === finalBatch && !isLockingEnded) {
@@ -179,7 +179,7 @@ class LockNEC extends React.Component<any, State> {
     if (isLockingEnded) {
       batchPercentage = 100;
       batchTimer = "";
-      batchTitle = "Locking has ended";
+      batchTitle = "Staking has ended";
     }
 
     return {
@@ -191,7 +191,7 @@ class LockNEC extends React.Component<any, State> {
   }
 
   renderTable(currentTab) {
-    if (currentTab === TabEnum.YOUR_LOCKS) {
+    if (currentTab === TabEnum.YOUR_STAKES) {
       return <UserLocksTable />;
     } else if (currentTab === TabEnum.ALL_PERIODS) {
       return <BatchesTable highlightTopRow />;
@@ -281,7 +281,7 @@ class LockNEC extends React.Component<any, State> {
                 )}
                 {this.TabButton(
                   currentTab,
-                  TabEnum.YOUR_LOCKS,
+                  TabEnum.YOUR_STAKES,
                   text.yourLocksTab
                 )}
               </TableTabEnumWrapper>
@@ -310,16 +310,16 @@ class LockNEC extends React.Component<any, State> {
                 pending={approvePending}
               />
             ) : currentTab === TabEnum.ALL_PERIODS ? (
-             
+
               <LockPanel
-                buttonText="Lock NEC"
+                buttonText="Stake NEC"
                 userAddress={userAddress}
                 enabled={isLockingStarted && !isLockingEnded}
                 pending={lockPending}
-              /> 
+              />
             ) : (
               <ExtendLockPanel
-                buttonText="Extend Lock"
+                buttonText="Extend Stake Period"
                 userAddress={userAddress}
                 enabled={isLockingStarted && !isLockingEnded}
                 pending={extendPending}

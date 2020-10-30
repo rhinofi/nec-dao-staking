@@ -136,7 +136,7 @@ const HomePage: React.FC = () => {
       <TitleWrapper>
         <MainTitle>
           <Title afterElement={true} text={"Earn Rewards"} />{" "}
-          <Title afterElement={false} text={"For Trading on DeversiFi and Staking Nectar $NEC"} />
+          <Title afterElement={false} text={"for Trading on DeversiFi and Staking $NEC"} />
         </MainTitle>
       </TitleWrapper>
       <PageWrapper>
@@ -149,13 +149,12 @@ const HomePage: React.FC = () => {
           <PanelContent>
             <PanelTitle>Governance</PanelTitle>
             <SubTitle>
-              Earn necDAO <br /> Reputation
+              Earn voting power <br /> over $NEC's Future
             </SubTitle>
             <PanelBodyTextWrapper>
               <PanelBodyText>
-                Stake your NEC for up to 12 months to earn Reputation (voting
-                power) in the necDAO and have your say in how 17,000 Pledged ETH
-                are managed as well as how DeversiFi is governed
+                Stake your $NEC to earn voting
+                power in the DAO that governs the future of Nectar (necDAO). The necDAO controls 17,000 pledged ETH and is interlinked with DeversiFi.
               </PanelBodyText>
             </PanelBodyTextWrapper>
             <TermContainer onClick={goToLockNec}>
@@ -175,12 +174,11 @@ const HomePage: React.FC = () => {
           </BadgeContainer>
           <PanelContent>
             <PanelTitle>Beehive</PanelTitle>
-            <SubTitle> Earn $NEC and $BAL Rewards</SubTitle>
+            <SubTitle> Earn $NEC and $BAL <br /> Rewards </SubTitle>
             <PanelBodyTextWrapper>
               <PanelBodyText>
-                Designed to bootstrap $NEC liquidity, Stake your $NEC & wETH
-                into the NEC/wETH Balancer Labs pool to earn $NEC, $BAL and
-                necDAO Reputation
+                Stake into the NEC/wETH Balancer pool to earn $NEC and $BAL.
+                Get up to double the rewards by trading on DeversiFi.
               </PanelBodyText>
             </PanelBodyTextWrapper>
             <TermContainer onClick={goToBeehive}>
