@@ -187,7 +187,7 @@ const HomePage: React.FC = () => {
               <Box display="flex" alignItems="flex-end" paddingRight="5px">
                 <TimeIcon />
               </Box>
-              Ten Weeks
+              Twelve Weeks
             </TermContainer>
           </PanelContent>
         </Panel>
