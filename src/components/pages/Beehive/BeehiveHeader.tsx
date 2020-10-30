@@ -248,7 +248,7 @@ const StatisticsBox: React.FC<StatisticsBoxProps> = ({
             align={matches ? "left" : "center"}
             color={"textSecondary"}
           >
-            {multiple ? `${multiple}x APY Multiple (trade to increase up to 2x)` : "-"}
+            {multiple ? `${multiple}x APY Multiplier` : "-"}
           </SmallSubtitle>
         )}
         {typeof number === "number" && (
