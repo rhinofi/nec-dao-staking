@@ -149,7 +149,7 @@ const HomePage: React.FC = () => {
           <PanelContent>
             <PanelTitle>Governance</PanelTitle>
             <SubTitle>
-              Earn voting power <br /> over $NEC's Future
+              Earn voting power <br /> over $NEC's future
             </SubTitle>
             <PanelBodyTextWrapper>
               <PanelBodyText>
@@ -174,7 +174,7 @@ const HomePage: React.FC = () => {
           </BadgeContainer>
           <PanelContent>
             <PanelTitle>Beehive</PanelTitle>
-            <SubTitle> Earn $NEC and $BAL <br /> Rewards </SubTitle>
+            <SubTitle> Earn $NEC and $BAL <br /> rewards </SubTitle>
             <PanelBodyTextWrapper>
               <PanelBodyText>
                 Stake into the NEC/wETH Balancer pool to earn $NEC and $BAL.

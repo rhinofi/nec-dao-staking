@@ -248,7 +248,7 @@ const StatisticsBox: React.FC<StatisticsBoxProps> = ({
             align={matches ? "left" : "center"}
             color={"textSecondary"}
           >
-            {multiple ? `${multiple}x Multiple (increase by trading)` : "-"}
+            {multiple ? `${multiple}x APY Multiple (trade to increase up to 2x)` : "-"}
           </SmallSubtitle>
         )}
         {typeof number === "number" && (
@@ -284,7 +284,7 @@ const StatisticsBox: React.FC<StatisticsBoxProps> = ({
             align={matches ? "left" : "center"}
             color={"textSecondary"}
           >
-            {baseApy ? `Base: ${Number(baseApy.toFixed(4))}% (increase by trading)` : "0"}
+            {baseApy ? `Base: ${Number(baseApy.toFixed(4))}%` : "0"}
           </SmallSubtitle>
         )}
       </Statsbox>

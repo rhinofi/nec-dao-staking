@@ -165,16 +165,16 @@ const BeehiveGuide: React.FC<any> = inject("root")(
                     color={"textPrimary"}
                     style={{ fontWeight: "bold" }}
                   >
-                    Stake NEC & wETH into the Balancer Pool
+                    Stake NEC & wETH into the Balancer pool
                   </Typography>
                   <BodyText variant={"body2"}>
                     Use your NEC and ETH to stake into the NEC/wETH Balancer Exchange pool.
                     You can turn your ETH into wETH on the Balancer front-end.
-                    Warning - Please only stake if you are familar with the concept of impernament loss that can result from AMMs
+                    Warning - Please only stake if you are familar with the concept of impermanent loss that can result from AMMs
                   </BodyText>
 
                   <BodyText variant={"body2"} onClick={() => window.open('https://pools.balancer.exchange/#/pool/0xb21e53d8bd2c81629dd916eeAd08d338e7fCC201', "_blank")}>
-                    <Link>NEC/wETH Balancer Pool</Link>
+                    <Link>NEC/wETH Balancer pool</Link>
                   </BodyText>
                 </StepTextWrapper>
               </StepWrapper>
@@ -194,7 +194,7 @@ const BeehiveGuide: React.FC<any> = inject("root")(
                     color={"textPrimary"}
                     style={{ fontWeight: "bold" }}
                   >
-                    Hold the BPT in your Private Wallet
+                    Hold the BPT in your private wallet
                   </Typography>
                   <BodyText variant={"body2"}>
                     To be eligible for Beehive rewards you simply need to hold the BPT tokens in your private wallet.
@@ -202,7 +202,7 @@ const BeehiveGuide: React.FC<any> = inject("root")(
                   </BodyText>
                   <BPTBalance>
                     <BalanceText variant={"body2"}>
-                      Your BPT Balance:{" "}
+                      Your BPT balance:{" "}
                       <BalanceNumberText
                         variant={"body2"}
                         color={"textPrimary"}
@@ -229,7 +229,7 @@ const BeehiveGuide: React.FC<any> = inject("root")(
                     color={"textPrimary"}
                     style={{ fontWeight: "bold" }}
                   >
-                    Trade On DeversiFi to Earn NEC Reward Multiples
+                    Trade on DeversiFi to earn NEC reward multiples
                   </Typography>
                   <Typography variant={"body2"} color={"textSecondary"} style={{ paddingTop: 15 }}>
                     Head to{" "}
@@ -241,7 +241,7 @@ const BeehiveGuide: React.FC<any> = inject("root")(
                       app.deversifi.com
                     </AppLink>
                     , connect your wallet and trade to earn NEC reward
-                    multiples
+                    multiples. Make sure you trade with the same wallet which holds the BPT
                   </Typography>
                   <BeehiveMultipleTable editable={false}/>
                 </StepTextWrapper>
@@ -262,7 +262,7 @@ const BeehiveGuide: React.FC<any> = inject("root")(
                     color={"textPrimary"}
                     style={{ fontWeight: "bold" }}
                   >
-                    Wait for Weekly BPT Snapshot
+                    Wait for weekly BPT snapshot
                   </Typography>
                   <BodyText variant={"body2"}>
                     Once per week,
@@ -289,10 +289,10 @@ const BeehiveGuide: React.FC<any> = inject("root")(
                     color={"textPrimary"}
                     style={{ fontWeight: "bold" }}
                   >
-                    BAL Rewards Sent Directly To Your Wallet
+                    BAL rewards sent directly to your wallet
                   </Typography>
                   <BodyText variant={"body2"}>
-                    BPT rewards will be sent to your wallet
+                    BAL rewards will be sent to your wallet
                     weekly. These rewards are independent of DeversiFi and
                     therefore the process for claiming the BAL rewards may
                     change
@@ -315,10 +315,10 @@ const BeehiveGuide: React.FC<any> = inject("root")(
                     color={"textPrimary"}
                     style={{ fontWeight: "bold" }}
                   >
-                    Claim Your NEC Rewards
+                    Claim your NEC rewards
                   </Typography>
                   <BodyText variant={"body2"}>
-                    In 12 months time, you will be able to unlock your NEC rewards from the smart contract
+                    12-months after each period ends you will be able to unlock your NEC rewards from the smart-contract
                   </BodyText>
                 </StepTextWrapper>
               </StepWrapper>

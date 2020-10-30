@@ -129,7 +129,7 @@ const CustomizedTable = inject("root")(
                 <TableRow key={row.period}>
                   <TableCell component="th" scope="row">
                     <Typography variant={"body2"}>Period {row.period}</Typography>
-                    <Tinyletters>{row.endDate ? `Ends in ${(parseDate(row.endDate))} UTC` : '-'}</Tinyletters>
+                    <Tinyletters>{row.endDate ? `Ends on ${(parseDate(row.endDate))} UTC` : '-'}</Tinyletters>
                   </TableCell>
                   <TableCell align="right">
                     <StatusCell>
