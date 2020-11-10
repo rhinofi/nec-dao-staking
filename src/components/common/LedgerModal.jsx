@@ -192,7 +192,7 @@ class LedgerAccountPicker extends Component {
       loading: true,
       error: ''
     });
-    let derivation = this.ledgerDerivation? this.ledgerDerivation.value : 'legacy';
+    let derivation = this.ledgerDerivation? this.ledgerDerivation.value : 'live';
     if (derivation === 'custom')
       derivation = this.ledgerPath ? this.ledgerPath.value : `44'/60'/0'/0`;
     const accounts = await this.listAddresses(derivation, this.state.page);
@@ -253,13 +253,12 @@ class LedgerAccountPicker extends Component {
               <Select
                 placeholder="Derivation"
                 onChange={this.ledgerList}
-                ref={(input) => { 
-                  console.log(input)  
+                ref={(input) => {
                   this.ledgerDerivation = input
                 }}
               >
-                <option value="legacy">Legacy</option>
                 <option value="live">Ledger Live</option>
+                <option value="legacy">Legacy</option>
                 <option value="custom">Custom path</option>
               </Select>
               </Grid>
