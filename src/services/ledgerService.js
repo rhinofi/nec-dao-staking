@@ -5,7 +5,7 @@ import {
   addHexPrefix,
 } from 'ethereumjs-util'
 import Tx from 'ethereumjs-tx'
-import TransportU2F from '@ledgerhq/hw-transport-u2f'
+import TransportWebUsb from '@ledgerhq/hw-transport-webusb'
 import Eth from '@ledgerhq/hw-app-eth'
 import AddressGenerator from '../utils/address-generator'
 import config from '../config'
@@ -27,7 +27,7 @@ export class LedgerProvider extends HookedWalletSubprovider {
 }
 
 export const listAccounts = async (path, start, n) => {
-  const transport = await TransportU2F.create()
+  const transport = await TransportWebUsb.create()
   const eth = new Eth(transport)
   const accounts = []
   if (path === 'legacy') {
@@ -52,16 +52,18 @@ export const listAccounts = async (path, start, n) => {
     account.path = path
     accounts.push(account)
   }
+  await transport.close()
   return accounts
 }
 
 export const signMessage = (ledgerPath, tmp) => async (msgParams, cb) => {
   try {
     const message = toBuffer(msgParams.data).toString('hex')
-    const transport = await TransportU2F.create()
+    const transport = await TransportWebUsb.create()
     const eth = new Eth(transport)
     const signed = await eth.signPersonalMessage(ledgerPath, message)
     const signature = toRpcSig(signed.v, toBuffer(`0x${signed.r}`), toBuffer(`0x${signed.s}`))
+    await transport.close()
     cb(null, signature)
     return signature
   } catch (e) {
@@ -75,7 +77,7 @@ const signTransaction = (ledgerPath) => async (txParams, cb = () => {}) => {
       ...txParams,
       chainId: config.activeNetworkId,
     }
-    const transport = await TransportU2F.create()
+    const transport = await TransportWebUsb.create()
     const eth = new Eth(transport)
 
     const ethTx = new Tx({
@@ -85,6 +87,7 @@ const signTransaction = (ledgerPath) => async (txParams, cb = () => {}) => {
       s: toBuffer(0),
     })
     const rsv = await eth.signTransaction(ledgerPath, ethTx.serialize().toString('hex'))
+    await transport.close()
     const signedTx = new Tx({
       ...rawTx,
       r: addHexPrefix(rsv.r),
