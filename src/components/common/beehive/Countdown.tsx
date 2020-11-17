@@ -11,6 +11,7 @@ const CountdownBody = styled(Box)`
   padding: 15px 20px;
   background: #28324a;
   border-radius: 6px;
+  margin-right: 16px;
 `;
 
 const Bold = styled.span`

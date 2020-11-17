@@ -110,11 +110,29 @@ const InstructBox = styled(Box)`
 const SmallSubtitle = styled(Typography)`
   color: #646a7a !important;
   opacity: 0.76;
+  
+  a {
+    color: #59D2A9;
+    text-decoration: none;
+    
+    &:link, &:visited {
+      color: #59D2A9;    
+    }
+  }
 `;
 
 const InstructText = styled(Typography)`
   padding-top: 16px;
   color: rgba(169, 171, 203, 0.8) !important;
+  
+  a {
+    color: #59D2A9;
+    text-decoration: none;
+    
+    &:link, &:visited {
+      color: #59D2A9;    
+    }
+  }
 `;
 
 const StepNumber = styled(Box)`
@@ -128,7 +146,7 @@ const StepNumber = styled(Box)`
 interface InstructionBoxProps {
   number: number;
   title: string;
-  text: string;
+  text: any;
   shaped?: boolean;
   tooltip?: boolean;
 }
@@ -197,7 +215,8 @@ interface StatisticsBoxProps {
   necPrice?: number;
   baseApy?: number;
   currency?: number | string,
-  multiple?: number,
+  multiple?: number;
+  openGuide?: (openOrClose: boolean) => void;
 }
 
 const StatisticsBox: React.FC<StatisticsBoxProps> = ({
@@ -210,13 +229,14 @@ const StatisticsBox: React.FC<StatisticsBoxProps> = ({
   baseApy,
   currency,
   multiple,
+  openGuide
 }) => {
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.up("md"));
 
-  const hasSmallText = typeof subcurrency === 'number' || 
-    typeof subnumber === 'number' || 
-    typeof baseApy === 'number' || 
+  const hasSmallText = typeof subcurrency === 'number' ||
+    typeof subnumber === 'number' ||
+    typeof baseApy === 'number' ||
     typeof multiple === 'number'
 
   return (
@@ -253,7 +273,13 @@ const StatisticsBox: React.FC<StatisticsBoxProps> = ({
             align={matches ? "left" : "center"}
             color={"textSecondary"}
           >
-            {multiple ? `${multiple}x APY Multiplier` : "-"}
+            {multiple ? <>
+                ${multiple}x APY Multiplier <br />
+                <a href="#" onClick={(e) => {
+                    e.preventDefault();
+                    openGuide(true);
+                }}>See how to increase</a>
+            </> : "-"}
           </SmallSubtitle>
         )}
         {typeof number === "number" && (
@@ -370,7 +396,7 @@ const BigHeader = inject("root")(
                       subnumber={remainingRewardsInUsd}
                     />
                     <StatisticsBox title="NEC Price" necPrice={necPrice} />
-                    <StatisticsBox title="Your 24hr DeversiFi Volume" currency={typeof totalUSDVolume === 'number'? totalUSDVolume : -1} multiple={multiplier} />
+                    <StatisticsBox title="Your 24hr DeversiFi Volume" currency={typeof totalUSDVolume === 'number'? totalUSDVolume : -1} multiple={multiplier} openGuide={setIsGuideOpen} />
                     <StatisticsBox title="Your APY" number={Number((apy * multiplier).toFixed(2))} isApy={true} baseApy={apy} />
                   </Grid>
                 </Box>
@@ -399,7 +425,7 @@ const BigHeader = inject("root")(
                     <InstructionBox
                       number={4}
                       title="Trade"
-                      text="Trade on DeversiFi to gain NEC reward multipliers up to 2x."
+                      text={<>Trade on <a href="https://app.deversifi.com" target="_blank" rel="noopener noreferrer">DeversiFi</a> to gain NEC reward multipliers up to 2x.</>}
                       shaped={true}
                     />
                     <InstructionBox
