@@ -54,6 +54,7 @@ const StyledModal = styled(Modal)`
   max-width: 1068px;
   margin: auto;
   height: 815px;
+  max-height: 90vh;
   overflow-y: auto;
 `;
 

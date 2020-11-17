@@ -15,14 +15,23 @@ const Header = styled(Box)`
   height: 70px;
   background: transparent;
   
+  & > div {
+    height: 100%;
+  }
+  
   @media(max-width: 768px) {
     padding: 0 25px;
   }
 `;
 
 const HeaderButton = styled.div`
+  display: flex;
+  align-items: center;
   .MuiButton-outlinedPrimary {
     color: #ffffff !important;
+    height: 40px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
   }
 `;
 
@@ -47,21 +56,18 @@ export const AppHeader = inject("root")(
           </Grid>
           <Grid item>
             <HeaderButton>
-              {showCountdown ? (
-                <BeehiveCountdown />
-              ) : (
-                <Button variant={"outlined"} color={"primary"} href="https://www.deversifi.com">
-                  <Typography
-                    variant={"body2"}
-                    align={"left"}
-                    color={"textPrimary"}
-                    style={{ fontWeight: "bold", marginRight: "5px" }}
-                  >
-                    DeversiFi
-                  </Typography>{" "}
-                  <ArrowForward fontSize={"small"} />
-                </Button>
-              )}
+              <BeehiveCountdown />
+              <Button variant={"outlined"} color={"primary"} href="https://www.deversifi.com">
+                <Typography
+                  variant={"body2"}
+                  align={"left"}
+                  color={"textPrimary"}
+                  style={{ fontWeight: "bold", marginRight: "16px", textTransform: "none" }}
+                >
+                  DeversiFi
+                </Typography>
+                <ArrowForward fontSize={"small"} />
+              </Button>
             </HeaderButton>
           </Grid>
         </Grid>
