@@ -121,6 +121,20 @@ const SmallSubtitle = styled(Typography)`
   }
 `;
 
+const StatsLink = styled(Box)`
+  text-align: left;
+ a {
+    color: #59D2A9;
+    text-decoration: none;
+    margin-top: 4px;
+    cursor: pointer;
+    
+    &:link, &:visited {
+      color: #59D2A9;    
+    }
+  }
+`;
+
 const InstructText = styled(Typography)`
   padding-top: 16px;
   color: rgba(169, 171, 203, 0.8) !important;
@@ -206,6 +220,12 @@ const InstructionBox: React.FC<InstructionBoxProps> = ({
   );
 };
 
+interface StatisticsLink {
+    onClick?: any;
+    href?: string;
+    label: string;
+}
+
 interface StatisticsBoxProps {
   title: string;
   number?: number;
@@ -214,9 +234,10 @@ interface StatisticsBoxProps {
   subnumber?: number;
   necPrice?: number;
   baseApy?: number;
-  currency?: number | string,
+  currency?: number | string;
   multiple?: number;
   openGuide?: (openOrClose: boolean) => void;
+  link?: StatisticsLink;
 }
 
 const StatisticsBox: React.FC<StatisticsBoxProps> = ({
@@ -229,7 +250,8 @@ const StatisticsBox: React.FC<StatisticsBoxProps> = ({
   baseApy,
   currency,
   multiple,
-  openGuide
+  openGuide,
+  link
 }) => {
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.up("md"));
@@ -273,13 +295,7 @@ const StatisticsBox: React.FC<StatisticsBoxProps> = ({
             align={matches ? "left" : "center"}
             color={"textSecondary"}
           >
-            {multiple ? <>
-                ${multiple}x APY Multiplier <br />
-                <a href="#" onClick={(e) => {
-                    e.preventDefault();
-                    openGuide(true);
-                }}>See how to increase</a>
-            </> : "-"}
+            {multiple ? `${multiple}x APY Multiplier` : "-"}
           </SmallSubtitle>
         )}
         {typeof number === "number" && (
@@ -319,7 +335,12 @@ const StatisticsBox: React.FC<StatisticsBoxProps> = ({
           </SmallSubtitle>
         )}
 
-        {!hasSmallText && <Box height={23.6}/>}
+        <StatsLink height={24}>
+            <a href={link?.href} onClick={link?.onClick}>{link?.label}</a>
+        </StatsLink>
+
+
+        {!hasSmallText && <Box height={24}/>}
       </Statsbox>
     </Grid>
   );
@@ -396,7 +417,13 @@ const BigHeader = inject("root")(
                       subnumber={remainingRewardsInUsd}
                     />
                     <StatisticsBox title="NEC Price" necPrice={necPrice} />
-                    <StatisticsBox title="Your 24hr DeversiFi Volume" currency={typeof totalUSDVolume === 'number'? totalUSDVolume : -1} multiple={multiplier} openGuide={setIsGuideOpen} />
+                    <StatisticsBox
+                        title="Your 24hr DeversiFi Volume"
+                        currency={typeof totalUSDVolume === 'number'? totalUSDVolume : -1}
+                        multiple={multiplier}
+                        openGuide={setIsGuideOpen}
+                        link={multiplier ? {onClick: setIsGuideOpen.bind(null, true), label: 'See how to increase'} : null}
+                    />
                     <StatisticsBox title="Your APY" number={Number((apy * multiplier).toFixed(2))} isApy={true} baseApy={apy} />
                   </Grid>
                 </Box>
