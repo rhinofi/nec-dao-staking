@@ -1,13 +1,13 @@
-import { Button, IconButton, Link, Modal } from "@material-ui/core";
-import React, { useState } from "react";
-import { inject, observer } from "mobx-react";
+import { Button, IconButton, Link, Modal } from '@material-ui/core';
+import React  from 'react';
+import { inject, observer } from 'mobx-react';
 
-import BeehiveMultipleTable from "./BeehiveMultipleTable"
-import { Close } from "@material-ui/icons";
-import { RootStore } from "stores/Root";
-import { Title } from "../../../components/common/beehive/Title";
-import { Typography } from "@material-ui/core";
-import styled from "styled-components";
+import BeehiveMultipleTable from './BeehiveMultipleTable';
+import { Close } from '@material-ui/icons';
+import { RootStore } from 'stores/Root';
+import { Title } from '../../../components/common/beehive/Title';
+import { Typography } from '@material-ui/core';
+import styled from 'styled-components';
 
 const CenterWrapper = styled.div`
   display: flex;
@@ -115,9 +115,9 @@ const CloseIcon = styled(IconButton)`
 
 const AppLink = styled(Link)`
   cursor: pointer
-`
+`;
 
-const BeehiveGuide: React.FC<any> = inject("root")(
+const BeehiveGuide: React.FC<any> = inject('root')(
   observer((props) => {
     const { beehiveStore } = props.root as RootStore;
 
@@ -130,23 +130,23 @@ const BeehiveGuide: React.FC<any> = inject("root")(
         <BackgroundWrapper>
           <CloseIconContainer>
             <CloseIcon onClick={props.onClose}>
-              <Close />
+              <Close/>
             </CloseIcon>
           </CloseIconContainer>
           <CenterWrapper>
             <GuideHead>
               <TitleHolder>
-                <Title text={"Walkthrough guide"} afterElement={true} />
+                <Title text={'Walkthrough guide'} afterElement={true}/>
 
                 <Subtitle>
-                  Join Our{" "}
+                  Join Our{' '}
                   <a
-                    style={{ color: "#E2A907" }}
+                    style={{ color: '#E2A907' }}
                     href="https://discord.com/invite/7x7YwYX"
                     target="_blank"
                   >
-                    Discord{" "}
-                  </a>{" "}
+                    Discord{' '}
+                  </a>{' '}
                   to Discuss Beehive
                 </Subtitle>
               </TitleHolder>
@@ -155,26 +155,28 @@ const BeehiveGuide: React.FC<any> = inject("root")(
             <StepBox>
               <StepWrapper>
                 <StepNumber>
-                  <Typography variant={"h4"} color={"textPrimary"}>
+                  <Typography variant={'h4'} color={'textPrimary'}>
                     1
                   </Typography>
                 </StepNumber>
                 <StepTextWrapper>
                   <Typography
-                    variant={"h4"}
-                    align={"left"}
-                    color={"textPrimary"}
-                    style={{ fontWeight: "bold" }}
+                    variant={'h4'}
+                    align={'left'}
+                    color={'textPrimary'}
+                    style={{ fontWeight: 'bold' }}
                   >
                     Stake NEC & wETH into the Balancer pool
                   </Typography>
-                  <BodyText variant={"body2"}>
+                  <BodyText variant={'body2'}>
                     Use your NEC and ETH to stake into the NEC/wETH Balancer Exchange pool.
                     You can turn your ETH into wETH on the Balancer front-end.
-                    Warning - Please only stake if you are familar with the concept of impermanent loss that can result from AMMs
+                    Warning - Please only stake if you are familar with the concept of impermanent
+                    loss that can result from AMMs
                   </BodyText>
 
-                  <BodyText variant={"body2"} onClick={() => window.open('https://pools.balancer.exchange/#/pool/0xb21e53d8bd2c81629dd916eeAd08d338e7fCC201', "_blank")}>
+                  <BodyText variant={'body2'}
+                            onClick={() => window.open('https://pools.balancer.exchange/#/pool/0xb21e53d8bd2c81629dd916eeAd08d338e7fCC201', '_blank')}>
                     <Link>NEC/wETH Balancer pool</Link>
                   </BodyText>
                 </StepTextWrapper>
@@ -184,29 +186,31 @@ const BeehiveGuide: React.FC<any> = inject("root")(
             <StepBox>
               <StepWrapper>
                 <StepNumber>
-                  <Typography variant={"h4"} color={"textPrimary"}>
+                  <Typography variant={'h4'} color={'textPrimary'}>
                     2
                   </Typography>
                 </StepNumber>
                 <StepTextWrapper>
                   <Typography
-                    variant={"h4"}
-                    align={"left"}
-                    color={"textPrimary"}
-                    style={{ fontWeight: "bold" }}
+                    variant={'h4'}
+                    align={'left'}
+                    color={'textPrimary'}
+                    style={{ fontWeight: 'bold' }}
                   >
                     Hold the BPT in your private wallet
                   </Typography>
-                  <BodyText variant={"body2"}>
-                    To be eligible for Beehive rewards you simply need to hold the BPT tokens in your private wallet.
-                    Beehive has been designed so that you pay as little gas as possible - you dont need to stake your BPT tokens anywhere
+                  <BodyText variant={'body2'}>
+                    To be eligible for Beehive rewards you simply need to hold the BPT tokens in
+                    your private wallet.
+                    Beehive has been designed so that you pay as little gas as possible - you dont
+                    need to stake your BPT tokens anywhere
                   </BodyText>
                   <BPTBalance>
-                    <BalanceText variant={"body2"}>
-                      Your BPT balance:{" "}
+                    <BalanceText variant={'body2'}>
+                      Your BPT balance:{' '}
                       <BalanceNumberText
-                        variant={"body2"}
-                        color={"textPrimary"}
+                        variant={'body2'}
+                        color={'textPrimary'}
                       >
                         {Number(Number(beehiveStore.bptBalance).toFixed(4))}
                       </BalanceNumberText>
@@ -219,24 +223,24 @@ const BeehiveGuide: React.FC<any> = inject("root")(
             <StepBox>
               <StepWrapper>
                 <StepNumber>
-                  <Typography variant={"h4"} color={"textPrimary"}>
+                  <Typography variant={'h4'} color={'textPrimary'}>
                     3
                   </Typography>
                 </StepNumber>
                 <StepTextWrapper>
                   <Typography
-                    variant={"h4"}
-                    align={"left"}
-                    color={"textPrimary"}
-                    style={{ fontWeight: "bold" }}
+                    variant={'h4'}
+                    align={'left'}
+                    color={'textPrimary'}
+                    style={{ fontWeight: 'bold' }}
                   >
                     Trade on DeversiFi to earn NEC reward multiples
                   </Typography>
-                  <Typography variant={"body2"} color={"textSecondary"} style={{ paddingTop: 15 }}>
-                    Head to{" "}
+                  <Typography variant={'body2'} color={'textSecondary'} style={{ paddingTop: 15 }}>
+                    Head to{' '}
                     <AppLink
                       onClick={() =>
-                        window.open("https://app.deversifi.com", "_blank")
+                        window.open('https://app.deversifi.com', '_blank')
                       }
                     >
                       app.deversifi.com
@@ -252,20 +256,20 @@ const BeehiveGuide: React.FC<any> = inject("root")(
             <StepBox>
               <StepWrapper>
                 <StepNumber>
-                  <Typography variant={"h4"} color={"textPrimary"}>
+                  <Typography variant={'h4'} color={'textPrimary'}>
                     4
                   </Typography>
                 </StepNumber>
                 <StepTextWrapper>
                   <Typography
-                    variant={"h4"}
-                    align={"left"}
-                    color={"textPrimary"}
-                    style={{ fontWeight: "bold" }}
+                    variant={'h4'}
+                    align={'left'}
+                    color={'textPrimary'}
+                    style={{ fontWeight: 'bold' }}
                   >
                     Wait for weekly BPT snapshot
                   </Typography>
-                  <BodyText variant={"body2"}>
+                  <BodyText variant={'body2'}>
                     Once per week,
                     a hidden snapshot will be taken to determine $NEC rewards.
                     After the week has ended, the results will be published and
@@ -279,24 +283,25 @@ const BeehiveGuide: React.FC<any> = inject("root")(
             <StepBox>
               <StepWrapper>
                 <StepNumber>
-                  <Typography variant={"h4"} color={"textPrimary"}>
+                  <Typography variant={'h4'} color={'textPrimary'}>
                     5
                   </Typography>
                 </StepNumber>
                 <StepTextWrapper>
                   <Typography
-                    variant={"h4"}
-                    align={"left"}
-                    color={"textPrimary"}
-                    style={{ fontWeight: "bold" }}
+                    variant={'h4'}
+                    align={'left'}
+                    color={'textPrimary'}
+                    style={{ fontWeight: 'bold' }}
                   >
-                    BAL rewards sent directly to your wallet
+                    Claim BAL rewards weekly
                   </Typography>
-                  <BodyText variant={"body2"}>
-                    BAL rewards will be sent to your wallet
-                    weekly. These rewards are independent of DeversiFi and
-                    therefore the process for claiming the BAL rewards may
-                    change
+                  <BodyText variant={'body2'}>
+                    BAL rewards accrue each week and can be claimed <a
+                    style={{ color: '#E2A907' }}
+                    href="https://claim.balancer.finance/#/" target="_blank" rel="noopener noreferrer">here</a>.
+                    These rewards are independent of DeversiFi
+                    and therefore the process for claiming the BAL rewards may change
                   </BodyText>
                 </StepTextWrapper>
               </StepWrapper>
@@ -305,21 +310,22 @@ const BeehiveGuide: React.FC<any> = inject("root")(
             <StepBox>
               <StepWrapper>
                 <StepNumber>
-                  <Typography variant={"h4"} color={"textPrimary"}>
+                  <Typography variant={'h4'} color={'textPrimary'}>
                     6
                   </Typography>
                 </StepNumber>
                 <StepTextWrapper>
                   <Typography
-                    variant={"h4"}
-                    align={"left"}
-                    color={"textPrimary"}
-                    style={{ fontWeight: "bold" }}
+                    variant={'h4'}
+                    align={'left'}
+                    color={'textPrimary'}
+                    style={{ fontWeight: 'bold' }}
                   >
                     Claim your NEC rewards
                   </Typography>
-                  <BodyText variant={"body2"}>
-                    12-months after each period ends you will be able to unlock your NEC rewards from the smart-contract
+                  <BodyText variant={'body2'}>
+                    12-months after each period ends you will be able to unlock your NEC rewards
+                    from the smart-contract
                   </BodyText>
                 </StepTextWrapper>
               </StepWrapper>
