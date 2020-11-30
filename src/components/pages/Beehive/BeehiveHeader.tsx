@@ -336,7 +336,7 @@ const StatisticsBox: React.FC<StatisticsBoxProps> = ({
         )}
 
         <StatsLink height={24}>
-            <a href={link?.href} onClick={link?.onClick}>{link?.label}</a>
+            <a href={link?.href} target="_blank" rel="noopener noreferrer" onClick={link?.onClick}>{link?.label}</a>
         </StatsLink>
 
 
@@ -424,7 +424,13 @@ const BigHeader = inject("root")(
                         openGuide={setIsGuideOpen}
                         link={multiplier ? {onClick: setIsGuideOpen.bind(null, true), label: 'See how to increase'} : null}
                     />
-                    <StatisticsBox title="Your APY" number={Number((apy * multiplier).toFixed(2))} isApy={true} baseApy={apy} />
+                    <StatisticsBox
+                        title="Your NEC APY"
+                        number={Number((apy * multiplier).toFixed(2))}
+                        isApy={true}
+                        baseApy={apy}
+                        link={apy ? {href: 'https://pools.vision/', label: '+ BAL'} : null}
+                    />
                   </Grid>
                 </Box>
 
