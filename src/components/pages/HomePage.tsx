@@ -197,7 +197,7 @@ const HomePage = inject("root")(
                 <TitleWrapper>
                     <MainTitle>
                         <Title afterElement={true} text={"Earn Rewards"} />{" "}
-                        <Title afterElement={false} text={"For Staking Nectar $NEC"} />
+                        <Title afterElement={false} text={"For Staking Nectar $NEC and Trading on DeversiFi"} />
                     </MainTitle>
                 </TitleWrapper>
                 <PageWrapper>
