@@ -4,12 +4,16 @@ import Web3Provider from 'web3-react'
 import App from 'components/App';
 import * as serviceWorker from './serviceWorker';
 import {Provider} from 'mobx-react'
+import ReactGA from 'react-ga';
 import RootStore from './stores/Root'
 import Web3 from 'web3'
 import {Connectors} from 'web3-react'
 import InjectedConnector from 'components/shell/InjectedConnector'
 import LedgerConnector from 'components/shell/LedgerConnector'
 import './index.css'
+
+ReactGA.initialize('G-EY9ENBH4R9')
+ReactGA.pageview(window.location.pathname + window.location.search)
 
 const {NetworkOnlyConnector} = Connectors
 const Ledger = new LedgerConnector({
