@@ -313,7 +313,7 @@ const StatisticsBox: React.FC<StatisticsBoxProps> = ({
             align={matches ? "left" : "center"}
             color={"textSecondary"}
           >
-            {subnumber ? `$${subnumber}` : "$0"}
+            {subnumber ? `$${subnumber.toLocaleString('en-US', { maximumFractionDigits: 0 })}` : "$0"}
           </SmallSubtitle>
         )}
         {typeof subcurrency === "number" && (
