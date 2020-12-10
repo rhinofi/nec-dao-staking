@@ -12,7 +12,7 @@ import InjectedConnector from 'components/shell/InjectedConnector'
 import LedgerConnector from 'components/shell/LedgerConnector'
 import './index.css'
 
-ReactGA.initialize('G-EY9ENBH4R9')
+ReactGA.initialize('UA-156671651-7')
 ReactGA.pageview(window.location.pathname + window.location.search)
 
 const {NetworkOnlyConnector} = Connectors
