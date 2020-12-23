@@ -48,7 +48,7 @@ export const BeehiveCountdown = inject("root")(
                         <Bold>Beehive has ended</Bold>
                       </Typography>
                     </Box>
-                      /*
+                      {/*
                       <Typography
                         color="textSecondary"
                         variant="body1"
@@ -69,7 +69,7 @@ export const BeehiveCountdown = inject("root")(
                       Period {nextWeek.period} of{" "}
                       {beehiveStore.tableData.length}
                     </Typography>
-                    */
+                    */}
                   </Grid>
                 </Grid>
               </CountdownBody>
