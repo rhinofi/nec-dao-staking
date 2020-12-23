@@ -42,10 +42,10 @@ export const BeehiveCountdown = inject("root")(
                       <TimeIcon/>
                       <Typography
                         color="textSecondary"
-                        variant="body1"
+                        variant="body2"
                         style={{ fontFamily: "Montserrat", letterSpacing: 1 }}
                       >
-                        <Bold>Beehive has ended</Bold>
+                        Beehive has ended
                       </Typography>
                     </Box>
                       {/*
