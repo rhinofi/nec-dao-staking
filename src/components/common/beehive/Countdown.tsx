@@ -45,6 +45,15 @@ export const BeehiveCountdown = inject("root")(
                         variant="body1"
                         style={{ fontFamily: "Montserrat", letterSpacing: 1 }}
                       >
+                        <Bold>Beehive has ended</Bold>
+                      </Typography>
+                    </Box>
+                      /*
+                      <Typography
+                        color="textSecondary"
+                        variant="body1"
+                        style={{ fontFamily: "Montserrat", letterSpacing: 1 }}
+                      >
                         <Bold>{days}</Bold>D:<Bold>{hours}</Bold>H:
                         <Bold>{minutes}</Bold>m
                       </Typography>
@@ -60,6 +69,7 @@ export const BeehiveCountdown = inject("root")(
                       Period {nextWeek.period} of{" "}
                       {beehiveStore.tableData.length}
                     </Typography>
+                    */
                   </Grid>
                 </Grid>
               </CountdownBody>

@@ -76,7 +76,7 @@ const CustomizedTable = inject("root")(
   observer((props) => {
 
     const { beehiveStore, providerStore } = props.root as RootStore;
-    const rows = beehiveStore.tableData
+    const rows = beehiveStore.tableData.slice(0,4)
     const poolData = beehiveStore.poolData
     const necPrice =
       poolData && poolData.necPrice && Number(poolData.necPrice);

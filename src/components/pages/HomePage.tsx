@@ -204,7 +204,7 @@ const HomePage = inject("root")(
                     <Panel className='highlighted'>
                         <BadgeContainer>
                             <Badge>
-                                <BadgeText>Ongoing</BadgeText>
+                                <BadgeText>Ended</BadgeText>
                             </Badge>
                         </BadgeContainer>
                         <PanelContent>
