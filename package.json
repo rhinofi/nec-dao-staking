@@ -82,7 +82,7 @@
     "react-app-rewired": "^2.1.6",
     "react-circular-progressbar": "^2.0.2",
     "react-countdown": "^2.2.1",
-    "react-dev-utils": "^9.1.0",
+    "react-dev-utils": "^11.0.4",
     "react-device-detect": "^1.9.10",
     "react-dom": "^16.13.1",
     "react-ga": "^3.3.0",
